@@ -43,7 +43,7 @@ public final class DungeonResponse {
         return inventory;
     }
 
-    public final List<BattleResponse> getBattles(){
+    public final List<BattleResponse> getBattles() {
         return battles;
     }
 
