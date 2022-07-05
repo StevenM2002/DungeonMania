@@ -2,7 +2,6 @@ package dungeonmania;
 
 import dungeonmania.util.Position;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public abstract class MovingEntities extends Entities {
@@ -13,7 +12,7 @@ public abstract class MovingEntities extends Entities {
         this.movementStrategy = strategy;
     }
     public void doMovementStrategy(List<Entities> allEntities) {
-        movementStrategy.doNextMove(allEntities);
+        movementStrategy.getNextPosition(allEntities, this.getPosition());
     }
     public MovingEntities(String id, Position position, boolean isInteractable, Movement movementStrategy) {
         super(id, position, isInteractable);
