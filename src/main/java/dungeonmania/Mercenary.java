@@ -10,7 +10,7 @@ public class Mercenary extends MovingEntities {
     private boolean isEnemy = true;
 
     public Mercenary(String id, Position position, boolean isInteractable) {
-        super(id, position, isInteractable);
+        super(id, position, isInteractable, new Follow());
     }
 
     public void bribe(List<CollectibleEntities> inventory) {

@@ -7,6 +7,6 @@ public class Spider extends MovingEntities {
     private double attack;
 
     public Spider(String id, Position position, boolean isInteractable) {
-        super(id, position, isInteractable);
+        super(id, position, isInteractable, new Follow());
     }
 }

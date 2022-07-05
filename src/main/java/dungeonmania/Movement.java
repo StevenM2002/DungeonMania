@@ -1,5 +1,7 @@
 package dungeonmania;
 
+import java.util.List;
+
 public interface Movement {
-    void doNextMove();
+    void doNextMove(List<Entities> allEntities);
 }
