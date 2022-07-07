@@ -30,6 +30,10 @@ public class TestUtils {
         return getEntitiesStream(res, type).collect(Collectors.toList());
     }
 
+    public static Optional<EntityResponse> getEntityFromID(DungeonResponse res, String id) {
+        return res.getEntities().stream().filter(x->x.getId() == id).findFirst();
+    }
+
     public static List<ItemResponse> getInventory(DungeonResponse res, String type) {
         return res.getInventory().stream()
                                  .filter(it -> it.getType().startsWith(type))
