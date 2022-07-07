@@ -8,6 +8,7 @@ public class Friendly implements Movement {
 
     @Override
     public Position getNextPosition(List<Entities> allEntities, Position currentPosition) {
+        return currentPosition;
 
     }
 }
