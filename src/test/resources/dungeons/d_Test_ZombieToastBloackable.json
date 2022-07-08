@@ -1,0 +1,74 @@
+{
+    "entities": [
+        {
+            "type" : "player",
+            "x" : 4,
+            "y" : 3
+        },{
+            "type" : "door",
+            "x" : 0,
+            "y" : 3,
+            "key": 1
+        }, {
+            "type" : "key",
+            "x" : 8,
+            "y" : 8,
+            "key": 1
+        }, {
+            "type" : "wall",
+            "x" : 0,
+            "y" : 2
+        }, {
+            "type" : "wall",
+            "x" : 1,
+            "y" : 2
+        }, {
+            "type" : "wall",
+            "x" : 2,
+            "y" : 2
+        }, {
+            "type" : "wall",
+            "x" : 3,
+            "y" : 2
+        }, {
+            "type" : "wall",
+            "x" : 3,
+            "y" : 3
+        }, {
+            "type" : "wall",
+            "x" : 3,
+            "y" : 4
+        }, {
+            "type" : "wall",
+            "x" : 2,
+            "y" : 4
+        }, {
+            "type" : "boulder",
+            "x" : 1,
+            "y" : 4
+        }, {
+            "type" : "wall",
+            "x" : 0,
+            "y" : 4
+        }, {
+            "type" : "portal",
+            "x" : 2,
+            "y" : 3,
+            "colour": "blue"
+        }, {
+            "type" : "portal",
+            "x" : 2,
+            "y" : 8,
+            "colour": "blue"
+        }, {
+            "type" : "zombie_toast",
+            "x" : 1,
+            "y" : 3
+        }, {
+            "type": "exit",
+            "x": 5,
+            "y": 1
+        }
+    ],
+    "goal-condition": {"goal": "exit"}
+}
