@@ -1,4 +1,4 @@
-package dungeonmania;
+package dungeonmania.MovingEntitiesTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static dungeonmania.TestUtils.getEntities;
@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import dungeonmania.DungeonManiaController;
 import dungeonmania.exceptions.InvalidActionException;
 import dungeonmania.response.models.DungeonResponse;
 import dungeonmania.util.Direction;
