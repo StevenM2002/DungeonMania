@@ -22,6 +22,13 @@ This specification is broken into four parts:
 - Tue 28 Jun 6pm - Replace `gameMode` parameter with `configName` in new game method i.e. `newGame(String dungeonName, String configName)`
 - Tue 28 Jun 8:00pm - Fix two battle calculation tests in `ExampleTests`
 - Wed 29 Jun 9:30pm - Fix front-end config selector in starter code
+- Thu 30 Jun 10:30pm - Add `player` to dungeon input entities
+- Sat 2 Jul 12pm - Allies provide attack/defence bonuses
+- Sat 2 Jul 12:30pm - Add coverage extraction
+- Mon 4 Jul 9pm - Clarify square blast radius for bombs and mercenary bribing
+- Mon 4 Jul 11pm - Nesting of compound goals
+- Tue 5 Jul 7pm - Fix wording of complex goals in 3.7.2
+- Tue 5 Jul 10pm - Fix provided config files for allies
 
 ## 1. Aims
 
@@ -89,7 +96,7 @@ All enemy entities can be created as part of the initial dungeon. Each tick, all
 | --------- | ----- | ----------- |
 Spider | <img src="images/spider.png" width="40" /> | Spiders spawn at random locations in the dungeon from the beginning of the game. When the spider spawns, they immediately move the 1 square upwards (towards the top of the screen) and then begin 'circling' their spawn spot (see a [visual example here](images/spider_movement_1.png)). Spiders are able to traverse through walls, doors, switches, portals, exits (which have no effect), but not boulders, in which case it will reverse direction (see a [visual example here](images/spider_movement_2.png)). When it comes to spawning spiders, since the map is technically infinite you can spawn them anywhere - however for better gameplay we suggest you make an assumption and pick a four co-ordinate box to spawn spiders in. |
 | Zombie Toast  | <img src="images/zombie.png" /> | Zombies spawn at zombie spawners and move in random directions. Zombies are limited by the same movement constraints as the Player, except portals have no effect on them. |
-| Mercenary | <img src="images/ranger.png" /> | Mercenaries do not spawn; they are only present if created as part of the dungeon. They constantly move towards the Player, stopping only if they cannot move any closer (they are able to move around walls). Mercenaries are limited by the same movement constraints as the Player. All mercenaries are considered hostile, unless the Player can bribe them with a certain amount of gold; in which case they become allies. Mercenaries must be within a certain radius of the player in order to be bribed. As an ally, once it reaches the Player it simply follows the Player around, occupying the square the player was previously in. |
+| Mercenary | <img src="images/ranger.png" /> | Mercenaries do not spawn; they are only present if created as part of the dungeon. They constantly move towards the Player, stopping only if they cannot move any closer (they are able to move around walls). Mercenaries are limited by the same movement constraints as the Player. All mercenaries are considered hostile, unless the Player can bribe them with a certain amount of gold; in which case they become allies. Mercenaries must be within a certain radius of the player in order to be bribed, which is formed by the diagonally and cardinally adjacent cells in a "square" fashion, akin to the blast radius for bombs. As an ally, once it reaches the Player it simply follows the Player around, occupying the square the player was previously in. |
 
 ### 3.4 Collectable Entities
 
@@ -101,7 +108,7 @@ Spider | <img src="images/spider.png" width="40" /> | Spiders spawn at random lo
 | Invisibility Potion | <img src="images/green_potion.png" width="40" />| When a player picks up an invisibility potion, they may consume it at any time and they immediately become invisible and can move past all other entities undetected. Battles do not occur when a player is under the influence of an invisibility potion. Since mercenaries typically follow the player, their movement becomes the same as a Zombie when the player is invisible. |
 | Wood       | <img src="images/wood_big.png" width="40" /> | Can be collected by the player.  |
 | Arrows     | <img src="images/arrow.png" width="40" /> | Can be picked up by the player.  |
-| Bomb       | <img src="images/bomb.png" width="40" /> | Can be collected by the player. When removed from the inventory it is placed on the map at the player's location. When a bomb is cardinally adjacent to an active switch, it destroys all entities in diagonally and cardinally adjacent cells, except for the player. The bomb should detonate when it is placed next to an already active switch, or placed next to an inactive switch that then becomes active. The bomb explodes on the same tick it becomes cardinally adjacent to an active switch. A bomb cannot be picked up once it has been used. |
+| Bomb       | <img src="images/bomb.png" width="40" /> | Can be collected by the player. When removed from the inventory it is placed on the map at the player's location. When a bomb is cardinally adjacent to an active switch, it destroys all entities in diagonally and cardinally adjacent cells, except for the player, forming a "square" blast radius. The bomb should detonate when it is placed next to an already active switch, or placed next to an inactive switch that then becomes active. The bomb explodes on the same tick it becomes cardinally adjacent to an active switch. A bomb cannot be picked up once it has been used. |
 | Sword  | <img src="images/sword.png" width="40" /> | A standard melee weapon. Swords can be collected by the Player and used in battles, increasing the amount of damage they deal by an additive factor. Each sword has a specific durability that dictates the number of battles it can be used before it deteriorates and is no longer usable.  |
 
 It is possible for a player to use another potion while the effects of an existing potion are still lasting (can be of the same or a different type of potion). In this case, the effects are not registered immediately but are instead 'queued' and will take place the tick following the previous potion wearing of. For example, on tick 0 the Player consumes an invinsibility potion that lasts for 5 ticks and becomes invisible to enemies moving that tick, on tick 3 they use an invincibility potion, at the end of tick 4 (after all enemy movements) the player becomes visible again and becomes invincible.
@@ -127,6 +134,8 @@ Enemy Health = Enemy Health - (Player Attack Damage / 5)
 ```
 
 If the Player's health is <= 0, then the Player dies, is removed from the game and the game is over. If the enemy's health is <= 0, then the enemy dies and is removed from the game. If after the above 'round', neither the Player nor the enemy is dead, the round repeats until either the Player or enemy is dead.
+
+In battles, allies provide an attack and defence bonus to the player.
 
 ### 3.6.1 Weapons in Battle
 
@@ -166,13 +175,13 @@ Goals are only evaluated after the first tick. If getting to an exit is one of a
 
 More complex goals can be built by logically composing goals. For example:
 
-* Destroying all enemies and spawners AND getting to an exit
-* Collecting all treasure OR having a boulder on all floor switches
+* Destroying a certain number of enemies and spawners AND getting to an exit
+* Collecting a certain number of treasure OR having a boulder on all floor switches
 * Getting to an exit AND (destroying all enemies OR collecting all treasure)
 
 All compound goals are binary (they contain two and only two subgoals).
 
-If getting to an exit is one of a conjunction of conditions, it must be done last. For example, if the condition is to destroy all enemies AND get to an exit, the player must destroy the enemies THEN get to the exit. It is possible for a subgoal to become un-achieved, for example if the dungeon goal is `boulders AND exit`, and all boulders are pushed onto switches the boulders subgoal becomes complete, however if a boulder is then moved off a switch the boulders subgoal is no longer complete.
+If getting to an exit is one of a conjunction of conditions, it must be done last. For example, if the condition is to collect 3 treasure AND get to an exit, the player must collect at least 3 treasures THEN get to the exit. It is possible for a subgoal to become un-achieved, for example if the dungeon goal is `boulders AND exit` and all boulders are pushed onto switches, then the boulders subgoal becomes complete. However, if a boulder is then moved off a switch, the boulders subgoal is no longer complete.
 
 ## 3.8 Winning & Losing
 
@@ -203,6 +212,7 @@ The `type` field will be a string that starts with one of the following prefixes
 
 | Entity | JSON Prefix | Creatable in Dungeon Map? |
 | ------ | ----------- | ------------------------- |
+| Player    | <code>player</code> | Yes |
 | Wall      | <code>wall</code> | Yes |
 | Exit      | <code>exit</code> | Yes |
 | Boulder   | <code>boulder</code> | Yes |
@@ -254,7 +264,7 @@ A complex goal is represented in the dungeon as:
 }
 ```
 
-Where `<goal>` is one of `"enemies"`, `"boulders"`, `"treasure"` or `"exit"` and `<supergoal>` is one of `"AND"` or `"OR"`.
+Where `<goal>` is one of `"enemies"`, `"boulders"`, `"treasure"`, `"exit"`, or another nested goal conjunction/disjunction itself, and `<supergoal>` is one of `"AND"` or `"OR"`.
 
 ## 5. Configuration Files
 
@@ -264,6 +274,8 @@ During automarking, we will be providing our own configuration files with each t
 
 | JSON Format                     | Description                                                                                                                                  |
 |---------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| `ally_attack`                  | Attack bonus each ally gives to the player.                                                                                                  |
+| `ally_defence`                  | Reduction in effect of enemy attack damage each ally gives to the player.                                                                                                  |
 | `bribe_radius`                  | Radius in which a mercenary can be bribed.                                                                                                   |
 | `bribe_amount`                  | Amount of gold required to bribe a mercenary.                                                                                                |
 | `bomb_radius`                   | Blast radius of bomb.                                                                                                                        |
