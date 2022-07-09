@@ -30,6 +30,13 @@ public final class EntityResponse {
     public final Position getPosition() {
         return position;
     }
+    @Override
+    public String toString() {
+        return "id: "+id
+            +"\ntype: "+type
+            +"\nposition: "+position.toString()
+            +"\nInteractible: "+isInteractable;
+    }
 
     @Override
     public boolean equals(Object obj) {
