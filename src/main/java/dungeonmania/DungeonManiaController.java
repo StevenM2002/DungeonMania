@@ -10,10 +10,7 @@ import dungeonmania.exceptions.InvalidActionException;
 import dungeonmania.response.models.BattleResponse;
 import dungeonmania.response.models.DungeonResponse;
 import dungeonmania.response.models.EntityResponse;
-<<<<<<< HEAD
-=======
 import dungeonmania.response.models.ItemResponse;
->>>>>>> 598efdb7244af17b56af44b51c5d66adf058c04c
 import dungeonmania.util.Direction;
 import dungeonmania.util.FileLoader;
 import dungeonmania.util.Position;
@@ -68,9 +65,6 @@ public class DungeonManiaController {
     public String getLocalisation() {
         return "en_US";
     }
-
-    public List<Entities> allEntities = new ArrayList<>();
-
     /**
      * /dungeons
      */
@@ -89,18 +83,6 @@ public class DungeonManiaController {
      * /game/new
      */
     public DungeonResponse newGame(String dungeonName, String configName) throws IllegalArgumentException {
-<<<<<<< HEAD
-        try {
-            PositionOfEntitiesFromFile entitiesFromFile = new PositionOfEntitiesFromFile(dungeonName);
-            // Assuming there is at least 1 player in the file
-            Position playerPos = entitiesFromFile.getEntityPosition("player").get(0);
-            allEntities.add(new Player("thePlayer", playerPos));
-        } catch (IOException e) {
-            // TODO handle exception here
-        }
-        return null;
-
-=======
         // Initialising the new dungeon
         allEntities = new ArrayList<Entity>();
         inventory = new ArrayList<InventoryObject>();
@@ -129,7 +111,6 @@ public class DungeonManiaController {
             JSONObject JSONEntity = entities.getJSONObject(i);
             allEntities.add(EntityFactory.createEntity(getNewEntityID(), JSONEntity, config));
         }
->>>>>>> 598efdb7244af17b56af44b51c5d66adf058c04c
     }
 
 
@@ -184,6 +165,46 @@ public class DungeonManiaController {
      * /game/build
      */
     public DungeonResponse build(String buildable) throws IllegalArgumentException, InvalidActionException {
+        // IllegalArgumentException
+        if (!buildable.equals("bow") || !buildable.equals("shield")) {
+            throw new IllegalArgumentException("You can only construct bows or shields");
+        }
+        // InvalidActionException
+        int arrowNo = 0;
+        int woodNo = 0;
+        int treasureNo = 0;
+        int keyNo = 0;
+        for (InventoryObject object : inventory) {
+            if (object instanceof Arrow) {
+                arrowNo += 1;
+            }
+            if (object instanceof Wood) {
+                woodNo += 1;
+            }
+            if (object instanceof Treasure) {
+                treasureNo += 1;
+            }
+            if (object instanceof Key) {
+                keyNo += 1;
+            }
+        }
+        if (buildable.equals("bow")) {
+            if (arrowNo < 3) {
+                throw new InvalidActionException("Not enough arrows");
+            }
+            if (woodNo < 1) {
+                throw new InvalidActionException("Not enough wood");
+            }
+        }
+        if (buildable.equals("shield")) {
+            if (woodNo < 2) {
+                throw new InvalidActionException("Not enough wood");
+            }
+            if (keyNo < 1 && treasureNo < 1) {
+                throw new InvalidActionException("Not enough metal");
+            }
+        }
+        // Crafting
         return null;
     }
 
