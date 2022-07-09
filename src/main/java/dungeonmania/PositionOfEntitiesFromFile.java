@@ -12,7 +12,10 @@ import java.util.List;
 
 public class PositionOfEntitiesFromFile {
     JSONArray entities;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 598efdb7244af17b56af44b51c5d66adf058c04c
     public PositionOfEntitiesFromFile(String fileName) throws IOException {
         String content = FileLoader.loadResourceFile(fileName);
         JSONObject contentJSON = new JSONObject(content);
@@ -38,6 +41,7 @@ public class PositionOfEntitiesFromFile {
         }
         return playerPositions;
     }
+<<<<<<< HEAD
 
     public List<Integer> getEntitiesId(String type) {
         List<Integer> listId = new ArrayList<>();
@@ -49,4 +53,6 @@ public class PositionOfEntitiesFromFile {
         }
         return listId;
     }
+=======
+>>>>>>> 598efdb7244af17b56af44b51c5d66adf058c04c
 }
