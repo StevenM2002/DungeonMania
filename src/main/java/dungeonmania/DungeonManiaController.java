@@ -169,7 +169,9 @@ public class DungeonManiaController {
         if (!buildable.equals("bow") || !buildable.equals("shield")) {
             throw new IllegalArgumentException("You can only construct bows or shields");
         }
-        // InvalidActionException
+        // Checking the amount of materials
+        List<InventoryObject> bowMaterial = new ArrayList<InventoryObject>();
+        List<InventoryObject> shieldMaterial = new ArrayList<InventoryObject>();
         int arrowNo = 0;
         int woodNo = 0;
         int treasureNo = 0;
@@ -177,35 +179,67 @@ public class DungeonManiaController {
         for (InventoryObject object : inventory) {
             if (object instanceof Arrow) {
                 arrowNo += 1;
+                if (arrowNo <= 3) {
+                    bowMaterial.add(object);
+                }
             }
             if (object instanceof Wood) {
                 woodNo += 1;
+                if (woodNo == 1) {
+                    bowMaterial.add(object);
+                    shieldMaterial.add(object);
+                }
+                if (woodNo == 2) {
+                    shieldMaterial.add(object);
+                }
             }
             if (object instanceof Treasure) {
                 treasureNo += 1;
+                if (treasureNo == 1) {
+                    shieldMaterial.add(object);
+                }
             }
             if (object instanceof Key) {
                 keyNo += 1;
+                if (keyNo == 1) {
+                    shieldMaterial.add(object);
+                }
             }
         }
         if (buildable.equals("bow")) {
+            // InvalidActionException
             if (arrowNo < 3) {
                 throw new InvalidActionException("Not enough arrows");
             }
             if (woodNo < 1) {
                 throw new InvalidActionException("Not enough wood");
             }
+            // Crafting
+            inventory.add(new Bow(String.valueOf(allEntities.size()), true));
+            // Removing crafting materials
+            for (InventoryObject object : bowMaterial) {
+                inventory.remove(object);
+            }
         }
         if (buildable.equals("shield")) {
+            // InvalidActionException
             if (woodNo < 2) {
                 throw new InvalidActionException("Not enough wood");
             }
             if (keyNo < 1 && treasureNo < 1) {
                 throw new InvalidActionException("Not enough metal");
             }
+            // Crafting
+            inventory.add(new Shield(String.valueOf(allEntities.size()), true));
+            // Removing crafting materials
+            for (InventoryObject object : shieldMaterial) {
+                if (!(treasureNo > 0 && object instanceof Key)) { // If the player had a treasure, then don't remove the key
+                    inventory.remove(object);
+                }
+            }
         }
-        // Crafting
-        return null;
+        // TODO Creating dungeon response
+        return getDungeonResponseModel();
     }
 
     /**

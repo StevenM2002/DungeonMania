@@ -6,8 +6,8 @@ public class Shield extends InventoryObject implements Buildable, Durability {
     private int defence;
     private int durability;
 
-    public Shield(String id, Position position, boolean isInteractable) {
-        super(id, position, isInteractable);
+    public Shield(String id, boolean isInteractable) {
+        super(id, null, isInteractable);
     }
 
     @Override

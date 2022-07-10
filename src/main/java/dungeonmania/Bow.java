@@ -6,8 +6,8 @@ public class Bow extends InventoryObject implements Buildable, Weapon, Durabilit
     private int attackDamage;
     private int durability;
 
-    public Bow(String id, Position position, boolean isInteractable) {
-        super(id, position, isInteractable);
+    public Bow(String id, boolean isInteractable) {
+        super(id, null, isInteractable);
     }
 
     @Override
