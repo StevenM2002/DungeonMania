@@ -66,7 +66,8 @@ public class Shield extends InventoryObject implements Buildable, Durability {
             throw new InvalidActionException("Not enough metal");
         }
         // Crafting
-        inventory.add(new Shield(super.getId(), this.defence, this.durability));
+        int newId = Integer.parseInt(super.getId()) + 1; // Can't have the new entity be the same id as this entity
+        inventory.add(new Shield(String.valueOf(newId), this.defence, this.durability));
         // Removing crafting materials
         for (InventoryObject object : usedMaterial) {
             if (!(treasureNo > 0 && object instanceof Key)) { // If the player had a treasure, then don't remove the key

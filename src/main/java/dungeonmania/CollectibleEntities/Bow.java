@@ -65,7 +65,8 @@ public class Bow extends InventoryObject implements Buildable, Weapon, Durabilit
             throw new InvalidActionException("Not enough wood");
         }
         // Crafting
-        inventory.add(new Bow(super.getId(), 2, this.durability));
+        int newId = Integer.parseInt(super.getId()) + 1; // Can't have the new entity be the same id as this entity
+        inventory.add(new Bow(String.valueOf(newId), 2, this.durability));
         // Removing crafting materials
         for (InventoryObject object : usedMaterial) {
             inventory.remove(object);
