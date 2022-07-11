@@ -131,7 +131,7 @@ public class DungeonManiaController {
         }
         // creating inventory object list
         ArrayList<ItemResponse> inventoryList = new ArrayList<>();
-        for (InventoryObject i : inventory) {
+        for (InventoryObject i : player.getInventory()) {
             inventoryList.add(i.getItemResponse());
         }
 
