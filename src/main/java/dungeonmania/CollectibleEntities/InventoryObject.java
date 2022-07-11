@@ -3,7 +3,7 @@ package dungeonmania.CollectibleEntities;
 import dungeonmania.response.models.ItemResponse;
 import dungeonmania.util.UtilityFunctions;
 
-public class InventoryObject {
+public abstract class InventoryObject {
     private String id;
 
     public String getId() {

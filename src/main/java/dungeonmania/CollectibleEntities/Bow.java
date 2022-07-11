@@ -1,10 +1,12 @@
 package dungeonmania.CollectibleEntities;
 
+import dungeonmania.exceptions.InvalidActionException;
 import java.util.List;
+import java.util.ArrayList;
 
 public class Bow extends InventoryObject implements Buildable, Weapon, Durability {
     private static int attackDamage;
-    private static int durability;
+    private int durability;
 
     public Bow(String id, int attackDamage, int durability) {
         super(id);
@@ -37,14 +39,42 @@ public class Bow extends InventoryObject implements Buildable, Weapon, Durabilit
     }
 
     @Override
-    public void craft(List<InventoryObject> inventory) {
-        // TODO Auto-generated method stub
-        
+    public void craft(List<InventoryObject> inventory) throws IllegalArgumentException, InvalidActionException {
+        int arrowNo = 0;
+        int woodNo = 0;
+        List<InventoryObject> usedMaterial = new ArrayList<InventoryObject>();
+        for (InventoryObject object : inventory) {
+            if (object instanceof Arrow) {
+                arrowNo += 1;
+                if (arrowNo <= 3) {
+                    usedMaterial.add(object);
+                }
+            }
+            if (object instanceof Wood) {
+                woodNo += 1;
+                if (woodNo == 1) {
+                    usedMaterial.add(object);
+                }
+            }
+        }
+        // InvalidActionException
+        if (arrowNo < 3) {
+            throw new InvalidActionException("Not enough arrows");
+        }
+        if (woodNo < 1) {
+            throw new InvalidActionException("Not enough wood");
+        }
+        // Crafting
+        inventory.add(new Bow(super.getId(), 2, this.durability));
+        // Removing crafting materials
+        for (InventoryObject object : usedMaterial) {
+            inventory.remove(object);
+        }
     }
 
     @Override
     public boolean canCraft(List<InventoryObject> inventory) {
         // TODO Auto-generated method stub
-        return false;
+        return true;
     }
 }
