@@ -25,7 +25,8 @@ public abstract class MovingEntity extends Entity {
         this.movementStrategy = movementStrategy;
     }
 
-    public MovingEntity(String id, Position position, boolean isInteractable, double health, double attack, Movement movementStrategy) {
+    public MovingEntity(String id, Position position, boolean isInteractable, double health, double attack,
+            Movement movementStrategy) {
         super(id, position, false);
         this.health = health;
         this.attack = attack;
