@@ -1,22 +1,23 @@
 {
-"entities": [
-    {
-        "type" : "player",
-        "x" : 2,
-        "y" : 2
-    },{
-        "type" : "treasure",
-        "x" : 3,
-        "y" : 2
-    }, {
-        "type" : "mercenary",
-        "x" : 0,
-        "y" : 2
-    }, {
-        "type": "exit",
-        "x": 5,
-        "y": 1
+    "entities": [
+        {
+            "type" : "player",
+            "x" : 2,
+            "y" : 2
+        },{
+            "type" : "treasure",
+            "x" : 3,
+            "y" : 2
+        }, {
+            "type" : "mercenary",
+            "x" : 0,
+            "y" : 2
+        }, {
+            "type": "exit",
+            "x": 5,
+            "y": 1
+        }
+    ],
+    "goal-condition": {"goal": "exit"}
     }
-],
-"goal-condition": {"goal": "exit"}
-}
+    
