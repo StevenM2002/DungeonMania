@@ -37,4 +37,15 @@ public class PositionOfEntitiesFromFile {
         }
         return playerPositions;
     }
+
+    public List<Integer> getEntitiesId(String type) {
+        List<Integer> listId = new ArrayList<>();
+        for (int i = 0; i < entities.length(); i++) {
+            var currEntity = entities.getJSONObject(i);
+            if (currEntity.get("type").equals(type)) {
+                listId.add(i);
+            }
+        }
+        return listId;
+    }
 }

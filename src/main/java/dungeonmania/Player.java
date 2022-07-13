@@ -3,12 +3,20 @@ package dungeonmania;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.*;
+
 import dungeonmania.CollectibleEntities.CollectibleEntity;
+import dungeonmania.CollectibleEntities.InventoryObject;
+import dungeonmania.CollectibleEntities.Bow;
+import dungeonmania.CollectibleEntities.Shield;
+import dungeonmania.exceptions.InvalidActionException;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
 public class Player extends Entity {
-    private List<CollectibleEntity> inventory = new ArrayList<>();
+    private List<InventoryObject> inventory = new ArrayList<>();
     private double attack;
     private double health;
 
@@ -27,8 +35,21 @@ public class Player extends Entity {
         setPosition(getPosition().translateBy(direction));
     }
 
-    public List<CollectibleEntity> getInventory() {
+    public List<InventoryObject> getInventory() {
         return inventory;
     }
-
+    
+    public void addCraftItemToInventory(String Item, JSONObject config, int noOfEntities) throws IllegalArgumentException, InvalidActionException {
+        int shieldDurability = config.getInt("shield_durability");
+        int bowDurability = config.getInt("bow_durability");
+        int defence = config.getInt("shield_defence");
+        switch (Item) {
+            case "bow":
+                Bow newBow = new Bow(String.valueOf(noOfEntities), 2, bowDurability);
+                newBow.craft(inventory);
+            case "shield":
+                Shield newShield = new Shield(String.valueOf(noOfEntities), defence, shieldDurability);
+                newShield.craft(inventory);
+        }
+    }
 }

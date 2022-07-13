@@ -220,5 +220,4 @@ public class ExampleTests {
         BattleResponse battle = postBattleResponse.getBattles().get(0);
         assertBattleCalculations("mercenary", battle, true, "c_battleTests_basicMercenaryMercenaryDies");
     }
-
 }
