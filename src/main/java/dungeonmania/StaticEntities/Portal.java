@@ -13,4 +13,10 @@ public class Portal extends StaticEntity {
     public String getColour() {
         return colour;
     }
+    @Override
+    public String getDefaultCollision() {
+        return "Block";
+    }
+
+    
 }

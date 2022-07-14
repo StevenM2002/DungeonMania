@@ -1,5 +1,6 @@
 package dungeonmania;
 
+import dungeonmania.Collisions.CollisionManager;
 import dungeonmania.response.models.EntityResponse;
 import dungeonmania.util.Position;
 import dungeonmania.util.UtilityFunctions;
@@ -8,6 +9,7 @@ public abstract class Entity {
     private String id;
     private Position position;
     private boolean isInteractable;
+    public static CollisionManager collisionManager;
 
     public Entity(String id, Position position, boolean isInteractable) {
         this.id = id;
@@ -21,6 +23,10 @@ public abstract class Entity {
 
     public Position getPosition() {
         return position;
+    }
+
+    public String getType() {
+        return this.getClass().getSimpleName();
     }
 
     public void setPosition(Position position) {
@@ -41,5 +47,14 @@ public abstract class Entity {
             UtilityFunctions.camelToSnake(this.getClass().getSimpleName()),
             position,
             isInteractable);
+    }
+
+    /**
+     * returns the name of the default collision type when something collides 
+     * with this entity. This can be overridden in collisionManager
+     * @return
+     */
+    public String getDefaultCollision() {
+        return "Pass";
     }
 }

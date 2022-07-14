@@ -8,6 +8,7 @@ import java.lang.IllegalArgumentException;
 
 import dungeonmania.CollectibleEntities.InventoryObject;
 import dungeonmania.CollectibleEntities.Arrow;
+import dungeonmania.Collisions.CollisionManager;
 import dungeonmania.exceptions.InvalidActionException;
 import dungeonmania.response.models.BattleResponse;
 import dungeonmania.response.models.DungeonResponse;
@@ -35,6 +36,7 @@ public class DungeonManiaController {
     private int currentDungeonID = 0;
     private String currentDungeonName;
     private JSONObject config;
+    private CollisionManager collisionManager;
 
     private String getDungeonID() {
         return Integer.toString(currentDungeonID);
@@ -93,6 +95,8 @@ public class DungeonManiaController {
         currentEntityID = 0;
         nextDungeonID();
         currentDungeonName = dungeonName;
+        collisionManager = new CollisionManager(this);
+        Entity.collisionManager = collisionManager;
         
         JSONObject dungeon = null;
         JSONObject config = null;

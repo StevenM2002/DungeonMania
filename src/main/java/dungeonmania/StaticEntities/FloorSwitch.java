@@ -1,6 +1,5 @@
 package dungeonmania.StaticEntities;
 
-import dungeonmania.Entity;
 import dungeonmania.util.Position;
 
 public class FloorSwitch extends StaticEntity {
@@ -14,7 +13,7 @@ public class FloorSwitch extends StaticEntity {
         return activated;
     }
 
-    public void activate(Entity entity) {
-        activated = true;
+    public void setActivated(boolean activated) {
+        this.activated = activated;
     }
 }

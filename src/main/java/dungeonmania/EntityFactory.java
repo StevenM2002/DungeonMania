@@ -4,6 +4,12 @@ import dungeonmania.CollectibleEntities.*;
 import dungeonmania.MovingEntities.*;
 import dungeonmania.StaticEntities.*;
 import dungeonmania.util.Position;
+
+import java.util.List;
+import java.util.stream.Stream;
+
+import javax.sound.sampled.Port;
+
 import org.json.JSONObject;
 
 public class EntityFactory {
@@ -55,4 +61,4 @@ public class EntityFactory {
     private static Position getPositionOfEntity(JSONObject entity) {
         return new Position(entity.getInt("x"), entity.getInt("y"));
     }
-}
+}   
