@@ -3,11 +3,7 @@ package dungeonmania;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.*;
-
-import dungeonmania.CollectibleEntities.CollectibleEntity;
 import dungeonmania.CollectibleEntities.InventoryObject;
 import dungeonmania.CollectibleEntities.Bow;
 import dungeonmania.CollectibleEntities.Shield;
@@ -24,6 +20,18 @@ public class Player extends Entity {
         super(id, position, false);
         this.health = health;
         this.attack = attack;
+    }
+
+    public double getAttack() {
+        return attack;
+    }
+
+    public double getHealth() {
+        return health;
+    }
+
+    public void setHealth(double health) {
+        this.health = health;
     }
 
     /**

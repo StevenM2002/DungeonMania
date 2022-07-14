@@ -10,7 +10,7 @@
   "invisibility_potion_duration": 1,
   "mercenary_attack": 1,
   "mercenary_health": 5,
-  "player_attack": 1,
+  "player_attack": 10000,
   "player_health": 10,
   "shield_defence": 1,
   "shield_durability": 1,
