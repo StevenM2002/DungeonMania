@@ -1,9 +1,11 @@
 package dungeonmania.MovingEntities;
 
+import dungeonmania.CanMove;
 import dungeonmania.Entity;
+import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
-public abstract class MovingEntity extends Entity {
+public abstract class MovingEntity extends Entity implements CanMove {
     private double health;
     private double attack;
 
@@ -23,5 +25,10 @@ public abstract class MovingEntity extends Entity {
         super(id, position, false);
         this.health = health;
         this.attack = attack;
+    }
+
+    @Override
+    public void move(Direction direction) {
+        collisionManager.requestMove(this, direction);
     }
 }

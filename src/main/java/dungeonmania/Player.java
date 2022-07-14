@@ -7,7 +7,7 @@ import dungeonmania.CollectibleEntities.CollectibleEntity;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
-public class Player extends Entity {
+public class Player extends Entity implements CanMove {
     private List<CollectibleEntity> inventory = new ArrayList<>();
     private double attack;
     private double health;
@@ -23,8 +23,9 @@ public class Player extends Entity {
      * @param blockingEntities the positions of any entities which can block the movement of the player into that position
      * @param direction the direction of movement
      */
+    @Override
     public void move(Direction direction) {
-        setPosition(getPosition().translateBy(direction));
+        collisionManager.requestMove(this, direction);
     }
 
     public List<CollectibleEntity> getInventory() {
