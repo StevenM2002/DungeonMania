@@ -1,6 +1,7 @@
 package dungeonmania.MovingEntities;
 
 import dungeonmania.Entity;
+import dungeonmania.Player;
 import dungeonmania.StaticEntities.Boulder;
 import dungeonmania.util.Position;
 
@@ -13,7 +14,7 @@ public class CircularMovement implements Movement {
     private boolean isReversed = false;
 
     @Override
-    public Position getNextPosition(List<Entity> allEntities, Position currentPosition) {
+    public Position getNextPosition(Player player, Position currentPosition) {
         List<Position> movementTrajectory = new ArrayList<Position>();
         List<Position> reverseTrajectory = new ArrayList<Position>();
         int x = currentPosition.getX();

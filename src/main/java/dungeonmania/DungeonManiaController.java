@@ -1,5 +1,6 @@
 package dungeonmania;
 
+import dungeonmania.MovingEntities.Interactable;
 import dungeonmania.MovingEntities.MovingEntity;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -25,11 +26,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DungeonManiaController {
-    private List<Entity> allEntities;
+    private static List<Entity> allEntities;
     private int currentEntityID;
     private int currentDungeonID = 0;
     private String currentDungeonName;
-    private JSONObject config;
+    private static JSONObject config;
     private CollisionManager collisionManager;
 
     private String getDungeonID() {
@@ -43,6 +44,9 @@ public class DungeonManiaController {
         return (Player) allEntities.stream().filter(x->x.getClass().getSimpleName().startsWith("Player")).findFirst().get();
     }
 
+    public static int getConfigValue(String key) {
+        return config.getInt(key);
+    }
     /**
      * returns a new id to be assigned to an entity object
      * also iterates the current id to a new value, so each id is unique
@@ -54,7 +58,7 @@ public class DungeonManiaController {
         return newID;
     }
 
-    public List<Entity> getAllEntities() {
+    public static List<Entity> getAllEntities() {
         return allEntities;
     }
 
@@ -99,7 +103,7 @@ public class DungeonManiaController {
             throw new IllegalArgumentException("Could not find dungeon file \""+dungeonName+"\"");
         } try {
             config = new JSONObject(FileLoader.loadResourceFile("/configs/"+configName+".json"));
-            this.config = config;
+            DungeonManiaController.config = config;
         } catch (IOException e) {
             throw new IllegalArgumentException("Could not find config file \""+configName+"\"");
         }
@@ -133,7 +137,7 @@ public class DungeonManiaController {
         }
 
         //TODO: add once battles are implemented
-        ArrayList<BattleResponse> battleList = new ArrayList<>();
+        ArrayList<BattleResponse> battleList = (ArrayList<BattleResponse>) Battle.getBattleList();
         //TODO: add once crafting is implemented
         ArrayList<String> buildables = new ArrayList<>();
         //TODO: finish once goals are implemented
@@ -166,7 +170,7 @@ public class DungeonManiaController {
     }
     private void doSharedTick() {
         List<MovingEntity> movingEntities = allEntities.stream().filter(entity -> entity instanceof MovingEntity).map(entity -> (MovingEntity) entity).collect(Collectors.toList());
-        movingEntities.forEach(entity -> entity.move(allEntities));
+        movingEntities.forEach(entity -> entity.move(getPlayer()));
     }
 
     /**
@@ -177,7 +181,7 @@ public class DungeonManiaController {
         if (!buildable.equals("bow") || !buildable.equals("shield")) {
             throw new IllegalArgumentException("You can only construct bows or shields");
         }
-        getPlayer().addCraftItemToInventory(buildable, this.config, allEntities.size());
+        getPlayer().addCraftItemToInventory(buildable, DungeonManiaController.config, allEntities.size());
         // TODO Creating dungeon response
         return getDungeonResponseModel();
     }
@@ -186,7 +190,13 @@ public class DungeonManiaController {
      * /game/interact
      */
     public DungeonResponse interact(String entityId) throws IllegalArgumentException, InvalidActionException {
-        return null;
+        if (allEntities.stream().anyMatch(e -> e.getId().equals(entityId))) {
+            ((Interactable) allEntities.stream().filter(e -> e.getId().equals(entityId)).collect(Collectors.toList()).get(0)).interact(getPlayer());;
+        } else {
+            throw new IllegalArgumentException("Entity cannot be found with specified Id");
+        }
+
+        return getDungeonResponseModel();
     }
 
     public static Stream<EntityResponse> getEntitiesStream(DungeonResponse res, String type) {
