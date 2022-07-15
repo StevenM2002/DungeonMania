@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import java.lang.IllegalArgumentException;
 
+import dungeonmania.CollectibleEntities.CollectibleEntity;
 import dungeonmania.CollectibleEntities.InventoryObject;
 import dungeonmania.Collisions.CollisionManager;
 import dungeonmania.exceptions.InvalidActionException;
@@ -28,12 +29,13 @@ import java.util.stream.Stream;
 public class DungeonManiaController {
     private static List<Entity> allEntities;
     private int currentEntityID;
-    private static int currentDungeonID = 0;
-    private static String currentDungeonName;
+    private int currentDungeonID = 0;
+    private String currentDungeonName;
     private static JSONObject config;
+    private static Player player;
     private CollisionManager collisionManager;
 
-    public static String getDungeonID() {
+    public String getDungeonID() {
         return Integer.toString(currentDungeonID);
     }
     private void nextDungeonID() {
@@ -108,6 +110,7 @@ public class DungeonManiaController {
             throw new IllegalArgumentException("Could not find config file \""+configName+"\"");
         }
         loadEntities(dungeon.optJSONArray("entities"), config);
+        DungeonManiaController.player = getPlayer();
         //TODO: Create goals, and other config stuff
         return getDungeonResponseModel();
     }
@@ -124,7 +127,7 @@ public class DungeonManiaController {
     /**
      * /game/dungeonResponseModel
      */
-    public static DungeonResponse getDungeonResponseModel() {
+    public DungeonResponse getDungeonResponseModel() {
         // creating the entity list, TODO: could maybe do with streams
         ArrayList<EntityResponse> entityList = new ArrayList<>();
         for (Entity e : allEntities) {
@@ -136,12 +139,12 @@ public class DungeonManiaController {
             inventoryList.add(i.getItemResponse());
         }
 
-        //TODO: add once battles are implemented
         ArrayList<BattleResponse> battleList = (ArrayList<BattleResponse>) Battle.getBattleList();
         //TODO: add once crafting is implemented
         ArrayList<String> buildables = new ArrayList<>();
         //TODO: finish once goals are implemented
         String goals = "";
+
         return new DungeonResponse(
             getDungeonID(), 
             currentDungeonName, 
@@ -213,5 +216,15 @@ public class DungeonManiaController {
 
     public static List<EntityResponse> getEntitiesResponse(DungeonResponse res, String type) {
         return getEntitiesStream(res, type).collect(Collectors.toList());
+    }
+
+    public static void main(String[] args) throws IllegalArgumentException, InvalidActionException {
+        DungeonManiaController d = new DungeonManiaController();
+        DungeonResponse res = d.newGame("test", "simple");
+        DungeonManiaController.getPlayer().getInventory().add(((InventoryObject) ((CollectibleEntity) getAllEntities().get(1)).getCollectible()));
+        DungeonResponse res2 = d.interact("2");
+        for (Entity e : allEntities) {
+            System.out.println(e);
+        }
     }
 }
