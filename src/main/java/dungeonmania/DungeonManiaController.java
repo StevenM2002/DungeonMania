@@ -153,6 +153,8 @@ public class DungeonManiaController {
      */
     public DungeonResponse tick(String itemUsedId) throws IllegalArgumentException, InvalidActionException {
         doSharedTick();
+        // TODO check that itemUsedId is actually a potion before queuing potion
+        getPlayer().queuePotion(itemUsedId);
         return null;
     }
 
@@ -167,6 +169,7 @@ public class DungeonManiaController {
     private void doSharedTick() {
         List<MovingEntity> movingEntities = allEntities.stream().filter(entity -> entity instanceof MovingEntity).map(entity -> (MovingEntity) entity).collect(Collectors.toList());
         movingEntities.forEach(entity -> entity.move(allEntities));
+        getPlayer().doPotionTick();
     }
 
     /**
