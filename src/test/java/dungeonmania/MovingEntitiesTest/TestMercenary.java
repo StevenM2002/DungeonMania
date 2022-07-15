@@ -1,4 +1,4 @@
-package dungeonmania.MovingEntitiesTest;
+package dungeonmania.movingEntitiesTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -128,11 +128,10 @@ public class TestMercenary {
         movementTrajectory.add(new Position(x + 3, y - 1));
         movementTrajectory.add(new Position(x + 4, y - 1));
 
-        // Assert Circular Movement of Spider
-        for (int i = 0; i <= 5; ++i) {
+        for (int i = 0; i < 5; i++) {
             res = dmc.tick(Direction.RIGHT);
-            assertEquals(movementTrajectory.get(nextPositionElement),
-                    getEntities(res, "mercenary").get(0).getPosition());
+            System.out.println(i);
+            assertEquals(movementTrajectory.get(nextPositionElement), getEntities(res, "mercenary").get(0).getPosition());
             nextPositionElement++;
         }
     }
@@ -151,8 +150,8 @@ public class TestMercenary {
         movementTrajectory.add(new Position(x, y));
         movementTrajectory.add(new Position(x, y));
 
-        // Assert Circular Movement of Spider
-        for (int i = 0; i <= 1; ++i) {
+
+        for (int i = 0; i <= 1; i++) {
             res = dmc.tick(Direction.UP);
             assertEquals(movementTrajectory.get(nextPositionElement),
                     getEntities(res, "mercenary").get(0).getPosition());
@@ -174,8 +173,8 @@ public class TestMercenary {
         movementTrajectory.add(new Position(x + 1, y));
         movementTrajectory.add(new Position(x + 2, y + 4));
 
-        // Assert Circular Movement of Spider
-        for (int i = 0; i <= 1; ++i) {
+
+        for (int i = 0; i < 2; i++) {
             res = dmc.tick(Direction.UP);
             assertEquals(movementTrajectory.get(nextPositionElement),
                     getEntities(res, "mercenary").get(0).getPosition());

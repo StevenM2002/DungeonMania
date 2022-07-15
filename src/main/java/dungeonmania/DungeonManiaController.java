@@ -1,5 +1,6 @@
 package dungeonmania;
 
+import dungeonmania.MovingEntities.MovingEntity;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.*;
@@ -25,8 +26,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-
 
 public class DungeonManiaController {
     private Player player;
@@ -159,6 +158,7 @@ public class DungeonManiaController {
      * /game/tick/item
      */
     public DungeonResponse tick(String itemUsedId) throws IllegalArgumentException, InvalidActionException {
+        doSharedTick();
         return null;
     }
 
@@ -167,7 +167,12 @@ public class DungeonManiaController {
      */
     public DungeonResponse tick(Direction movementDirection) {
         getPlayer().move(movementDirection);
+        doSharedTick();
         return getDungeonResponseModel();
+    }
+    private void doSharedTick() {
+        List<MovingEntity> movingEntities = allEntities.stream().filter(entity -> entity instanceof MovingEntity).map(entity -> (MovingEntity) entity).collect(Collectors.toList());
+        movingEntities.forEach(entity -> entity.move(allEntities));
     }
 
     /**

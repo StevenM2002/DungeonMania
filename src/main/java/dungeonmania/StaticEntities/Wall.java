@@ -11,6 +11,4 @@ public class Wall extends StaticEntity {
     public String getDefaultCollision() {
         return "Block";
     }
-
-    
 }
