@@ -2,12 +2,10 @@ package dungeonmania;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.*;
 
 import java.lang.IllegalArgumentException;
 
 import dungeonmania.CollectibleEntities.InventoryObject;
-import dungeonmania.CollectibleEntities.Arrow;
 import dungeonmania.Collisions.CollisionManager;
 import dungeonmania.exceptions.InvalidActionException;
 import dungeonmania.response.models.BattleResponse;
@@ -16,7 +14,6 @@ import dungeonmania.response.models.EntityResponse;
 import dungeonmania.response.models.ItemResponse;
 import dungeonmania.util.Direction;
 import dungeonmania.util.FileLoader;
-import dungeonmania.util.Position;
 
 
 import java.io.IOException;
@@ -29,9 +26,7 @@ import java.util.stream.Stream;
 
 
 public class DungeonManiaController {
-    private Player player;
     private List<Entity> allEntities;
-    private List<InventoryObject> inventory;
     private int currentEntityID;
     private int currentDungeonID = 0;
     private String currentDungeonName;
@@ -90,8 +85,7 @@ public class DungeonManiaController {
      */
     public DungeonResponse newGame(String dungeonName, String configName) throws IllegalArgumentException {
         // Initialising the new dungeon
-        allEntities = new ArrayList<Entity>();
-        inventory = new ArrayList<InventoryObject>();
+        allEntities = new ArrayList<>();
         currentEntityID = 0;
         nextDungeonID();
         currentDungeonName = dungeonName;
@@ -135,7 +129,7 @@ public class DungeonManiaController {
         }
         // creating inventory object list
         ArrayList<ItemResponse> inventoryList = new ArrayList<>();
-        for (InventoryObject i : player.getInventory()) {
+        for (InventoryObject i : getPlayer().getInventory()) {
             inventoryList.add(i.getItemResponse());
         }
 
@@ -178,7 +172,7 @@ public class DungeonManiaController {
         if (!buildable.equals("bow") || !buildable.equals("shield")) {
             throw new IllegalArgumentException("You can only construct bows or shields");
         }
-        player.addCraftItemToInventory(buildable, this.config, allEntities.size());
+        getPlayer().addCraftItemToInventory(buildable, this.config, allEntities.size());
         // TODO Creating dungeon response
         return getDungeonResponseModel();
     }
@@ -195,46 +189,14 @@ public class DungeonManiaController {
     }
 
     public static int countEntityOfType(DungeonResponse res, String type) {
-        return getEntities(res, type).size();
+        return getEntitiesResponse(res, type).size();
     }
 
-    public static Optional<EntityResponse> getPlayer(DungeonResponse res) {
+    public static Optional<EntityResponse> getPlayerResponse(DungeonResponse res) {
         return getEntitiesStream(res, "player").findFirst();
     }
 
-    public static List<EntityResponse> getEntities(DungeonResponse res, String type) {
+    public static List<EntityResponse> getEntitiesResponse(DungeonResponse res, String type) {
         return getEntitiesStream(res, type).collect(Collectors.toList());
-    }
-
-    public static void main(String[] args) {
-        DungeonManiaController dmc;
-        dmc = new DungeonManiaController();
-        DungeonResponse res = dmc.newGame("d_spiderTest_basicMovement", "c_spiderTest_basicMovement");
-        Position pos = getEntities(res, "spider").get(0).getPosition();
-
-        List<Position> movementTrajectory = new ArrayList<Position>();
-        int x = pos.getX();
-        int y = pos.getY();
-        int nextPositionElement = 0;
-        movementTrajectory.add(new Position(x, y - 1));
-        movementTrajectory.add(new Position(x + 1, y - 1));
-        movementTrajectory.add(new Position(x + 1, y));
-        movementTrajectory.add(new Position(x + 1, y + 1));
-        movementTrajectory.add(new Position(x, y + 1));
-        movementTrajectory.add(new Position(x - 1, y + 1));
-        movementTrajectory.add(new Position(x - 1, y));
-        movementTrajectory.add(new Position(x - 1, y - 1));
-
-        // Assert Circular Movement of Spider
-        for (int i = 0; i <= 20; ++i) {
-            res = dmc.tick(Direction.UP);
-            System.out.println(movementTrajectory.get(nextPositionElement));
-            System.out.println(getEntities(res, "spider").get(0).getPosition());
-
-            nextPositionElement++;
-            if (nextPositionElement == 8) {
-                nextPositionElement = 0;
-            }
-        }
     }
 }
