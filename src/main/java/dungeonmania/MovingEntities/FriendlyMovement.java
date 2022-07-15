@@ -1,18 +1,9 @@
 package dungeonmania.MovingEntities;
 
-import dungeonmania.Entity;
-import dungeonmania.Player;
-import dungeonmania.PlayerDataArgs;
-import dungeonmania.PlayerListener;
-import dungeonmania.util.Position;
-
-import java.util.List;
-
-public class FriendlyMovement implements Movement {
-    private Position prevPlayerPos;
+public class FriendlyMovement extends Movement {
     @Override
-    public Position getNextPosition(Player player, Position currentPosition) {
-        //TODO Move player before mercenary
-        return player.getPreviousPosition();
+    public void moveEntity(MovingEntity entity) {
+        // Mercenary will get blocked by player in collisions if friendly
+        entity.move(entity.getPosition().getDirectionTo(player.getPreviousPosition()));
     }
 }

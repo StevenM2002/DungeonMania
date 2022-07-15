@@ -1,7 +1,9 @@
 package dungeonmania;
 
-import java.util.*;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import dungeonmania.CollectibleEntities.Potion;
@@ -53,7 +55,6 @@ public class Player extends Entity implements CanMove {
         var validSubs = subscribers.entrySet().stream().filter(x -> x.getKey().equals(eventType)).map(Map.Entry::getValue).collect(Collectors.toList());
         validSubs.forEach(publisherListener -> publisherListener.update(data));
     }
-
     public Player(String id, Position position, double health, double attack) {
         super(id, position, false);
         this.health = health;
@@ -80,18 +81,19 @@ public class Player extends Entity implements CanMove {
     public void move(Direction direction) {
         var tempPosition = getPosition();
         collisionManager.requestMove(this, direction);
-        // Only set position if moved
-        if (tempPosition == getPosition()) {
-            //Do nothing
-        } else {
-            this.previousPosition = tempPosition;
-        }
+        this.previousPosition = tempPosition;
     }
 
     public List<InventoryObject> getInventory() {
         return inventory;
     }
+
+    @Override
+    public String getDefaultCollision() {
+        return "Battle";
+    }
     
+    //TODO: move this out of player
     public void addCraftItemToInventory(String Item, JSONObject config, int noOfEntities) throws IllegalArgumentException, InvalidActionException {
         int shieldDurability = config.getInt("shield_durability");
         int bowDurability = config.getInt("bow_durability");

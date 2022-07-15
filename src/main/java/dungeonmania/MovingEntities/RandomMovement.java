@@ -1,18 +1,11 @@
 package dungeonmania.MovingEntities;
 
-import dungeonmania.Entity;
-import dungeonmania.Player;
 import dungeonmania.util.Direction;
-import dungeonmania.util.Position;
 
-import java.util.List;
-
-public class RandomMovement implements Movement {
-
+public class RandomMovement extends Movement {
     @Override
-    public Position getNextPosition(Player player, Position currentPosition) {
-        Position nextPosition = currentPosition.translateBy(getRandomDirection());
-        return nextPosition;
+    public void moveEntity(MovingEntity entity) {
+        entity.move(getRandomDirection());        
     }
 
     private Direction getRandomDirection() {
@@ -21,6 +14,6 @@ public class RandomMovement implements Movement {
         if (randNum == 1) return Direction.RIGHT;
         if (randNum == 2) return Direction.UP;
         if (randNum == 3) return Direction.LEFT;
-        return Direction.RIGHT;
+        return Direction.DOWN;
     }
 }

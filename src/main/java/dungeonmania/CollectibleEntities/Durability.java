@@ -1,6 +1,10 @@
 package dungeonmania.CollectibleEntities;
 
 public interface Durability {
-    public double deteriorate();
-    public double getBattleUses();
+
+    /**
+     * Deteriorates the item. Returns true if the item is destroyed
+     * @return
+     */
+    public boolean deteriorate();
 }

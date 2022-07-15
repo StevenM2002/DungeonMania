@@ -1,17 +1,13 @@
 package dungeonmania.Collisions;
 
-import java.util.List;
 
 import dungeonmania.Entity;
 import dungeonmania.Player;
+import dungeonmania.CollectibleEntities.Key;
 import dungeonmania.StaticEntities.Door;
 import dungeonmania.util.Direction;
 
 public class Unlock extends Collision {
-
-    public Unlock(List<Entity> allEntities) {
-        super(allEntities);
-    }
 
     /**
      * preconditions: moved is Player, collided is Door
@@ -22,7 +18,21 @@ public class Unlock extends Collision {
     public void processCollision(Entity moved, Entity collided, Direction direction) {
         Player player = (Player) moved;
         Door door = (Door) collided;
-        if (door.isLocked() && )
+        Key playerKey = player.getInventory().stream()
+            .filter(x->(x instanceof Key))
+            .map(x->(Key) x)
+            .filter(x->door.keyMatchesDoor(x))
+            .findFirst()
+            .orElseGet(()->{return null;});
+        
+        if (door.isLocked() && playerKey != null) {
+            door.unlock();
+            player.getInventory().remove(playerKey);
+        } 
+        
+        if (!door.isLocked()) {
+            player.setPosition(collided.getPosition());
+        }
     }
     
 }

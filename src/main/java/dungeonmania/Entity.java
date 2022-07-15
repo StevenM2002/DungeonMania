@@ -57,4 +57,13 @@ public abstract class Entity {
     public String getDefaultCollision() {
         return "Pass";
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Entity) {
+            Entity e = (Entity) obj;
+            return e.getId() == this.getId();
+        }
+        return false;
+    }
 }
