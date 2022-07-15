@@ -1,72 +1,46 @@
 package dungeonmania.MovingEntities;
 
-import dungeonmania.DungeonManiaController;
-import dungeonmania.Entity;
-import dungeonmania.Player;
-import dungeonmania.StaticEntities.Boulder;
 import dungeonmania.util.Position;
+import dungeonmania.util.Direction;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
-public class CircularMovement implements Movement {
-    private int currentRotation = 0;
+public class CircularMovement extends Movement {
     private boolean isReversed = false;
+    private Position pivot = null;
 
     @Override
-    public Position getNextPosition(Player player, Position currentPosition) {
-        List<Position> movementTrajectory = new ArrayList<Position>();
-        List<Position> reverseTrajectory = new ArrayList<Position>();
-        int x = currentPosition.getX();
-        int y = currentPosition.getY();
-        Position newPosition = new Position(x, y);
-
-        movementTrajectory.add(new Position(x, y - 1));
-        movementTrajectory.add(new Position(x + 1, y));
-        movementTrajectory.add(new Position(x, y + 1));
-        movementTrajectory.add(new Position(x, y + 1));
-        movementTrajectory.add(new Position(x - 1, y));
-        movementTrajectory.add(new Position(x - 1, y));
-        movementTrajectory.add(new Position(x, y - 1));
-        movementTrajectory.add(new Position(x, y - 1));
-        movementTrajectory.add(new Position(x + 1, y));
-
-        reverseTrajectory.add(new Position(x, y + 1));
-        reverseTrajectory.add(new Position(x - 1, y));
-        reverseTrajectory.add(new Position(x - 1, y));
-        reverseTrajectory.add(new Position(x, y - 1));
-        reverseTrajectory.add(new Position(x, y - 1));
-        reverseTrajectory.add(new Position(x + 1, y));
-        reverseTrajectory.add(new Position(x + 1, y));
-        reverseTrajectory.add(new Position(x, y - 1));
-        reverseTrajectory.add(new Position(x, y + 1));
-
-        int nextRotation = currentRotation % 8 + 1;
-        List<Entity> listBoulders = DungeonManiaController.getAllEntities().stream()
-                .filter((Entity e) -> e instanceof Boulder).collect(Collectors.toList());
-        if (listBoulders.stream()
-                .anyMatch((Entity p) -> p.getPosition().equals(movementTrajectory.get(nextRotation)))) {
-            if (isReversed) {
-                newPosition = new Position(movementTrajectory.get(nextRotation).getX(),
-                        movementTrajectory.get(nextRotation).getY());
-                isReversed = false;
-            } else {
-                newPosition = new Position(reverseTrajectory.get(nextRotation).getX(),
-                        reverseTrajectory.get(nextRotation).getY());
-                isReversed = true;
-            }
-
-        } else if (isReversed) {
-            newPosition = new Position(movementTrajectory.get(nextRotation).getX(),
-                    movementTrajectory.get(nextRotation).getY());
-        } else {
-            newPosition = new Position(movementTrajectory.get(nextRotation).getX(),
-                    movementTrajectory.get(nextRotation).getY());
+    public void moveEntity(MovingEntity entity) {
+        if (pivot == null) {
+            pivot = entity.getPosition();
+            entity.move(Direction.UP);
+            return;
         }
+        Position previousPos = entity.getPosition();
+        moveEntityCircular(entity);
+        if (entity.getPosition() == previousPos) {
+            isReversed = !isReversed;
+            moveEntityCircular(entity);
+        }
+    }
 
-        currentRotation = nextRotation;
+    private void moveEntityCircular(MovingEntity entity) {
+        int index = pivot.getAdjacentPositions().indexOf(entity.getPosition());
+        if (isReversed) {
+            iterateIndex(index, -1, pivot.getAdjacentPositions().size());
+        } else {
+            iterateIndex(index, 1, pivot.getAdjacentPositions().size());
+        }
+        Direction direction = entity.getPosition().getDirectionTo(pivot.getAdjacentPositions().get(index));
+        entity.move(direction);
+    }
 
-        return newPosition;
+    private int iterateIndex(int index, int iteration, int maxSize) {
+        index += iteration;
+        if (index >= maxSize) {
+            index = 0;
+        } else if (index < 0) {
+            index = maxSize - 1;
+        }
+        return index;
     }
 }

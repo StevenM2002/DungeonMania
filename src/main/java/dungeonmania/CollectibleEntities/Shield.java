@@ -15,21 +15,19 @@ public class Shield extends InventoryObject implements Buildable, Durability {
     }
 
     @Override
-    public double deteriorate() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public double getBattleUses() {
-        // TODO Auto-generated method stub
-        return 0;
+    public boolean deteriorate() {
+        durability -= 1;
+        return durability <= 0;
     }
 
     @Override
     public boolean canCraft(List<InventoryObject> inventory) {
         // TODO Auto-generated method stub
         return true;
+    }
+
+    public int getDefence() {
+        return defence;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package dungeonmania;
 
+import dungeonmania.MovingEntities.Movement;
 import dungeonmania.MovingEntities.Interactable;
 import dungeonmania.MovingEntities.MovingEntity;
 import org.json.JSONArray;
@@ -26,22 +27,26 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DungeonManiaController {
-    private static List<Entity> allEntities;
+    private List<Entity> allEntities;
     private int currentEntityID;
     private int currentDungeonID = 0;
     private String currentDungeonName;
     private static JSONObject config;
     private CollisionManager collisionManager;
+    private BattleManager battleManager;
 
-    public String getDungeonID() {
+    public BattleManager getBattleManager() {
+        return battleManager;
+    }
+    private String getDungeonID() {
         return Integer.toString(currentDungeonID);
     }
     private void nextDungeonID() {
         currentDungeonID += 1;
     }
 
-    public static Player getPlayer() {
-        return (Player) allEntities.stream().filter(x->x.getClass().getSimpleName().startsWith("Player")).findFirst().get();
+    public Player getPlayer() {
+        return (Player) allEntities.stream().filter(x->x.getType().startsWith("Player")).findFirst().get();
     }
 
     public static int getConfigValue(String key) {
@@ -58,7 +63,7 @@ public class DungeonManiaController {
         return newID;
     }
 
-    public static List<Entity> getAllEntities() {
+    public List<Entity> getAllEntities() {
         return allEntities;
     }
 
@@ -92,11 +97,16 @@ public class DungeonManiaController {
         currentEntityID = 0;
         nextDungeonID();
         currentDungeonName = dungeonName;
+
+        // initialising collisions
         collisionManager = new CollisionManager(this);
         Entity.collisionManager = collisionManager;
+        battleManager = new BattleManager(this);
         
         JSONObject dungeon = null;
         JSONObject config = null;
+
+        //TODO: fix this, now its a precondition that loadResourceFile gets a file that exists
         try {
             dungeon = new JSONObject(FileLoader.loadResourceFile("/dungeons/"+dungeonName+".json"));
         } catch (IOException e) {
@@ -108,7 +118,9 @@ public class DungeonManiaController {
             throw new IllegalArgumentException("Could not find config file \""+configName+"\"");
         }
         loadEntities(dungeon.optJSONArray("entities"), config);
-        //TODO: Create goals, and other config stuff
+        
+        PortalMatcher.configurePortals(allEntities);
+        Movement.player = getPlayer();
         return getDungeonResponseModel();
     }
 
@@ -136,7 +148,7 @@ public class DungeonManiaController {
             inventoryList.add(i.getItemResponse());
         }
 
-        ArrayList<BattleResponse> battleList = (ArrayList<BattleResponse>) Battle.getBattleList();
+        ArrayList<BattleResponse> battleList = (ArrayList<BattleResponse>) battleManager.getBattleList();
         //TODO: add once crafting is implemented
         ArrayList<String> buildables = new ArrayList<>();
         //TODO: finish once goals are implemented
@@ -173,7 +185,7 @@ public class DungeonManiaController {
     private void doSharedTick() {
         getPlayer().doPotionTick();
         List<MovingEntity> movingEntities = allEntities.stream().filter(entity -> entity instanceof MovingEntity).map(entity -> (MovingEntity) entity).collect(Collectors.toList());
-        movingEntities.forEach(entity -> entity.move(getPlayer()));
+        movingEntities.forEach(entity -> entity.doTickMovement());
     }
 
     /**
@@ -184,8 +196,7 @@ public class DungeonManiaController {
         if (!buildable.equals("bow") || !buildable.equals("shield")) {
             throw new IllegalArgumentException("You can only construct bows or shields");
         }
-        getPlayer().addCraftItemToInventory(buildable, DungeonManiaController.config, allEntities.size());
-        // TODO Creating dungeon response
+        getPlayer().addCraftItemToInventory(buildable, this.config, allEntities.size());
         return getDungeonResponseModel();
     }
 

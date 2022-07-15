@@ -107,4 +107,19 @@ public final class Position {
         adjacentPositions.add(new Position(x-1, y));
         return adjacentPositions;
     }
+
+    public Direction getDirectionTo(Position position) {
+        Position relativePos = calculatePositionBetween(this, position);
+        int x = relativePos.getX();
+        int y = relativePos.getY();
+        if (y >= x && y >= -x) {
+            return Direction.UP;
+        } else if (y >= x && y < -x) {
+            return Direction.LEFT;
+        } else if (y < x && y >= -x) {
+            return Direction.RIGHT;
+        } else {
+            return Direction.DOWN;
+        }
+    }
 }

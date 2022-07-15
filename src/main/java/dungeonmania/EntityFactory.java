@@ -5,10 +5,6 @@ import dungeonmania.MovingEntities.*;
 import dungeonmania.StaticEntities.*;
 import dungeonmania.util.Position;
 
-import java.util.List;
-import java.util.stream.Stream;
-
-import javax.sound.sampled.Port;
 
 import org.json.JSONObject;
 

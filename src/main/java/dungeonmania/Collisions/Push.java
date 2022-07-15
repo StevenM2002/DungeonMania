@@ -1,6 +1,5 @@
 package dungeonmania.Collisions;
 
-import java.util.List;
 
 import dungeonmania.Entity;
 import dungeonmania.Player;
@@ -8,10 +7,6 @@ import dungeonmania.StaticEntities.Boulder;
 import dungeonmania.util.Direction;
 
 public class Push extends Collision {
-
-    public Push(List<Entity> allEntities) {
-        super(allEntities);
-    }
     /**
      * Precondition: moved is player, collided is boulder
      */
