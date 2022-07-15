@@ -2,8 +2,6 @@ package dungeonmania.MovingEntities;
 
 import dungeonmania.CanMove;
 import dungeonmania.Entity;
-import dungeonmania.util.Direction;
-import dungeonmania.util.Position;
 
 public abstract class MovingEntity extends Entity implements CanMove {
     private double health;
@@ -34,6 +32,8 @@ public abstract class MovingEntity extends Entity implements CanMove {
         this.attack = attack;
         this.movementStrategy = movementStrategy;
     }
+    public void move(Player player) {
+        this.setPosition(movementStrategy.getNextPosition(player, this.getPosition()));
 
     @Override
     public void move(Direction direction) {

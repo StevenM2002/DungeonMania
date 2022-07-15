@@ -1,7 +1,10 @@
 package dungeonmania;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.json.JSONObject;
 import dungeonmania.CollectibleEntities.InventoryObject;
@@ -15,7 +18,20 @@ public class Player extends Entity implements CanMove {
     private List<InventoryObject> inventory = new ArrayList<>();
     private double attack;
     private double health;
-
+    private HashMap<String, PlayerListener> subscribers = new HashMap<>();
+    // String is the event which the listener wants to subscribe to
+    // This includes:
+    // playerMovement,
+    public void subscribe(String eventType, PlayerListener subscriber) {
+        subscribers.put(eventType, subscriber);
+    }
+    public void unsubscribe(String eventType, PlayerListener subscriber) {
+        subscribers.remove(eventType, subscriber);
+    }
+    public void notify(String eventType, PlayerDataArgs data) {
+        var validSubs = subscribers.entrySet().stream().filter(x -> x.getKey().equals(eventType)).map(Map.Entry::getValue).collect(Collectors.toList());
+        validSubs.forEach(publisherListener -> publisherListener.update(data));
+    }
     public Player(String id, Position position, double health, double attack) {
         super(id, position, false);
         this.health = health;
@@ -36,11 +52,13 @@ public class Player extends Entity implements CanMove {
 
     /**
      * If there is no blocking entity in the next move, then move the player one block down else do not move
-     * @param blockingEntities the positions of any entities which can block the movement of the player into that position
      * @param direction the direction of movement
      */
     @Override
     public void move(Direction direction) {
+        var data = new PlayerDataArgs();
+        data.setPreviousPlayerPosition(this.getPosition());
+        this.notify("playerMovement", data);
         collisionManager.requestMove(this, direction);
     }
 
