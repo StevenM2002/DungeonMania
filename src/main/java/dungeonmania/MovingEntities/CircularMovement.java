@@ -1,5 +1,6 @@
 package dungeonmania.MovingEntities;
 
+import dungeonmania.DungeonManiaController;
 import dungeonmania.Entity;
 import dungeonmania.Player;
 import dungeonmania.StaticEntities.Boulder;
@@ -42,7 +43,7 @@ public class CircularMovement implements Movement {
         reverseTrajectory.add(new Position(x, y + 1));
 
         int nextRotation = currentRotation % 8 + 1;
-        List<Entity> listBoulders = allEntities.stream()
+        List<Entity> listBoulders = DungeonManiaController.getAllEntities().stream()
                 .filter((Entity e) -> e instanceof Boulder).collect(Collectors.toList());
         if (listBoulders.stream()
                 .anyMatch((Entity p) -> p.getPosition().equals(movementTrajectory.get(nextRotation)))) {

@@ -7,7 +7,6 @@ import org.json.JSONObject;
 
 import java.lang.IllegalArgumentException;
 
-import dungeonmania.CollectibleEntities.CollectibleEntity;
 import dungeonmania.CollectibleEntities.InventoryObject;
 import dungeonmania.Collisions.CollisionManager;
 import dungeonmania.exceptions.InvalidActionException;
@@ -32,7 +31,6 @@ public class DungeonManiaController {
     private int currentDungeonID = 0;
     private String currentDungeonName;
     private static JSONObject config;
-    private static Player player;
     private CollisionManager collisionManager;
 
     public String getDungeonID() {
@@ -110,7 +108,6 @@ public class DungeonManiaController {
             throw new IllegalArgumentException("Could not find config file \""+configName+"\"");
         }
         loadEntities(dungeon.optJSONArray("entities"), config);
-        DungeonManiaController.player = getPlayer();
         //TODO: Create goals, and other config stuff
         return getDungeonResponseModel();
     }
@@ -216,15 +213,5 @@ public class DungeonManiaController {
 
     public static List<EntityResponse> getEntitiesResponse(DungeonResponse res, String type) {
         return getEntitiesStream(res, type).collect(Collectors.toList());
-    }
-
-    public static void main(String[] args) throws IllegalArgumentException, InvalidActionException {
-        DungeonManiaController d = new DungeonManiaController();
-        DungeonResponse res = d.newGame("test", "simple");
-        DungeonManiaController.getPlayer().getInventory().add(((InventoryObject) ((CollectibleEntity) getAllEntities().get(1)).getCollectible()));
-        DungeonResponse res2 = d.interact("2");
-        for (Entity e : allEntities) {
-            System.out.println(e);
-        }
     }
 }

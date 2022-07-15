@@ -34,7 +34,7 @@ public class Mercenary extends MovingEntity implements Interactable{
 
         if (player.getInventory().stream().filter(i -> i instanceof Treasure).collect(Collectors.toList()).size() == DungeonManiaController.getConfigValue("bribe_amount")) {
             if (DungeonManiaController.getConfigValue("bribe_radius") == distanceToPlayer(DungeonManiaController.getAllEntities()) &&
-                this.getMovementStrategy().equals(new FollowMovement())) {
+                !(this.getMovementStrategy() instanceof FriendlyMovement)) {
 
                 this.setMovementStrategy(new FriendlyMovement());
 

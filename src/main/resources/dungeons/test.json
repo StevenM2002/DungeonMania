@@ -8,12 +8,12 @@
         {
             "x": 1,
             "y": 2,
-            "type": "treasure"
+            "type": "sword"
         },
         {
             "x": 2,
             "y": 1,
-            "type": "mercenary"
+            "type": "zombie_toast_spawner"
         },
         {
             "x": 8,
