@@ -24,6 +24,10 @@ public abstract class MovingEntity extends Entity implements CanMove {
         return attack;
     }
 
+    public Movement getMovementStrategy() {
+        return movementStrategy;
+    }
+
     public void setMovementStrategy(Movement movementStrategy) {
         this.movementStrategy = movementStrategy;
     }
@@ -43,3 +47,4 @@ public abstract class MovingEntity extends Entity implements CanMove {
         collisionManager.requestMove(this, direction);
     }
 }
+
