@@ -28,19 +28,19 @@ import java.util.stream.Stream;
 public class DungeonManiaController {
     private static List<Entity> allEntities;
     private int currentEntityID;
-    private int currentDungeonID = 0;
-    private String currentDungeonName;
+    private static int currentDungeonID = 0;
+    private static String currentDungeonName;
     private static JSONObject config;
     private CollisionManager collisionManager;
 
-    private String getDungeonID() {
+    public static String getDungeonID() {
         return Integer.toString(currentDungeonID);
     }
     private void nextDungeonID() {
         currentDungeonID += 1;
     }
 
-    public Player getPlayer() {
+    public static Player getPlayer() {
         return (Player) allEntities.stream().filter(x->x.getClass().getSimpleName().startsWith("Player")).findFirst().get();
     }
 
@@ -124,7 +124,7 @@ public class DungeonManiaController {
     /**
      * /game/dungeonResponseModel
      */
-    public DungeonResponse getDungeonResponseModel() {
+    public static DungeonResponse getDungeonResponseModel() {
         // creating the entity list, TODO: could maybe do with streams
         ArrayList<EntityResponse> entityList = new ArrayList<>();
         for (Entity e : allEntities) {
