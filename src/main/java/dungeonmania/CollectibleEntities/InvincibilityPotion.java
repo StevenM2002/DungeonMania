@@ -19,4 +19,9 @@ public class InvincibilityPotion extends InventoryObject implements Potion, MapC
     public int getDurationEffect() {
         return duration;
     }
+
+    @Override
+    public String getName() {
+        return "InvincibilityPotion";
+    }
 }

@@ -11,9 +11,31 @@ import dungeonmania.exceptions.InvalidActionException;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
-public class Mercenary extends MovingEntity implements Interactable{
+import dungeonmania.CollectibleEntities.InvincibilityPotion;
+import dungeonmania.CollectibleEntities.InvisibilityPotion;
+import dungeonmania.PlayerDataArgs;
+import dungeonmania.PlayerListener;
+
+public class Mercenary extends MovingEntity implements PlayerListener, Interactable {
+    private boolean isFriendly = false;
     public Mercenary(String id, Position position, double health, double attack) {
         super(id, position, true, health, attack, new FollowMovement());
+    }
+    @Override
+    public void update(PlayerDataArgs data) {
+        if (data.getPotion() == null && isFriendly) {
+            setMovementStrategy(new FriendlyMovement());
+        } else if (data.getPotion() == null && !isFriendly) {
+            setMovementStrategy(new FollowMovement());
+        } else if (data.getPotion() instanceof InvisibilityPotion) {
+            setMovementStrategy(new RandomMovement());
+        } else if (data.getPotion() instanceof InvincibilityPotion && !isFriendly) {
+            setMovementStrategy(new RunningMovement());
+        }
+    }
+
+    public boolean isFriendly() {
+        return isFriendly;
     }
 
     @Override
@@ -55,4 +77,10 @@ public class Mercenary extends MovingEntity implements Interactable{
         }
     }
 
+    public void setFriendly(boolean friendly) {
+        isFriendly = friendly;
+        if (isFriendly) {
+            setMovementStrategy(new FriendlyMovement());
+        }
+    }
 }
