@@ -28,13 +28,25 @@ public class CollisionManager {
      * @param direction
      */
     public void requestMove(Entity moved, Direction direction) {
+        System.out.println("trying to move: "+moved.getType());
         Stream<Entity> collidingEntities = dmc.getAllEntities().stream()
             .filter(x->x.getPosition() == moved.getPosition().translateBy(direction));
         
         // check if the entity is blocked, otherwise process all collisions
         // does this to prevent battles with spiders in walls, etc
-        if (!collidingEntities.anyMatch(x->(getCollision(moved, x) instanceof Block))) {
-            collidingEntities.forEach(x->getCollision(moved, x).processCollision(moved, x, direction));
+        if (dmc.getAllEntities().stream()
+            .filter(x->x.getPosition() == moved.getPosition().translateBy(direction))
+            .count() == 0
+        ) {
+            System.out.println("no collisions");
+            moved.setPosition(moved.getPosition().translateBy(direction));
+        } else if (!collidingEntities.anyMatch(x->(getCollision(moved, x) instanceof Block))) {
+            System.out.println("not blocked");
+            dmc.getAllEntities().stream()
+                .filter(x->x.getPosition() == moved.getPosition().translateBy(direction))
+                .forEach(x->getCollision(moved, x).processCollision(moved, x, direction));
+        } else {
+            System.out.println("blocked");
         }
     }
 

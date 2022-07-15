@@ -20,7 +20,7 @@ public class EntityFactory {
                 return new Exit(id, position);
             case "boulder":
                 return new Boulder(id, position);
-            case "floor_switch":
+            case "switch":
                 return new FloorSwitch(id, position);
             case "door":
                 return new Door(id, position, jsonEntity.getInt("key"));

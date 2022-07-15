@@ -46,7 +46,7 @@ public class DungeonManiaController {
     }
 
     public Player getPlayer() {
-        return (Player) allEntities.stream().filter(x->x.getType().startsWith("Player")).findFirst().get();
+        return (Player) allEntities.stream().filter(x->(x instanceof Player)).findFirst().get();
     }
 
     public static int getConfigValue(String key) {
