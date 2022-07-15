@@ -44,7 +44,7 @@ public abstract class Entity {
     public EntityResponse getEntityResponse() {
         return new EntityResponse(
             this.id, 
-            UtilityFunctions.camelToSnake(this.getClass().getSimpleName()),
+            UtilityFunctions.camelToSnake(this.getType()),
             position,
             isInteractable);
     }

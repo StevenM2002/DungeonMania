@@ -24,5 +24,10 @@ public class FloorSwitch extends StaticEntity implements Switch {
         return "Boulder";
     }
 
+    @Override
+    public String getType() {
+        return "switch";
+    }
+
 
 }
