@@ -19,7 +19,7 @@ public class Mercenary extends MovingEntity implements PlayerListener {
             setMovementStrategy(new FollowMovement());
         } else if (data.getPotion() instanceof InvisibilityPotion) {
             setMovementStrategy(new RandomMovement());
-        } else if (data.getPotion() instanceof InvincibilityPotion) {
+        } else if (data.getPotion() instanceof InvincibilityPotion && !isFriendly) {
             setMovementStrategy(new RunningMovement());
         }
     }
@@ -30,5 +30,8 @@ public class Mercenary extends MovingEntity implements PlayerListener {
 
     public void setFriendly(boolean friendly) {
         isFriendly = friendly;
+        if (isFriendly) {
+            setMovementStrategy(new FriendlyMovement());
+        }
     }
 }
