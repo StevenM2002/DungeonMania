@@ -48,7 +48,6 @@ public class Battle {
             if (bow_usage == 1) {
                 bow_mod = 2;
             }
-
             double deltaPlayerHealth = player.getHealth() - ((enemy.getAttack() - shield_mod) / 10);
             double deltaEnemyHealth = enemy.getHealth() - ((bow_mod * (player.getAttack() + sword_mod)) / 5);
 
