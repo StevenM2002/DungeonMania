@@ -166,7 +166,7 @@ public class DungeonManiaController {
     }
     private void doSharedTick() {
         List<MovingEntity> movingEntities = allEntities.stream().filter(entity -> entity instanceof MovingEntity).map(entity -> (MovingEntity) entity).collect(Collectors.toList());
-        movingEntities.forEach(entity -> entity.move(allEntities));
+        movingEntities.forEach(entity -> entity.move(getPlayer()));
     }
 
     /**
