@@ -17,7 +17,7 @@ public class ZombieToastSpawner extends StaticEntity implements Interactable {
     public void spawn() {
 
     }
-    
+
     public Boolean isAdjacent(Player player) {
         int player_x = player.getPosition().getX();
         int player_y = player.getPosition().getY();
