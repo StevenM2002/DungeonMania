@@ -17,6 +17,7 @@ public class Battle {
     private static List<BattleResponse> battleList = new ArrayList<>();
 
     public static List<RoundResponse> doRounds(Player player, MovingEntity enemy, List<CollectibleEntity> inventory) {
+
         List<RoundResponse> rounds = new ArrayList<>();
         List<ItemResponse> weaponsUsed = new ArrayList<>();
 
@@ -48,11 +49,13 @@ public class Battle {
             if (bow_usage == 1) {
                 bow_mod = 2;
             }
+
             double deltaPlayerHealth = player.getHealth() - ((enemy.getAttack() - shield_mod) / 10);
             double deltaEnemyHealth = enemy.getHealth() - ((bow_mod * (player.getAttack() + sword_mod)) / 5);
 
             player.setHealth(deltaPlayerHealth);
             enemy.setHealth(deltaEnemyHealth);
+
 
             rounds.add(new RoundResponse(deltaPlayerHealth, deltaEnemyHealth, weaponsUsed));
             weaponsUsed.removeIf((ItemResponse i) -> i.getType().equals("bow"));
