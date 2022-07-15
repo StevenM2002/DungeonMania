@@ -3,8 +3,8 @@ package dungeonmania.MovingEntities;
 import dungeonmania.CanMove;
 import dungeonmania.Entity;
 import dungeonmania.Player;
-import dungeonmania.util.Position;
 import dungeonmania.util.Direction;
+import dungeonmania.util.Position;
 
 public abstract class MovingEntity extends Entity implements CanMove {
     private double health;

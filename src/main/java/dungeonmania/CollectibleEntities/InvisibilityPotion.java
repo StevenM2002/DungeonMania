@@ -18,4 +18,9 @@ public class InvisibilityPotion extends InventoryObject implements Potion, MapCo
     public int getDurationEffect() {
         return duration;
     }
+
+    @Override
+    public String getName() {
+        return "InvisibilityPotion";
+    }
 }

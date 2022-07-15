@@ -1,11 +1,10 @@
 package dungeonmania;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
+import dungeonmania.CollectibleEntities.Potion;
 import org.json.JSONObject;
 import dungeonmania.CollectibleEntities.InventoryObject;
 import dungeonmania.CollectibleEntities.Bow;
@@ -15,23 +14,46 @@ import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
 public class Player extends Entity implements CanMove {
+    private Position previousPosition = getPosition();
+    public Position getPreviousPosition() {
+        return previousPosition;
+    }
     private List<InventoryObject> inventory = new ArrayList<>();
     private double attack;
     private double health;
     private HashMap<String, PlayerListener> subscribers = new HashMap<>();
     // String is the event which the listener wants to subscribe to
     // This includes:
-    // playerMovement,
+    // playerMovement, playerPotionEffect
     public void subscribe(String eventType, PlayerListener subscriber) {
         subscribers.put(eventType, subscriber);
     }
     public void unsubscribe(String eventType, PlayerListener subscriber) {
         subscribers.remove(eventType, subscriber);
     }
+    private PotionManager potionManager = new PotionManager();
+
+    /**
+     * Assuming id given is to a potion
+     * @param id of a potion
+     */
+    public void queuePotion(String id) {
+        InventoryObject inventoryObject = inventory.stream().filter(it -> it.getId().equals(id)).findFirst().get();
+        Potion potion = (Potion) inventoryObject;
+        potionManager.addPotionEffect(potion.getDurationEffect(), potion);
+        inventory.remove(inventoryObject);
+    }
+    public void doPotionTick() {
+        Potion potion = potionManager.getNextEffect();
+        PlayerDataArgs data = new PlayerDataArgs();
+        data.setPotion(potion);
+        notify("playerPotionEffect", data);
+    }
     public void notify(String eventType, PlayerDataArgs data) {
         var validSubs = subscribers.entrySet().stream().filter(x -> x.getKey().equals(eventType)).map(Map.Entry::getValue).collect(Collectors.toList());
         validSubs.forEach(publisherListener -> publisherListener.update(data));
     }
+
     public Player(String id, Position position, double health, double attack) {
         super(id, position, false);
         this.health = health;
@@ -56,10 +78,14 @@ public class Player extends Entity implements CanMove {
      */
     @Override
     public void move(Direction direction) {
-        var data = new PlayerDataArgs();
-        data.setPreviousPlayerPosition(this.getPosition());
-        this.notify("playerMovement", data);
+        var tempPosition = getPosition();
         collisionManager.requestMove(this, direction);
+        // Only set position if moved
+        if (tempPosition == getPosition()) {
+            //Do nothing
+        } else {
+            this.previousPosition = tempPosition;
+        }
     }
 
     public List<InventoryObject> getInventory() {
