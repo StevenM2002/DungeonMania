@@ -1,5 +1,6 @@
 package dungeonmania.Collisions;
 
+import java.util.ArrayList;
 import java.util.stream.Stream;
 
 import dungeonmania.DungeonManiaController;
@@ -7,6 +8,7 @@ import dungeonmania.Entity;
 import dungeonmania.MovingEntities.Mercenary;
 import dungeonmania.StaticEntities.Switch;
 import dungeonmania.util.Direction;
+import dungeonmania.util.Position;
 
 public class CollisionManager {
     private DungeonManiaController dmc;
@@ -28,25 +30,22 @@ public class CollisionManager {
      * @param direction
      */
     public void requestMove(Entity moved, Direction direction) {
-        System.out.println("trying to move: "+moved.getType());
-        Stream<Entity> collidingEntities = dmc.getAllEntities().stream()
-            .filter(x->x.getPosition() == moved.getPosition().translateBy(direction));
-        
-        // check if the entity is blocked, otherwise process all collisions
-        // does this to prevent battles with spiders in walls, etc
-        if (dmc.getAllEntities().stream()
-            .filter(x->x.getPosition() == moved.getPosition().translateBy(direction))
-            .count() == 0
+        Position toMove = moved.getPosition().translateBy(direction);
+        ArrayList<Entity> collisionQueue = new ArrayList<>();
+        dmc.getAllEntities().stream()
+            .filter(x->x.getPosition().equals(toMove) && x.getId() != moved.getId())
+            .forEach(x->collisionQueue.add(x));
+        // checks if no colliding entities and moves
+        // Then checks if anything blocking it
+        if (collisionQueue.size() == 0) {
+            moved.setPosition(toMove);
+        } else if (!collisionQueue.stream()
+            .anyMatch(x->(getCollision(moved, x) instanceof Block))
         ) {
-            System.out.println("no collisions");
-            moved.setPosition(moved.getPosition().translateBy(direction));
-        } else if (!collidingEntities.anyMatch(x->(getCollision(moved, x) instanceof Block))) {
-            System.out.println("not blocked");
-            dmc.getAllEntities().stream()
-                .filter(x->x.getPosition() == moved.getPosition().translateBy(direction))
-                .forEach(x->getCollision(moved, x).processCollision(moved, x, direction));
+            for (Entity collided : collisionQueue) {
+                getCollision(moved, collided).processCollision(moved, collided, direction);
+            }
         } else {
-            System.out.println("blocked");
         }
     }
 
@@ -95,6 +94,7 @@ public class CollisionManager {
                     case "Wood":
                         return initCollision("Collect");
                 }
+                break;
             case "Mercenary":
                 switch (collided.getType()) {
                     case "Portal":
@@ -102,8 +102,8 @@ public class CollisionManager {
                     case "Player":
                         Mercenary merc = (Mercenary) moved;
                         if (merc.isFriendly()) return initCollision("Block");
-                        
                 }
+                break;
             case "Spider":
                 switch (collided.getType()) {
                     case "Wall":
@@ -113,11 +113,13 @@ public class CollisionManager {
                     case "Door":
                         return initCollision("Pass");
                 }
+                break;
             case "Boulder":
                 switch (collided.getType()) {
                     case "FloorSwitch":
                         return initCollision("Activate");
                 }
+                break;
         }
         return initCollision(collided.getDefaultCollision());
     }
