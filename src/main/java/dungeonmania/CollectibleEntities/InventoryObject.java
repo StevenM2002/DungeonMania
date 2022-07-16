@@ -24,4 +24,13 @@ public abstract class InventoryObject {
             UtilityFunctions.camelToSnake(this.getClass().getSimpleName())
         );
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof InventoryObject) {
+            InventoryObject inv = (InventoryObject) obj;
+            return inv.getId() == this.getId();
+        }
+        return false;
+    }
 }

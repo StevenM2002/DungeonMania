@@ -9,7 +9,7 @@ public class Door extends StaticEntity {
     public Door(String id, Position position, int key) {
         super(id, position, false);
         this.key = key;
-        this.locked = false;
+        this.locked = true;
     }
 
     public boolean keyMatchesDoor(Key k) {
@@ -17,7 +17,7 @@ public class Door extends StaticEntity {
     }
 
     public void unlock() {
-        locked = true;
+        locked = false;
     }
     public boolean isLocked() {
         return locked;
@@ -30,7 +30,4 @@ public class Door extends StaticEntity {
         } 
         return "Pass";
     }
-
-    
-
 }

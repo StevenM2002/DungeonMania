@@ -24,11 +24,11 @@ public class Unlock extends Collision {
             .filter(x->door.keyMatchesDoor(x))
             .findFirst()
             .orElseGet(()->{return null;});
-        
         if (door.isLocked() && playerKey != null) {
+            System.out.println("unlocking door");
             door.unlock();
             player.getInventory().remove(playerKey);
-        } 
+        }
         
         if (!door.isLocked()) {
             player.setPosition(collided.getPosition());
