@@ -41,6 +41,9 @@ public class Player extends Entity implements CanMove {
      */
     public void queuePotion(String id) {
         InventoryObject inventoryObject = inventory.stream().filter(it -> it.getId().equals(id)).findFirst().get();
+        if (!(inventoryObject instanceof Potion)) {
+            return;
+        }
         Potion potion = (Potion) inventoryObject;
         potionManager.addPotionEffect(potion.getDurationEffect(), potion);
         inventory.remove(inventoryObject);
