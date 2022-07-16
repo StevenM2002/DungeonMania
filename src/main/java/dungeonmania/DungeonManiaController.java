@@ -1,5 +1,8 @@
 package dungeonmania;
 
+import dungeonmania.MovingEntities.Mercenary;
+import dungeonmania.MovingEntities.Movement;
+import dungeonmania.MovingEntities.MovingEntity;
 import dungeonmania.CollectibleEntities.Bomb;
 import dungeonmania.CollectibleEntities.Potion;
 import dungeonmania.MovingEntities.*;
@@ -12,7 +15,10 @@ import org.json.JSONObject;
 import java.lang.IllegalArgumentException;
 
 import dungeonmania.CollectibleEntities.InventoryObject;
+import dungeonmania.CollectibleEntities.Shield;
+import dungeonmania.CollectibleEntities.Bow;
 import dungeonmania.Collisions.CollisionManager;
+import dungeonmania.Goals.GoalManager;
 import dungeonmania.exceptions.InvalidActionException;
 import dungeonmania.response.models.BattleResponse;
 import dungeonmania.response.models.DungeonResponse;
@@ -20,6 +26,7 @@ import dungeonmania.response.models.EntityResponse;
 import dungeonmania.response.models.ItemResponse;
 import dungeonmania.util.Direction;
 import dungeonmania.util.FileLoader;
+import dungeonmania.Goals.*;
 
 
 import java.io.IOException;
@@ -29,20 +36,20 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+
+
 public class DungeonManiaController {
     private SpiderSpawning spiderSpawning;
     private static List<Entity> allEntities;
     private int currentEntityID;
     private int currentDungeonID = 0;
     private String currentDungeonName;
+    private Goal goal;
     private static JSONObject config;
     private CollisionManager collisionManager;
     private BattleManager battleManager;
     private int currTick;
 
-    public BattleManager getBattleManager() {
-        return battleManager;
-    }
     private String getDungeonID() {
         return Integer.toString(currentDungeonID);
     }
@@ -50,10 +57,16 @@ public class DungeonManiaController {
         currentDungeonID += 1;
     }
 
-    public Player getPlayer() {
-        return (Player) allEntities.stream().filter(x->(x instanceof Player)).findFirst().get();
+    public BattleManager getBattleManager() {
+        return battleManager;
     }
 
+
+    public Player getPlayer() {
+        return (Player) allEntities.stream()
+            .filter(x->x.getClass().getSimpleName().startsWith("Player"))
+            .findFirst().get();
+    }
     public static JSONObject getConfig() {
         return config;
     }
@@ -61,6 +74,7 @@ public class DungeonManiaController {
     public static int getConfigValue(String key) {
         return config.getInt(key);
     }
+
     /**
      * returns a new id to be assigned to an entity object
      * also iterates the current id to a new value, so each id is unique
@@ -110,16 +124,12 @@ public class DungeonManiaController {
         currentEntityID = 0;
         nextDungeonID();
         currentDungeonName = dungeonName;
-
-        // initialising collisions
+        battleManager = new BattleManager(this);
         collisionManager = new CollisionManager(this);
         Entity.collisionManager = collisionManager;
-        battleManager = new BattleManager(this);
         
         JSONObject dungeon = null;
         JSONObject config = null;
-
-        //TODO: fix this, now its a precondition that loadResourceFile gets a file that exists
         try {
             dungeon = new JSONObject(FileLoader.loadResourceFile("/dungeons/"+dungeonName+".json"));
         } catch (IOException e) {
@@ -131,7 +141,8 @@ public class DungeonManiaController {
             throw new IllegalArgumentException("Could not find config file \""+configName+"\"");
         }
         loadEntities(dungeon.optJSONArray("entities"), config);
-        
+
+        goal = GoalManager.loadGoals(dungeon.getJSONObject("goal-condition"), config, battleManager);        
         PortalMatcher.configurePortals(allEntities);
         Movement.player = getPlayer();
         allEntities.stream().filter(it -> it instanceof Mercenary).forEach(it -> {
@@ -151,14 +162,14 @@ public class DungeonManiaController {
         return getDungeonResponseModel();
     }
 
+
+
     private void loadEntities(JSONArray entities, JSONObject config) {
         for (int i = 0; i < entities.length(); i++) {
             JSONObject JSONEntity = entities.getJSONObject(i);
             allEntities.add(EntityFactory.createEntity(getNewEntityID(), JSONEntity, config));
         }
     }
-
-
 
     /**
      * /game/dungeonResponseModel
@@ -179,11 +190,18 @@ public class DungeonManiaController {
         }
 
         ArrayList<BattleResponse> battleList = (ArrayList<BattleResponse>) battleManager.getBattleList();
+        
         //TODO: add once crafting is implemented
         ArrayList<String> buildables = new ArrayList<>();
+        Bow dummyBow = new Bow("69", 420, 123);
+        Shield dummyShield = new Shield("69", 420, 293847392);
+        if (dummyBow.canCraft(getPlayer().getInventory())) {
+            buildables.add("BOW");
+        }
+        if (dummyShield.canCraft(getPlayer().getInventory())) {
+            buildables.add("SHIELD");
+        }
         //TODO: finish once goals are implemented
-        String goals = "";
-
         return new DungeonResponse(
             getDungeonID(), 
             currentDungeonName, 
@@ -191,7 +209,7 @@ public class DungeonManiaController {
             inventoryList, 
             battleList, 
             buildables, 
-            goals
+            goal.getTypeString(getPlayer(), allEntities)
         );
     }
     /**
@@ -216,6 +234,7 @@ public class DungeonManiaController {
         doSharedTick();
         return getDungeonResponseModel();
     }
+    
     private void doSharedTick() {
         currTick++;
         getPlayer().doPotionTick();
@@ -224,6 +243,7 @@ public class DungeonManiaController {
         Position spiderPosition = spiderSpawning.getSpiderPositionSpawn(getPlayer(), currTick);
         if (spiderPosition != null) allEntities.add(new Spider(getNewEntityID(), spiderPosition, config.getDouble("spider_health"), config.getInt("spider_attack")));
         collisionManager.deactivateSwitches();
+        goal.hasCompleted(getPlayer(), allEntities);
     }
 
     private void doSharedSpawn() {
@@ -240,7 +260,7 @@ public class DungeonManiaController {
         if (!buildable.equals("bow") || !buildable.equals("shield")) {
             throw new IllegalArgumentException("You can only construct bows or shields");
         }
-        getPlayer().addCraftItemToInventory(buildable, DungeonManiaController.config, allEntities.size());
+        getPlayer().addCraftItemToInventory(buildable, DungeonManiaController.config, getNewEntityID());
         return getDungeonResponseModel();
     }
 
@@ -262,14 +282,46 @@ public class DungeonManiaController {
     }
 
     public static int countEntityOfType(DungeonResponse res, String type) {
-        return getEntitiesResponse(res, type).size();
+        return getEntities(res, type).size();
     }
 
-    public static Optional<EntityResponse> getPlayerResponse(DungeonResponse res) {
+    public static Optional<EntityResponse> getPlayer(DungeonResponse res) {
         return getEntitiesStream(res, "player").findFirst();
     }
 
-    public static List<EntityResponse> getEntitiesResponse(DungeonResponse res, String type) {
+    public static List<EntityResponse> getEntities(DungeonResponse res, String type) {
         return getEntitiesStream(res, type).collect(Collectors.toList());
+    }
+
+    public static void main(String[] args) {
+        DungeonManiaController dmc;
+        dmc = new DungeonManiaController();
+        DungeonResponse res = dmc.newGame("d_spiderTest_basicMovement", "c_spiderTest_basicMovement");
+        Position pos = getEntities(res, "spider").get(0).getPosition();
+
+        List<Position> movementTrajectory = new ArrayList<Position>();
+        int x = pos.getX();
+        int y = pos.getY();
+        int nextPositionElement = 0;
+        movementTrajectory.add(new Position(x, y - 1));
+        movementTrajectory.add(new Position(x + 1, y - 1));
+        movementTrajectory.add(new Position(x + 1, y));
+        movementTrajectory.add(new Position(x + 1, y + 1));
+        movementTrajectory.add(new Position(x, y + 1));
+        movementTrajectory.add(new Position(x - 1, y + 1));
+        movementTrajectory.add(new Position(x - 1, y));
+        movementTrajectory.add(new Position(x - 1, y - 1));
+
+        // Assert Circular Movement of Spider
+        for (int i = 0; i <= 20; ++i) {
+            res = dmc.tick(Direction.UP);
+            System.out.println(movementTrajectory.get(nextPositionElement));
+            System.out.println(getEntities(res, "spider").get(0).getPosition());
+
+            nextPositionElement++;
+            if (nextPositionElement == 8) {
+                nextPositionElement = 0;
+            }
+        }
     }
 }
