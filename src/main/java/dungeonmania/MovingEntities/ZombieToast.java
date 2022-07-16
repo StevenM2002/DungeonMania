@@ -4,7 +4,6 @@ import dungeonmania.CollectibleEntities.InvincibilityPotion;
 import dungeonmania.CollectibleEntities.InvisibilityPotion;
 import dungeonmania.PlayerDataArgs;
 import dungeonmania.PlayerListener;
-import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
 public class ZombieToast extends MovingEntity implements PlayerListener {

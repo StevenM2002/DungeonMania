@@ -4,6 +4,9 @@ import dungeonmania.MovingEntities.Mercenary;
 import dungeonmania.MovingEntities.Movement;
 import dungeonmania.MovingEntities.Interactable;
 import dungeonmania.MovingEntities.MovingEntity;
+import dungeonmania.MovingEntities.Spider;
+import dungeonmania.StaticEntities.ZombieToastSpawner;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -28,7 +31,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DungeonManiaController {
-    private List<Entity> allEntities;
+    private static List<Entity> allEntities;
     private int currentEntityID;
     private int currentDungeonID = 0;
     private String currentDungeonName;
@@ -50,6 +53,10 @@ public class DungeonManiaController {
         return (Player) allEntities.stream().filter(x->(x instanceof Player)).findFirst().get();
     }
 
+    public static JSONObject getConfig() {
+        return config;
+    }
+
     public static int getConfigValue(String key) {
         return config.getInt(key);
     }
@@ -66,6 +73,10 @@ public class DungeonManiaController {
 
     public List<Entity> getAllEntities() {
         return allEntities;
+    }
+
+    public static void removeFromEntities(Entity entity) {
+        allEntities.remove(entity);
     }
 
     public String getSkin() {
@@ -149,10 +160,13 @@ public class DungeonManiaController {
         for (Entity e : allEntities) {
             entityList.add(e.getEntityResponse());
         }
+        
         // creating inventory object list
         ArrayList<ItemResponse> inventoryList = new ArrayList<>();
-        for (InventoryObject i : getPlayer().getInventory()) {
-            inventoryList.add(i.getItemResponse());
+        if (allEntities.stream().anyMatch(e -> e instanceof Player)) {
+            for (InventoryObject i : getPlayer().getInventory()) {
+                inventoryList.add(i.getItemResponse());
+            }
         }
 
         ArrayList<BattleResponse> battleList = (ArrayList<BattleResponse>) battleManager.getBattleList();
@@ -175,6 +189,9 @@ public class DungeonManiaController {
      * /game/tick/item
      */
     public DungeonResponse tick(String itemUsedId) throws IllegalArgumentException, InvalidActionException {
+        doSharedTick();
+        doSharedBattles();
+        doSharedSpawn();
         // TODO check that itemUsedId is actually a potion before queuing potion
         getPlayer().queuePotion(itemUsedId);
         doSharedTick();
@@ -187,6 +204,8 @@ public class DungeonManiaController {
     public DungeonResponse tick(Direction movementDirection) {
         getPlayer().move(movementDirection);
         doSharedTick();
+        doSharedBattles();
+        doSharedSpawn();
         return getDungeonResponseModel();
     }
     private void doSharedTick() {
@@ -194,6 +213,17 @@ public class DungeonManiaController {
         List<MovingEntity> movingEntities = allEntities.stream().filter(entity -> entity instanceof MovingEntity).map(entity -> (MovingEntity) entity).collect(Collectors.toList());
         movingEntities.forEach(entity -> entity.doTickMovement());
         collisionManager.deactivateSwitches();
+    }
+    private void doSharedBattles() {
+        List<MovingEntity> movingEntities = allEntities.stream().filter(entity -> entity instanceof MovingEntity).map(entity -> (MovingEntity) entity).collect(Collectors.toList());
+        movingEntities.stream().filter(e -> e.getPosition().equals(getPlayer().getPosition())).forEach(e -> battleManager.doBattle(getPlayer(), e));
+    }
+    private void doSharedSpawn() {
+        if (allEntities.stream().anyMatch(e -> e instanceof ZombieToastSpawner)) {
+            allEntities.stream().filter(e -> e instanceof ZombieToastSpawner).map(e -> (ZombieToastSpawner) e).collect(Collectors.toList()).forEach(e -> e.spawn(allEntities));
+        }
+
+        Spider.spawn(allEntities);
     }
 
     /**
@@ -204,7 +234,7 @@ public class DungeonManiaController {
         if (!buildable.equals("bow") || !buildable.equals("shield")) {
             throw new IllegalArgumentException("You can only construct bows or shields");
         }
-        getPlayer().addCraftItemToInventory(buildable, this.config, allEntities.size());
+        getPlayer().addCraftItemToInventory(buildable, DungeonManiaController.config, allEntities.size());
         return getDungeonResponseModel();
     }
 
@@ -217,7 +247,9 @@ public class DungeonManiaController {
         } else {
             throw new IllegalArgumentException("Entity cannot be found with specified Id");
         }
-
+        doSharedTick();
+        doSharedBattles();
+        doSharedSpawn();
         return getDungeonResponseModel();
     }
 
