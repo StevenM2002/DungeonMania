@@ -15,8 +15,6 @@ import org.json.JSONObject;
 import java.lang.IllegalArgumentException;
 
 import dungeonmania.CollectibleEntities.InventoryObject;
-import dungeonmania.CollectibleEntities.Shield;
-import dungeonmania.CollectibleEntities.Bow;
 import dungeonmania.Collisions.CollisionManager;
 import dungeonmania.Goals.GoalManager;
 import dungeonmania.exceptions.InvalidActionException;
@@ -41,7 +39,7 @@ import java.util.stream.Stream;
 public class DungeonManiaController {
     private SpiderSpawning spiderSpawning;
     private static List<Entity> allEntities;
-    private int currentEntityID;
+    private static int currentEntityID;
     private int currentDungeonID = 0;
     private String currentDungeonName;
     private Goal goal;
@@ -80,7 +78,7 @@ public class DungeonManiaController {
      * also iterates the current id to a new value, so each id is unique
      * @return
      */
-    private String getNewEntityID() {
+    public static String getNewEntityID() {
         String newID = Integer.toString(currentEntityID);
         currentEntityID += 1;
         return newID;
@@ -192,23 +190,14 @@ public class DungeonManiaController {
         ArrayList<BattleResponse> battleList = (ArrayList<BattleResponse>) battleManager.getBattleList();
         
         //TODO: add once crafting is implemented
-        ArrayList<String> buildables = new ArrayList<>();
-        Bow dummyBow = new Bow("69", 420, 123);
-        Shield dummyShield = new Shield("69", 420, 293847392);
-        if (dummyBow.canCraft(getPlayer().getInventory())) {
-            buildables.add("BOW");
-        }
-        if (dummyShield.canCraft(getPlayer().getInventory())) {
-            buildables.add("SHIELD");
-        }
-        //TODO: finish once goals are implemented
+
         return new DungeonResponse(
             getDungeonID(), 
             currentDungeonName, 
             entityList, 
             inventoryList, 
             battleList, 
-            buildables, 
+            CraftingManager.getBuildables(getPlayer().getInventory()), 
             goal.getTypeString(getPlayer(), allEntities)
         );
     }
@@ -256,11 +245,7 @@ public class DungeonManiaController {
      * /game/build
      */
     public DungeonResponse build(String buildable) throws IllegalArgumentException, InvalidActionException {
-        // IllegalArgumentException
-        if (!buildable.equals("bow") || !buildable.equals("shield")) {
-            throw new IllegalArgumentException("You can only construct bows or shields");
-        }
-        getPlayer().addCraftItemToInventory(buildable, DungeonManiaController.config, getNewEntityID());
+        CraftingManager.craft(buildable, getPlayer().getInventory());
         return getDungeonResponseModel();
     }
 

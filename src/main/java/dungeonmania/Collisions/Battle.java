@@ -25,7 +25,7 @@ public class Battle extends Collision {
             player = (Player) collided;
             enemy = (MovingEntity) moved;
         }
-        player.setPosition(enemy.getPosition());
+        moved.setPosition(collided.getPosition());
         battleManager.doBattle(player, enemy);
     }
 }

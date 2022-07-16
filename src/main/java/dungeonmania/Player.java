@@ -94,18 +94,4 @@ public class Player extends Entity implements CanMove {
     public String getDefaultCollision() {
         return "Battle";
     }
-    
-    public void addCraftItemToInventory(String Item, JSONObject config, String id) throws IllegalArgumentException, InvalidActionException {
-        int shieldDurability = config.getInt("shield_durability");
-        int bowDurability = config.getInt("bow_durability");
-        int defence = config.getInt("shield_defence");
-        switch (Item) {
-            case "bow":
-                Bow newBow = new Bow(id, 2, bowDurability);
-                newBow.craft(inventory);
-            case "shield":
-                Shield newShield = new Shield(id, defence, shieldDurability);
-                newShield.craft(inventory);
-        }
-    }
 }

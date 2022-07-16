@@ -1,6 +1,5 @@
 package dungeonmania.CollectibleEntities;
 
-import dungeonmania.exceptions.InvalidActionException;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -38,38 +37,28 @@ public class Bow extends InventoryObject implements Buildable, Weapon, Durabilit
         if (arrowNo < 3 || woodNo < 1) {
             return false;
         }
-        else {
-            return true;
-        }
+        return true;
     }
     
     @Override
-    public void craft(List<InventoryObject> inventory) throws IllegalArgumentException, InvalidActionException {
-        // InvalidActionException
-        if (!canCraft(inventory)) {
-            throw new InvalidActionException("Not enough materials");
-        }
-        // Preparing used materials for removal
+    public List<InventoryObject> getUsedMaterials(List<InventoryObject> inventory) {
         int arrowCount = 0;
         int woodCount = 0;
-        List<InventoryObject> usedMaterial = new ArrayList<InventoryObject>();
+        List<InventoryObject> usedMaterials = new ArrayList<InventoryObject>();
         for (InventoryObject object : inventory) {
             if (object instanceof Arrow) {
-                if (arrowCount <= 3) {
-                    usedMaterial.add(object);
+                if (arrowCount < 3) {
+                    usedMaterials.add(object);
+                    arrowCount++;
                 }
             }
             if (object instanceof Wood) {
-                if (woodCount == 1) {
-                    usedMaterial.add(object);
+                if (woodCount == 0) {
+                    usedMaterials.add(object);
+                    woodCount++;
                 }
             }
         }
-        // Crafting
-        inventory.add(this);
-        // Removing crafting materials
-        for (InventoryObject object : usedMaterial) {
-            inventory.remove(object);
-        }
+        return usedMaterials;
     }
 }
