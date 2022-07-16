@@ -40,11 +40,10 @@ public class FollowMovement extends Movement {
         Position initialPosition = entity.getPosition();
 
         // attempts to move in directions in order of queuePrio until it moves
-        for (int i = 0;
-            i < queuePrio.size() && entity.getPosition() == initialPosition;
-            i++
-        ) {
-            entity.move(queuePrio.get(i));
+        for (int i = 0; i < queuePrio.size() && entity.getPosition() == initialPosition; i++) {
+            if (!entity.getPosition().translateBy(queuePrio.get(i)).equals(entity.getPreviousPosition())) {
+                entity.move(queuePrio.get(i));
+            }
         }
     }
 }

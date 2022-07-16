@@ -1,5 +1,6 @@
 package dungeonmania;
 
+import dungeonmania.MovingEntities.Mercenary;
 import dungeonmania.MovingEntities.Movement;
 import dungeonmania.MovingEntities.Interactable;
 import dungeonmania.MovingEntities.MovingEntity;
@@ -121,6 +122,12 @@ public class DungeonManiaController {
         
         PortalMatcher.configurePortals(allEntities);
         Movement.player = getPlayer();
+        allEntities.stream().filter(it -> it instanceof Mercenary).forEach(it -> {
+            if (it instanceof PlayerListener) {
+                PlayerListener casted = (PlayerListener) it;
+                getPlayer().subscribe("playerPotionEffect", casted);
+            }
+        });
         return getDungeonResponseModel();
     }
 
@@ -168,9 +175,9 @@ public class DungeonManiaController {
      * /game/tick/item
      */
     public DungeonResponse tick(String itemUsedId) throws IllegalArgumentException, InvalidActionException {
-        doSharedTick();
         // TODO check that itemUsedId is actually a potion before queuing potion
         getPlayer().queuePotion(itemUsedId);
+        doSharedTick();
         return null;
     }
 
