@@ -12,10 +12,10 @@ public class FollowMovement extends Movement {
         var x = relativePos.getX();
         var y = relativePos.getY();
         List<Direction> queuePrio = Arrays.asList();
-        if (x == 0 && y > 0) {
+        if (x == 0 && y < 0) {
             queuePrio = Arrays.asList(Direction.UP, Direction.LEFT, Direction.RIGHT, Direction.DOWN);
         }
-        if (x == 0 && y < 0) {
+        if (x == 0 && y > 0) {
             queuePrio = Arrays.asList(Direction.DOWN, Direction.RIGHT, Direction.LEFT, Direction.UP);
         }
         if (y == 0 && x > 0) {
@@ -24,16 +24,16 @@ public class FollowMovement extends Movement {
         if (y == 0 && x < 0) {
             queuePrio = Arrays.asList(Direction.LEFT, Direction.DOWN, Direction.UP, Direction.RIGHT);
         }
-        if (x > 0 && y > 0) {
+        if (x > 0 && y < 0) {
             queuePrio = Arrays.asList(Direction.RIGHT, Direction.UP, Direction.LEFT, Direction.DOWN);
         }
-        if (x > 0 && y < 0) {
+        if (x > 0 && y > 0) {
             queuePrio = Arrays.asList(Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.UP);
         }
-        if (x < 0 && y > 0) {
+        if (x < 0 && y < 0) {
             queuePrio = Arrays.asList(Direction.UP, Direction.LEFT, Direction.RIGHT, Direction.DOWN);
         }
-        if (x < 0 && y < 0) {
+        if (x < 0 && y > 0) {
             queuePrio = Arrays.asList(Direction.DOWN, Direction.LEFT, Direction.RIGHT, Direction.UP);
         }
 
