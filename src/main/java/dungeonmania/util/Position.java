@@ -113,13 +113,13 @@ public final class Position {
         int x = relativePos.getX();
         int y = relativePos.getY();
         if (y >= x && y >= -x) {
-            return Direction.UP;
+            return Direction.DOWN;
         } else if (y >= x && y < -x) {
             return Direction.LEFT;
         } else if (y < x && y >= -x) {
             return Direction.RIGHT;
         } else {
-            return Direction.DOWN;
+            return Direction.UP;
         }
     }
 }

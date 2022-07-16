@@ -33,10 +33,6 @@ public abstract class Entity {
         this.position = position;
     }
 
-    public boolean isInteractable() {
-        return isInteractable;
-    }
-
     public void setInteractable(boolean isInteractable) {
         this.isInteractable = isInteractable;
     }

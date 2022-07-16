@@ -6,7 +6,10 @@ import dungeonmania.StaticEntities.*;
 import dungeonmania.util.Position;
 
 
+
 import org.json.JSONObject;
+
+import java.util.List;
 
 public class EntityFactory {
     public static Entity createEntity(String id, JSONObject jsonEntity, JSONObject config) {

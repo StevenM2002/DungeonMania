@@ -1,10 +1,9 @@
 package dungeonmania;
 
-import dungeonmania.MovingEntities.Mercenary;
-import dungeonmania.MovingEntities.Movement;
-import dungeonmania.MovingEntities.Interactable;
-import dungeonmania.MovingEntities.MovingEntity;
-import dungeonmania.MovingEntities.Spider;
+import dungeonmania.CollectibleEntities.Bomb;
+import dungeonmania.CollectibleEntities.Potion;
+import dungeonmania.MovingEntities.*;
+import dungeonmania.util.Position;
 import dungeonmania.StaticEntities.ZombieToastSpawner;
 
 import org.json.JSONArray;
@@ -31,6 +30,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DungeonManiaController {
+    private SpiderSpawning spiderSpawning;
     private static List<Entity> allEntities;
     private int currentEntityID;
     private int currentDungeonID = 0;
@@ -38,6 +38,7 @@ public class DungeonManiaController {
     private static JSONObject config;
     private CollisionManager collisionManager;
     private BattleManager battleManager;
+    private int currTick;
 
     public BattleManager getBattleManager() {
         return battleManager;
@@ -136,9 +137,17 @@ public class DungeonManiaController {
         allEntities.stream().filter(it -> it instanceof Mercenary).forEach(it -> {
             if (it instanceof PlayerListener) {
                 PlayerListener casted = (PlayerListener) it;
-                getPlayer().subscribe("playerPotionEffect", casted);
+                getPlayer().subscribe(casted);
             }
         });
+        allEntities.stream().filter(it -> it instanceof ZombieToast).forEach(it -> {
+            if (it instanceof PlayerListener) {
+                PlayerListener casted = (PlayerListener) it;
+                getPlayer().subscribe(casted);
+            }
+        });
+        this.spiderSpawning = new SpiderSpawning();
+        this.currTick = 0;
         return getDungeonResponseModel();
     }
 
@@ -189,11 +198,11 @@ public class DungeonManiaController {
      * /game/tick/item
      */
     public DungeonResponse tick(String itemUsedId) throws IllegalArgumentException, InvalidActionException {
-        doSharedTick();
-        doSharedBattles();
-        doSharedSpawn();
-        // TODO check that itemUsedId is actually a potion before queuing potion
+        var item = getPlayer().getInventory().stream().filter(it -> it.getId().equals(itemUsedId)).findFirst().orElse(null);
+        if (item == null) throw new InvalidActionException("Gimme something normal");
+        if (!(item instanceof Bomb) && !(item instanceof Potion)) throw new IllegalArgumentException("Not usable");
         getPlayer().queuePotion(itemUsedId);
+        doSharedSpawn();
         doSharedTick();
         return null;
     }
@@ -203,27 +212,24 @@ public class DungeonManiaController {
      */
     public DungeonResponse tick(Direction movementDirection) {
         getPlayer().move(movementDirection);
-        doSharedTick();
-        doSharedBattles();
         doSharedSpawn();
+        doSharedTick();
         return getDungeonResponseModel();
     }
     private void doSharedTick() {
+        currTick++;
         getPlayer().doPotionTick();
         List<MovingEntity> movingEntities = allEntities.stream().filter(entity -> entity instanceof MovingEntity).map(entity -> (MovingEntity) entity).collect(Collectors.toList());
         movingEntities.forEach(entity -> entity.doTickMovement());
+        Position spiderPosition = spiderSpawning.getSpiderPositionSpawn(getPlayer(), currTick);
+        if (spiderPosition != null) allEntities.add(new Spider(getNewEntityID(), spiderPosition, config.getDouble("spider_health"), config.getInt("spider_attack")));
         collisionManager.deactivateSwitches();
     }
-    private void doSharedBattles() {
-        List<MovingEntity> movingEntities = allEntities.stream().filter(entity -> entity instanceof MovingEntity).map(entity -> (MovingEntity) entity).collect(Collectors.toList());
-        movingEntities.stream().filter(e -> e.getPosition().equals(getPlayer().getPosition())).forEach(e -> battleManager.doBattle(getPlayer(), e));
-    }
+
     private void doSharedSpawn() {
         if (allEntities.stream().anyMatch(e -> e instanceof ZombieToastSpawner)) {
-            allEntities.stream().filter(e -> e instanceof ZombieToastSpawner).map(e -> (ZombieToastSpawner) e).collect(Collectors.toList()).forEach(e -> e.spawn(allEntities));
+            allEntities.stream().filter(e -> e instanceof ZombieToastSpawner).map(e -> (ZombieToastSpawner) e).collect(Collectors.toList()).forEach(e -> e.spawn(allEntities, currTick));
         }
-
-        Spider.spawn(allEntities);
     }
 
     /**
@@ -242,14 +248,12 @@ public class DungeonManiaController {
      * /game/interact
      */
     public DungeonResponse interact(String entityId) throws IllegalArgumentException, InvalidActionException {
-        if (allEntities.stream().anyMatch(e -> e.getId().equals(entityId))) {
-            ((Interactable) allEntities.stream().filter(e -> e.getId().equals(entityId)).collect(Collectors.toList()).get(0)).interact(getPlayer());;
-        } else {
-            throw new IllegalArgumentException("Entity cannot be found with specified Id");
-        }
-        doSharedTick();
-        doSharedBattles();
+        var toInteractWith = allEntities.stream().filter(entity -> entity.getId().equals(entityId)).findFirst().get();
+        if (toInteractWith == null || !(toInteractWith instanceof Interactable)) throw new IllegalArgumentException("Entity cannot be found with specified Id");
+        ((Interactable) toInteractWith).interact(getPlayer());
+
         doSharedSpawn();
+        doSharedTick();
         return getDungeonResponseModel();
     }
 
