@@ -15,7 +15,10 @@ import dungeonmania.response.models.RoundResponse;
 public class BattleManager {
     private List<BattleResponse> battleList;
     private DungeonManiaController dmc;
-    
+    public int getVictimCount() {
+        return battleList.size();
+    }
+
     public BattleManager(DungeonManiaController dmc) {
         this.dmc = dmc;
         this.battleList = new ArrayList<>();

@@ -85,7 +85,7 @@ public class Player extends Entity implements CanMove {
         collisionManager.requestMove(this, direction);
         this.previousPosition = tempPosition;
     }
-
+    
     public List<InventoryObject> getInventory() {
         return inventory;
     }
@@ -95,17 +95,16 @@ public class Player extends Entity implements CanMove {
         return "Battle";
     }
     
-    //TODO: move this out of player
-    public void addCraftItemToInventory(String Item, JSONObject config, int noOfEntities) throws IllegalArgumentException, InvalidActionException {
+    public void addCraftItemToInventory(String Item, JSONObject config, String id) throws IllegalArgumentException, InvalidActionException {
         int shieldDurability = config.getInt("shield_durability");
         int bowDurability = config.getInt("bow_durability");
         int defence = config.getInt("shield_defence");
         switch (Item) {
             case "bow":
-                Bow newBow = new Bow(String.valueOf(noOfEntities), 2, bowDurability);
+                Bow newBow = new Bow(id, 2, bowDurability);
                 newBow.craft(inventory);
             case "shield":
-                Shield newShield = new Shield(String.valueOf(noOfEntities), defence, shieldDurability);
+                Shield newShield = new Shield(id, defence, shieldDurability);
                 newShield.craft(inventory);
         }
     }

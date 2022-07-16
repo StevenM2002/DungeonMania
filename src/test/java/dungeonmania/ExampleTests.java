@@ -139,6 +139,7 @@ public class ExampleTests {
         dmc = new DungeonManiaController();
         DungeonResponse res = dmc.newGame("d_complexGoalsTest_andAll", "c_complexGoalsTest_andAll");
 
+        System.out.println(getGoals(res));
         assertTrue(getGoals(res).contains(":exit"));
         assertTrue(getGoals(res).contains(":treasure"));
         assertTrue(getGoals(res).contains(":boulders"));
@@ -219,5 +220,10 @@ public class ExampleTests {
                 "c_battleTests_basicMercenaryMercenaryDies");
         BattleResponse battle = postBattleResponse.getBattles().get(0);
         assertBattleCalculations("mercenary", battle, true, "c_battleTests_basicMercenaryMercenaryDies");
+    }
+
+    public static void main(String[] args) {
+        ExampleTests e = new ExampleTests();
+        e.andAll();
     }
 }

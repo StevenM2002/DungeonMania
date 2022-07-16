@@ -1,7 +1,6 @@
 package dungeonmania.Collisions;
 
 import java.util.ArrayList;
-import java.util.stream.Stream;
 
 import dungeonmania.DungeonManiaController;
 import dungeonmania.Entity;
@@ -39,13 +38,16 @@ public class CollisionManager {
         // Then checks if anything blocking it
         if (collisionQueue.size() == 0) {
             moved.setPosition(toMove);
+            
+            // checking push collisions
         } else if (!collisionQueue.stream()
-            .anyMatch(x->(getCollision(moved, x) instanceof Block))
+            .anyMatch(x->(
+                getCollision(moved, x) instanceof Block
+            ))
         ) {
             for (Entity collided : collisionQueue) {
                 getCollision(moved, collided).processCollision(moved, collided, direction);
             }
-        } else {
         }
     }
 
@@ -53,9 +55,11 @@ public class CollisionManager {
      * Matches the two entities with the correct collision type
      * @param moved
      * @param collided
+     * @param direction
      * @return
      */
     private Collision getCollision(Entity moved, Entity collided) {
+        System.out.println(moved.getType()+" is colliding with "+collided.getType());
         switch (moved.getType()) {
             case "Player":
                 switch (collided.getType()) {
@@ -116,7 +120,7 @@ public class CollisionManager {
                 break;
             case "Boulder":
                 switch (collided.getType()) {
-                    case "FloorSwitch":
+                    case "switch":
                         return initCollision("Activate");
                 }
                 break;
@@ -132,6 +136,7 @@ public class CollisionManager {
      * @return
      */
     private Collision initCollision(String type) {
+        System.out.println("collision: "+type);
         switch (type) {
             case "Block":
                 return new Block();
@@ -156,21 +161,22 @@ public class CollisionManager {
      * top of them
      */
     public void deactivateSwitches() {
-        Stream<Switch> switchStream = dmc.getAllEntities().stream()
+        dmc.getAllEntities().stream()
             .filter(x->(x instanceof Switch))
-            .map(x->(Switch) x);
-        switchStream.forEach(x->{
-            Entity e = (Entity) x;
-            if (!dmc.getAllEntities()
-                .stream()
-                .anyMatch(y->
-                    (y.getPosition() == e.getPosition() 
-                    && y.getType() == x.getActivationType()
-                ))
-                && x.getActivated()
-            ) {
-                x.setActivated(false);
+            .map(x->(Switch) x)
+            .forEach(x->{
+                Entity e = (Entity) x;
+                if (!dmc.getAllEntities()
+                    .stream()
+                    .anyMatch(y->
+                        (y.getPosition().equals(e.getPosition())
+                        && y.getType().equals(x.getActivationType())
+                    ))
+                    && x.getActivated()
+                ) {
+                    x.setActivated(false);
+                }
             }
-        });   
+        );   
     }
 }
