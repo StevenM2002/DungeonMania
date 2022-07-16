@@ -59,7 +59,6 @@ public class CollisionManager {
      * @return
      */
     private Collision getCollision(Entity moved, Entity collided) {
-        System.out.println(moved.getType()+" is colliding with "+collided.getType());
         switch (moved.getType()) {
             case "Player":
                 switch (collided.getType()) {
@@ -136,7 +135,6 @@ public class CollisionManager {
      * @return
      */
     private Collision initCollision(String type) {
-        System.out.println("collision: "+type);
         switch (type) {
             case "Block":
                 return new Block();

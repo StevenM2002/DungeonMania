@@ -1,17 +1,10 @@
 package dungeonmania;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import dungeonmania.CollectibleEntities.Potion;
-import org.json.JSONObject;
 import dungeonmania.CollectibleEntities.InventoryObject;
-import dungeonmania.CollectibleEntities.Bow;
-import dungeonmania.CollectibleEntities.Shield;
-import dungeonmania.exceptions.InvalidActionException;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 

@@ -59,11 +59,14 @@ public class DungeonManiaController {
         return battleManager;
     }
 
-
+    /**
+     * gets the player, otherwise throws null
+     * @return
+     */
     public Player getPlayer() {
         return (Player) allEntities.stream()
             .filter(x->x.getClass().getSimpleName().startsWith("Player"))
-            .findFirst().get();
+            .findFirst().orElse(null);
     }
     public static JSONObject getConfig() {
         return config;
@@ -178,27 +181,28 @@ public class DungeonManiaController {
         for (Entity e : allEntities) {
             entityList.add(e.getEntityResponse());
         }
-        
+        ArrayList<BattleResponse> battleList = (ArrayList<BattleResponse>) battleManager.getBattleList();        
         // creating inventory object list
-        ArrayList<ItemResponse> inventoryList = new ArrayList<>();
-        if (allEntities.stream().anyMatch(e -> e instanceof Player)) {
-            for (InventoryObject i : getPlayer().getInventory()) {
-                inventoryList.add(i.getItemResponse());
+        String goals = "dead";
+        List<ItemResponse> inventoryList = new ArrayList<>();
+        List<String> buildablesList = new ArrayList<>();
+        if (getPlayer() != null) {
+            goals = goal.getTypeString(getPlayer(), allEntities);
+            if (allEntities.stream().anyMatch(e -> e instanceof Player)) {
+                for (InventoryObject i : getPlayer().getInventory()) {
+                    inventoryList.add(i.getItemResponse());
+                }
             }
+            buildablesList = CraftingManager.getBuildables(getPlayer().getInventory());
         }
-
-        ArrayList<BattleResponse> battleList = (ArrayList<BattleResponse>) battleManager.getBattleList();
-        
-        //TODO: add once crafting is implemented
-
         return new DungeonResponse(
             getDungeonID(), 
             currentDungeonName, 
             entityList, 
             inventoryList, 
             battleList, 
-            CraftingManager.getBuildables(getPlayer().getInventory()), 
-            goal.getTypeString(getPlayer(), allEntities)
+            buildablesList,
+            goals
         );
     }
     /**
@@ -219,6 +223,10 @@ public class DungeonManiaController {
      */
     public DungeonResponse tick(Direction movementDirection) {
         getPlayer().move(movementDirection);
+        // if player dies
+        if (getPlayer() == null) {
+            return getDungeonResponseModel();
+        }
         doSharedSpawn();
         doSharedTick();
         return getDungeonResponseModel();
@@ -229,9 +237,10 @@ public class DungeonManiaController {
         getPlayer().doPotionTick();
         List<MovingEntity> movingEntities = allEntities.stream().filter(entity -> entity instanceof MovingEntity).map(entity -> (MovingEntity) entity).collect(Collectors.toList());
         movingEntities.forEach(entity -> entity.doTickMovement());
-        Position spiderPosition = spiderSpawning.getSpiderPositionSpawn(getPlayer(), currTick);
+        Position spiderPosition = spiderSpawning.getSpiderPositionSpawn(currTick);
         if (spiderPosition != null) allEntities.add(new Spider(getNewEntityID(), spiderPosition, config.getDouble("spider_health"), config.getInt("spider_attack")));
         collisionManager.deactivateSwitches();
+        if (getPlayer() == null) return; // if player is killed
         goal.hasCompleted(getPlayer(), allEntities);
     }
 
@@ -276,37 +285,5 @@ public class DungeonManiaController {
 
     public static List<EntityResponse> getEntities(DungeonResponse res, String type) {
         return getEntitiesStream(res, type).collect(Collectors.toList());
-    }
-
-    public static void main(String[] args) {
-        DungeonManiaController dmc;
-        dmc = new DungeonManiaController();
-        DungeonResponse res = dmc.newGame("d_spiderTest_basicMovement", "c_spiderTest_basicMovement");
-        Position pos = getEntities(res, "spider").get(0).getPosition();
-
-        List<Position> movementTrajectory = new ArrayList<Position>();
-        int x = pos.getX();
-        int y = pos.getY();
-        int nextPositionElement = 0;
-        movementTrajectory.add(new Position(x, y - 1));
-        movementTrajectory.add(new Position(x + 1, y - 1));
-        movementTrajectory.add(new Position(x + 1, y));
-        movementTrajectory.add(new Position(x + 1, y + 1));
-        movementTrajectory.add(new Position(x, y + 1));
-        movementTrajectory.add(new Position(x - 1, y + 1));
-        movementTrajectory.add(new Position(x - 1, y));
-        movementTrajectory.add(new Position(x - 1, y - 1));
-
-        // Assert Circular Movement of Spider
-        for (int i = 0; i <= 20; ++i) {
-            res = dmc.tick(Direction.UP);
-            System.out.println(movementTrajectory.get(nextPositionElement));
-            System.out.println(getEntities(res, "spider").get(0).getPosition());
-
-            nextPositionElement++;
-            if (nextPositionElement == 8) {
-                nextPositionElement = 0;
-            }
-        }
     }
 }

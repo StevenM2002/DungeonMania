@@ -42,7 +42,7 @@ public class CraftingManager {
      * @param inventory
      * @return
      */
-    public static ArrayList<String> getBuildables(List<InventoryObject> inventory) {
+    public static List<String> getBuildables(List<InventoryObject> inventory) {
         ArrayList<String> buildables = new ArrayList<>();
         Bow bow = new Bow("0", 420, 69);
         Shield shield = new Shield("0", 420, 69);
