@@ -3,16 +3,14 @@ package dungeonmania.StaticEntities;
 import java.util.List;
 import java.util.Random;
 
+import dungeonmania.*;
+import dungeonmania.MovingEntities.ZombieToast;
 import org.json.JSONObject;
 
-import dungeonmania.DungeonManiaController;
-import dungeonmania.Player;
 import dungeonmania.CollectibleEntities.Weapon;
 import dungeonmania.MovingEntities.Interactable;
 import dungeonmania.exceptions.InvalidActionException;
 import dungeonmania.util.Position;
-import dungeonmania.Entity;
-import dungeonmania.EntityFactory;
 
 public class ZombieToastSpawner extends StaticEntity implements Interactable {
     private static int spawnRate;
@@ -42,11 +40,8 @@ public class ZombieToastSpawner extends StaticEntity implements Interactable {
         return null;
     }
 
-    public void spawn(List<Entity> allEntities) {
-        Random rand = new Random();
-        if (rand.nextInt(spawnRate) != 0) {
-            return;
-        }
+    public void spawn(List<Entity> allEntities, int currTick) {
+        if (spawnRate == 0 || currTick % spawnRate != 0) return;
 
         Position newPosition = findNewPosition(allEntities);
         String zombie_id = this.getId() + "zombie" + id_counter;
@@ -57,7 +52,10 @@ public class ZombieToastSpawner extends StaticEntity implements Interactable {
             jsonEntity.put("type", "zombie_toast");
             jsonEntity.put("x", newPosition.getX());
             jsonEntity.put("y", newPosition.getY());
-            allEntities.add(EntityFactory.createEntity(zombie_id, jsonEntity, config));
+            Entity zombieToast = EntityFactory.createEntity(zombie_id, jsonEntity, config);
+            Player player = (Player) allEntities.stream().filter(entity -> entity instanceof Player).findFirst().get();
+            player.subscribe((PlayerListener) zombieToast);
+            allEntities.add(zombieToast);
         }
 
     }

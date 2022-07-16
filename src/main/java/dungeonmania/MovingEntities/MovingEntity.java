@@ -6,8 +6,8 @@ import dungeonmania.util.Position;
 import dungeonmania.util.Direction;
 
 public abstract class MovingEntity extends Entity implements CanMove {
-    private double health;
-    private double attack;
+    private static double health;
+    private static double attack;
 
     private Movement movementStrategy;
     private Position previousPosition;
@@ -16,11 +16,11 @@ public abstract class MovingEntity extends Entity implements CanMove {
         this.health = health;
     }
 
-    public double getHealth() {
+    public static double getHealth() {
         return health;
     }
 
-    public double getAttack() {
+    public static double getAttack() {
         return attack;
     }
 
@@ -34,7 +34,7 @@ public abstract class MovingEntity extends Entity implements CanMove {
 
     public MovingEntity(String id, Position position, boolean isInteractable, double health, double attack,
                         Movement movementStrategy) {
-        super(id, position, false);
+        super(id, position, isInteractable);
         this.health = health;
         this.attack = attack;
         this.movementStrategy = movementStrategy;

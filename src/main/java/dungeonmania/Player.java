@@ -23,15 +23,15 @@ public class Player extends Entity implements CanMove {
     private List<InventoryObject> inventory = new ArrayList<>();
     private double attack;
     private double health;
-    private HashMap<String, PlayerListener> subscribers = new HashMap<>();
+    private List<PlayerListener> subscribers = new ArrayList<>();
     // String is the event which the listener wants to subscribe to
     // This includes:
     // playerMovement, playerPotionEffect
-    public void subscribe(String eventType, PlayerListener subscriber) {
-        subscribers.put(eventType, subscriber);
+    public void subscribe(PlayerListener subscriber) {
+        subscribers.add(subscriber);
     }
     public void unsubscribe(String eventType, PlayerListener subscriber) {
-        subscribers.remove(eventType, subscriber);
+        subscribers.remove(subscriber);
     }
     private PotionManager potionManager = new PotionManager();
 
@@ -52,11 +52,10 @@ public class Player extends Entity implements CanMove {
         Potion potion = potionManager.getNextEffect();
         PlayerDataArgs data = new PlayerDataArgs();
         data.setPotion(potion);
-        notify("playerPotionEffect", data);
+        notify(data);
     }
-    public void notify(String eventType, PlayerDataArgs data) {
-        var validSubs = subscribers.entrySet().stream().filter(x -> x.getKey().equals(eventType)).map(Map.Entry::getValue).collect(Collectors.toList());
-        validSubs.forEach(publisherListener -> publisherListener.update(data));
+    public void notify(PlayerDataArgs data) {
+        subscribers.forEach(publisherListener -> publisherListener.update(data));
     }
     public Player(String id, Position position, double health, double attack) {
         super(id, position, false);
