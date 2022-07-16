@@ -1,10 +1,8 @@
 package dungeonmania.StaticEntities;
 
 import java.util.List;
-import java.util.Random;
 
 import dungeonmania.*;
-import dungeonmania.MovingEntities.ZombieToast;
 import org.json.JSONObject;
 
 import dungeonmania.CollectibleEntities.Weapon;

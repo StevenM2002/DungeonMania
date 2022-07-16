@@ -6,15 +6,15 @@
             "type": "player"
         },
         {
-            "x": 8,
-            "y": 8,
-            "type": "exit"
+            "x": 2,
+            "y": 2,
+            "type": "sword"
         },
         {
-            "x": 7,
-            "y": 8,
+            "x": 3,
+            "y": 3,
             "type": "zombie_toast_spawner"
         }
     ],
-    "goal-condition": {"goal": "exit"}
+    "goal-condition": {"goal": "enemies"}
 }
