@@ -10,6 +10,7 @@ public abstract class MovingEntity extends Entity implements CanMove {
     private double attack;
 
     private Movement movementStrategy;
+    private Position previousPosition;
 
     public void setHealth(double health) {
         this.health = health;
@@ -44,7 +45,15 @@ public abstract class MovingEntity extends Entity implements CanMove {
 
     @Override
     public void move(Direction direction) {
+        Position tempPos = getPosition();
         collisionManager.requestMove(this, direction);
+        if (tempPos != getPosition()) {
+            previousPosition = tempPos;
+        }
+    }
+
+    public Position getPreviousPosition() {
+        return previousPosition;
     }
 }
 
