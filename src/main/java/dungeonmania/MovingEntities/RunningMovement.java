@@ -22,9 +22,9 @@ public class RunningMovement extends Movement {
     private List<Direction> getPossibleDirectionsOfPos(Position relativePosOfRunningAway) {
         int x = relativePosOfRunningAway.getX();
         int y = relativePosOfRunningAway.getY();
-        if (x >= 0 && y >= 0) return Arrays.asList(Direction.UP, Direction.RIGHT);
-        if (x >= 0 && y <= 0) return Arrays.asList(Direction.UP, Direction.LEFT);
-        if (x <= 0 && y >= 0) return Arrays.asList(Direction.DOWN, Direction.RIGHT);
+        if (x >= 0 && y <= 0) return Arrays.asList(Direction.UP, Direction.RIGHT);
+        if (x >= 0 && y >= 0) return Arrays.asList(Direction.UP, Direction.LEFT);
+        if (x <= 0 && y <= 0) return Arrays.asList(Direction.DOWN, Direction.RIGHT);
         return Arrays.asList(Direction.DOWN, Direction.LEFT);
     }
 
