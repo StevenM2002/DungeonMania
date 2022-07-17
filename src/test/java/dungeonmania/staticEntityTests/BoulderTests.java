@@ -98,7 +98,7 @@ public class BoulderTests {
         dmc.tick(Direction.RIGHT);
         DungeonResponse postPushRes = dmc.tick(Direction.RIGHT);
 
-        assertEquals(initPlayer, getPlayer(postPushRes).get());
+        assertEquals(expectedPlayer, getPlayer(postPushRes).get());
         assertEquals(initBoulder, getEntityFromID(postPushRes, initBoulder.getId()).get());
     }
 
@@ -108,9 +108,8 @@ public class BoulderTests {
         DungeonManiaController dmc = new DungeonManiaController();
         DungeonResponse initDungeonRes = dmc.newGame("d_staticTests_testBoulderPush", "c_staticTests_staticConfig");
         EntityResponse initBoulder = initDungeonRes.getEntities().stream().filter(x->(x.getPosition().equals(new Position(3, 1) )&& x.getType().equals("boulder"))).findFirst().get();
-        EntityResponse initTreasure = initDungeonRes.getEntities().stream().filter(x->(x.getPosition().equals(new Position(3, -2)) && x.getType().equals("treasure"))).findFirst().get();
 
-        EntityResponse expectedBoulder = new EntityResponse(initBoulder.getId(), initBoulder.getType(), new Position(3, -2), false);
+        EntityResponse expectedBoulder = new EntityResponse(initBoulder.getId(), initBoulder.getType(), new Position(3, 1), false);
 
 
         dmc.tick(Direction.DOWN);
@@ -119,15 +118,5 @@ public class BoulderTests {
         DungeonResponse finalDungeonRes = dmc.tick(Direction.DOWN);
 
         assertEquals(expectedBoulder, getEntityFromID(finalDungeonRes, initBoulder.getId()).get());
-        assertEquals(initTreasure, getEntityFromID(finalDungeonRes, initTreasure.getId()).get());
-    }
-
-    public static void main(String[] args) {
-        BoulderTests b = new BoulderTests();
-        b.testPushBoulderEmpty();
-        b.testBoulderWallPush();
-        b.testDoubleBoulderPush();
-        b.testBoulderCollectiblePush();
-
     }
 }
