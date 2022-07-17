@@ -285,4 +285,26 @@ public class DungeonManiaController {
     public static List<EntityResponse> getEntities(DungeonResponse res, String type) {
         return getEntitiesStream(res, type).collect(Collectors.toList());
     }
+
+    /**
+     * /game/save
+     */
+    public DungeonResponse saveGame(String name) throws IllegalArgumentException {
+        return null;
+    }
+
+    /**
+     * /game/load
+     */
+    public DungeonResponse loadGame(String name) throws IllegalArgumentException {
+        return null;
+    }
+
+    /**
+     * /games/all
+     */
+    public List<String> allGames() {
+        return new ArrayList<>();
+    }
+
 }
