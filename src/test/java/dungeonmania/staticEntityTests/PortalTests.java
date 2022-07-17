@@ -122,9 +122,4 @@ public class PortalTests {
         DungeonResponse secondRes = dmc.tick(Direction.DOWN);
         assertEquals(new Position(1, -1), getEntityFromID(secondRes, initMerc.getId()).get().getPosition());
     }
-
-    public static void main(String[] args) {
-        PortalTests p = new PortalTests();
-        p.testMercenaryPortal();
-    }
 }
