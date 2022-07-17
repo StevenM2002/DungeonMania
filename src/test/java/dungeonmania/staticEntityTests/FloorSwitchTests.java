@@ -52,7 +52,7 @@ public class FloorSwitchTests {
     public void testBoulderOnSwitch() {
         DungeonManiaController dmc = new DungeonManiaController();
         DungeonResponse res = dmc.newGame("d_staticTests_testFloorSwitch", "c_staticTests_staticConfig");
-        EntityResponse initTopBoulder = res.getEntities().stream().filter(x->(x.getPosition() == new Position(2, 0) && x.getType() == "boulder")).findFirst().get();
+        EntityResponse initTopBoulder = res.getEntities().stream().filter(x->(x.getPosition().equals(new Position(2, 0)) && x.getType().equals("boulder"))).findFirst().get();
         assertTrue(getGoals(res).contains(":boulders"));
         
         dmc.tick(Direction.UP);
@@ -72,7 +72,7 @@ public class FloorSwitchTests {
     public void testBoulderOffSwitch() {
         DungeonManiaController dmc = new DungeonManiaController();
         DungeonResponse res = dmc.newGame("d_staticTests_testFloorSwitch", "c_staticTests_staticConfig");
-        EntityResponse initTopBoulder = res.getEntities().stream().filter(x->(x.getPosition() == new Position(2, 0) && x.getType() == "boulder")).findFirst().get();
+        EntityResponse initTopBoulder = res.getEntities().stream().filter(x->(x.getPosition().equals(new Position(2, 0)) && x.getType().equals("boulder"))).findFirst().get();
         assertTrue(getGoals(res).contains(":boulders"));
         
         // push boulder onto and then off switch
