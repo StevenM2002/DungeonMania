@@ -53,7 +53,9 @@ public abstract class Entity {
     public String getDefaultCollision() {
         return "Pass";
     }
-
+    public boolean getIsInteractable() {
+        return isInteractable;
+    }
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Entity) {
