@@ -215,7 +215,7 @@ public class DungeonManiaController {
         getPlayer().queuePotion(itemUsedId);
         doSharedSpawn();
         doSharedTick();
-        return null;
+        return getDungeonResponseModel();
     }
 
     /**
