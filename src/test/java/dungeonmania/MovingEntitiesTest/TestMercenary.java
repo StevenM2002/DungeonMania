@@ -54,7 +54,7 @@ public class TestMercenary {
     public void MercenaryCantBribe() {
         DungeonManiaController dmc;
         dmc = new DungeonManiaController();
-        DungeonResponse res = dmc.newGame("d_Test_MercenaryFriendly", "c_MercenaryCantBribe");
+        DungeonResponse res = dmc.newGame("d_Test_MercenaryFriendly", "c_Test_MercenaryCantBribe");
         Position pos = getEntities(res, "mercenary").get(0).getPosition();
 
         List<Position> movementTrajectory = new ArrayList<Position>();
@@ -73,9 +73,9 @@ public class TestMercenary {
         nextPositionElement++;
 
         DungeonResponse postBattleResponse = genericMercenarySequence(dmc,
-                "c_battleTests_MercenaryCantBribe");
+                "c_Test_MercenaryCantBribe");
         BattleResponse battle = postBattleResponse.getBattles().get(0);
-        assertBattleCalculations("mercenary", battle, false, "c_MercenaryCantBribe");
+        assertBattleCalculations("mercenary", battle, false, "c_Test_MercenaryCantBribe");
     }
 
     @Test

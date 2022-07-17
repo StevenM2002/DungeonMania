@@ -80,7 +80,7 @@ public class TestBattles {
         DungeonResponse postBattleResponse = genericZombieSequence(controller,
                 "c_battleTests_basicZombiePlayerDies");
         BattleResponse battle = postBattleResponse.getBattles().get(0);
-        assertBattleCalculations("zombie_toast", battle, false, "c_battleTests_basicZombiePlayerDies");
+        assertBattleCalculations("zombie", battle, false, "c_battleTests_basicZombiePlayerDies");
     }
 
     @Test
@@ -90,6 +90,6 @@ public class TestBattles {
         DungeonResponse postBattleResponse = genericZombieSequence(controller,
                 "c_battleTests_basicZombieDies");
         BattleResponse battle = postBattleResponse.getBattles().get(0);
-        assertBattleCalculations("zombie_toast", battle, true, "c_battleTests_basicZombieDies");
+        assertBattleCalculations("zombie", battle, true, "c_battleTests_basicZombieDies");
     }
 }
