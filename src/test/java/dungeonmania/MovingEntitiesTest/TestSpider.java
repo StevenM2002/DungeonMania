@@ -6,7 +6,6 @@ import static dungeonmania.TestUtils.getEntities;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import dungeonmania.DungeonManiaController;
@@ -24,8 +23,8 @@ public class TestSpider {
         int x = pos.getX();
         int y = pos.getY();
         int nextPositionElement = 0;
-        movementTrajectory.add(new Position(x, y + 1));
-        movementTrajectory.add(new Position(x - 1, y + 1));
+        movementTrajectory.add(new Position(x, y));
+        movementTrajectory.add(new Position(x - 1, y));
 
         // Assert Circular Movement of Spider
         for (int i = 0; i <= 1; ++i) {
@@ -38,7 +37,6 @@ public class TestSpider {
     }
 
     @Test
-    @DisplayName("Test to see if a spider moves up on a non-blocking object")
     public void SpiderPassThrough() {
         DungeonManiaController dmc;
         dmc = new DungeonManiaController();

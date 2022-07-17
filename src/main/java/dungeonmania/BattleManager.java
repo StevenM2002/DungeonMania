@@ -69,7 +69,7 @@ public class BattleManager {
             player.setHealth(player.getHealth() - deltaPlayerHealth);
             enemy.setHealth(enemy.getHealth() - deltaEnemyHealth);
 
-            rounds.add(new RoundResponse(deltaPlayerHealth, deltaEnemyHealth, weaponsUsed));
+            rounds.add(new RoundResponse(-deltaPlayerHealth, -deltaEnemyHealth, weaponsUsed));
         }
 
         return rounds;
