@@ -4,7 +4,7 @@
   "bomb_radius": 1,
   "bow_durability": 1,
   "bribe_amount": 1,
-  "bribe_radius": 1,
+  "bribe_radius": 2,
   "enemy_goal": 1,
   "invincibility_potion_duration": 1,
   "invisibility_potion_duration": 1,
