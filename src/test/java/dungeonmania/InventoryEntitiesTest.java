@@ -20,20 +20,40 @@ import dungeonmania.response.models.RoundResponse;
 import dungeonmania.util.Direction;
 
 public class InventoryEntitiesTest {
-    private void assertBattleCalculations(String enemyType, BattleResponse battle, boolean enemyDies, String configFilePath) {
+    private void assertBattleCalculationsOneAccessory(String enemyType, BattleResponse battle, boolean enemyDies, String configFilePath, String accessory) {
         List<RoundResponse> rounds = battle.getRounds();
         double playerHealth = Double.parseDouble(getValueFromConfigFile("player_health", configFilePath));
-        double enemyHealth = Double.parseDouble(getValueFromConfigFile(enemyType + "_attack", configFilePath));
+        double enemyHealth = Double.parseDouble(getValueFromConfigFile(enemyType + "_health", configFilePath));
         double playerAttack = Double.parseDouble(getValueFromConfigFile("player_attack", configFilePath));
         double enemyAttack = Double.parseDouble(getValueFromConfigFile(enemyType + "_attack", configFilePath));
-
-        for (RoundResponse round : rounds) {
-            assertEquals(round.getDeltaCharacterHealth(), enemyAttack / 10);
-            assertEquals(round.getDeltaEnemyHealth(), playerAttack / 5);
-            enemyHealth -= round.getDeltaEnemyHealth();
-            playerHealth -= round.getDeltaCharacterHealth();
+        double swordBuff = Double.parseDouble(getValueFromConfigFile("sword_attack", configFilePath));
+        double shieldDefence = Double.parseDouble(getValueFromConfigFile("shield_defence", configFilePath));
+        System.out.println(enemyHealth);
+        if (accessory.equals("sword")) {
+            for (RoundResponse round : rounds) {
+                assertEquals(round.getDeltaCharacterHealth(), enemyAttack / 10);
+                assertEquals(round.getDeltaEnemyHealth(), (playerAttack + swordBuff) / 5);
+                enemyHealth -= round.getDeltaEnemyHealth();
+                playerHealth -= round.getDeltaCharacterHealth();
+            }
         }
-
+        if (accessory.equals("bow")) {
+            for (RoundResponse round : rounds) {
+                assertEquals(round.getDeltaCharacterHealth(), enemyAttack / 10);
+                assertEquals(round.getDeltaEnemyHealth(), (playerAttack * 2) / 5);
+                enemyHealth -= round.getDeltaEnemyHealth();
+                playerHealth -= round.getDeltaCharacterHealth();
+            }
+        }
+        if (accessory.equals("shield")) {
+            for (RoundResponse round : rounds) {
+                assertEquals(round.getDeltaCharacterHealth(), (enemyAttack - shieldDefence) / 10);
+                assertEquals(round.getDeltaEnemyHealth(), playerAttack / 5);
+                enemyHealth -= round.getDeltaEnemyHealth();
+                playerHealth -= round.getDeltaCharacterHealth();
+            }
+        }
+        System.out.println(enemyHealth);
         if (enemyDies) {
             assertTrue(enemyHealth <= 0);
         } else {
@@ -67,7 +87,7 @@ public class InventoryEntitiesTest {
         // Encounters mercenary
         DungeonResponse postBattleResponse = dmc.tick(Direction.RIGHT);
         BattleResponse battle = postBattleResponse.getBattles().get(0);
-        assertBattleCalculations("mercenary", battle, true, "c_bowTest");
+        assertBattleCalculationsOneAccessory("mercenary", battle, true, "c_bowTest", "bow");
         // Test bow disappeared
         assertTrue(getInventory(postBattleResponse, "bow").size() == 0);
     }
@@ -81,14 +101,12 @@ public class InventoryEntitiesTest {
         DungeonResponse initialResponse = controller.newGame("d_swordTest", configFile);
         int mercenaryCount = countEntityOfType(initialResponse, "mercenary");
         assertTrue(getInventory(initialResponse, "sword").size() == 0);
-        double playerAttackNoSword = Double.parseDouble(getValueFromConfigFile("player_attack", configFile));
         
         assertEquals(1, countEntityOfType(initialResponse, "player"));
         assertEquals(1, mercenaryCount);
         // Pick up sword
         DungeonResponse res = controller.tick(Direction.RIGHT);
         assertEquals(1, getInventory(res, "sword").size());
-        assertTrue(Double.parseDouble(getValueFromConfigFile("player_attack", configFile)) == playerAttackNoSword + 2);
         // Encounters mercenary
         return controller.tick(Direction.RIGHT);
     }
@@ -102,7 +120,7 @@ public class InventoryEntitiesTest {
         // Battle
         DungeonResponse postBattleResponse = swordMercenarySequence(dmc, "c_swordTest");
         BattleResponse battle = postBattleResponse.getBattles().get(0);
-        assertBattleCalculations("mercenary", battle, true, "c_swordTest");
+        assertBattleCalculationsOneAccessory("mercenary", battle, true, "c_swordTest", "sword");
         assertTrue(getInventory(postBattleResponse, "sword").size() == 0);
     }
 
@@ -112,7 +130,7 @@ public class InventoryEntitiesTest {
          * player   wood   wood treasure [  ]   [  ]  [  ]  merc  wall
          *  wall    wall   wall   wall   wall   wall  wall  wall
          */
-        DungeonResponse initialResponse = controller.newGame("d_shieldTreasureTest", configFile);
+        DungeonResponse initialResponse = controller.newGame("d_shieldConstructionTreasureTest", configFile);
         assertTrue(getInventory(initialResponse, "shield").size() == 0);
 
         // Pick up construction material and builds a shield
@@ -131,7 +149,7 @@ public class InventoryEntitiesTest {
     }
 
     @Test
-    @DisplayName("Test the shield construction works with treasure, and it works in combat")
+    @DisplayName("Test the shield construction works with treasure, and it works in combat (i.e. helps the player win when he otherwise wouldn't)")
     public void shieldConstructionTreasureTest() throws IllegalArgumentException, InvalidActionException {
         DungeonManiaController dmc = new DungeonManiaController();
         dmc.newGame("d_shieldConstructionTreasureTest", "c_shieldConstructionTest");
@@ -139,7 +157,7 @@ public class InventoryEntitiesTest {
         // Battle
         DungeonResponse postBattleResponse = shieldMercenarySequence(dmc, "c_shieldConstructionTest");
         BattleResponse battle = postBattleResponse.getBattles().get(0);
-        assertBattleCalculations("mercenary", battle, true, "c_shieldConstructionTest");
+        assertBattleCalculationsOneAccessory("mercenary", battle, true, "c_shieldConstructionTest", "shield");
         assertEquals(0, getInventory(postBattleResponse, "shield").size());
     }
 
@@ -165,7 +183,7 @@ public class InventoryEntitiesTest {
     @DisplayName("Test build with inadequate materials")
     public void constructionInadequateMaterials() throws IllegalArgumentException, InvalidActionException {
         DungeonManiaController dmc = new DungeonManiaController();
-        dmc.newGame("d_shieldConstructionKeyTest", "c_shieldConstructionTest");
+        dmc.newGame("d_shieldConstructionTreasureTest", "c_shieldConstructionTest");
         assertThrows(InvalidActionException.class, () -> {
             dmc.build("shield");
         });
