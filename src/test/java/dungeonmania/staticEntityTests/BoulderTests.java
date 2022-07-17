@@ -33,7 +33,7 @@ public class BoulderTests {
         DungeonManiaController dmc = new DungeonManiaController();
         DungeonResponse initDungeonRes = dmc.newGame("d_staticTests_testBoulderPush", "c_staticTests_staticConfig");
         EntityResponse initPlayer = getPlayer(initDungeonRes).get();
-        EntityResponse initBoulder = initDungeonRes.getEntities().stream().filter(x->(x.getPosition() == new Position(3, 1) && x.getType() == "boulder")).findFirst().get();
+        EntityResponse initBoulder = initDungeonRes.getEntities().stream().filter(x->(x.getPosition().equals(new Position(3, 1) ) && x.getType().equals("boulder"))).findFirst().get();
         
         EntityResponse expectedFirstPlayer = new EntityResponse(initPlayer.getId(), initPlayer.getType(), new Position(3, 1), false);
         EntityResponse expectedSecondPlayer = new EntityResponse(initPlayer.getId(), initPlayer.getType(), new Position(4, 1), false);
@@ -63,13 +63,14 @@ public class BoulderTests {
     }
 
     @Test
-    @DisplayName("Test pushing boulder into second boulder")
-    public void testDoubleBoulderPush() {
+    @DisplayName("Test pushing boulder into wall")
+    public void testBoulderWallPush() {
         DungeonManiaController dmc = new DungeonManiaController();
         DungeonResponse initDungeonRes = dmc.newGame("d_staticTests_testBoulderPush", "c_staticTests_staticConfig");
         EntityResponse initPlayer = getPlayer(initDungeonRes).get();
-        EntityResponse initBoulder1 = initDungeonRes.getEntities().stream().filter(x->(x.getPosition() == new Position(3, -1) && x.getType() == "boulder")).findFirst().get();
-        EntityResponse initBoulder2 = initDungeonRes.getEntities().stream().filter(x->(x.getPosition() == new Position(4, -1) && x.getType() == "boulder")).findFirst().get();
+        EntityResponse initBoulder1 = initDungeonRes.getEntities().stream().filter(x->(x.getPosition().equals(new Position(3, -1)) && x.getType().equals("boulder"))).findFirst().get();
+        EntityResponse initBoulder2 = initDungeonRes.getEntities().stream().filter(x->(x.getPosition().equals(new Position(4, -1)) && x.getType().equals("boulder"))).findFirst().get();
+        EntityResponse expectedPlayer = new EntityResponse(initPlayer.getId(), initPlayer.getType(), new Position(3, 0), false);
         
         // moving
         dmc.tick(Direction.UP);
@@ -77,18 +78,19 @@ public class BoulderTests {
         dmc.tick(Direction.RIGHT);
         DungeonResponse postPushRes = dmc.tick(Direction.UP);
 
-        assertEquals(initPlayer, getPlayer(postPushRes).get());
+        assertEquals(expectedPlayer, getPlayer(postPushRes).get());
         assertEquals(initBoulder1, getEntityFromID(postPushRes, initBoulder1.getId()).get());
         assertEquals(initBoulder2, getEntityFromID(postPushRes, initBoulder2.getId()).get());
     }
-
+    
     @Test
-    @DisplayName("Test pushing boulder into wall")
-    public void testBoulderWallPush() {
+    @DisplayName("Test pushing boulder into second boulder")
+    public void testDoubleBoulderPush() {
         DungeonManiaController dmc = new DungeonManiaController();
         DungeonResponse initDungeonRes = dmc.newGame("d_staticTests_testBoulderPush", "c_staticTests_staticConfig");
         EntityResponse initPlayer = getPlayer(initDungeonRes).get();
-        EntityResponse initBoulder = initDungeonRes.getEntities().stream().filter(x->(x.getPosition() == new Position(3, -1) && x.getType() == "boulder")).findFirst().get();
+        EntityResponse initBoulder = initDungeonRes.getEntities().stream().filter(x->(x.getPosition().equals(new Position(3, -1)) && x.getType().equals("boulder"))).findFirst().get();
+        EntityResponse expectedPlayer = new EntityResponse(initPlayer.getId(), initPlayer.getType(), new Position(2, -1), false);
         
         // moving
         dmc.tick(Direction.UP);
@@ -105,8 +107,8 @@ public class BoulderTests {
     public void testBoulderCollectiblePush() {
         DungeonManiaController dmc = new DungeonManiaController();
         DungeonResponse initDungeonRes = dmc.newGame("d_staticTests_testBoulderPush", "c_staticTests_staticConfig");
-        EntityResponse initBoulder = initDungeonRes.getEntities().stream().filter(x->(x.getPosition() == new Position(3, 1) && x.getType() == "boulder")).findFirst().get();
-        EntityResponse initTreasure = initDungeonRes.getEntities().stream().filter(x->(x.getPosition() == new Position(3, -2) && x.getType() == "treasure")).findFirst().get();
+        EntityResponse initBoulder = initDungeonRes.getEntities().stream().filter(x->(x.getPosition().equals(new Position(3, 1) )&& x.getType().equals("boulder"))).findFirst().get();
+        EntityResponse initTreasure = initDungeonRes.getEntities().stream().filter(x->(x.getPosition().equals(new Position(3, -2)) && x.getType().equals("treasure"))).findFirst().get();
 
         EntityResponse expectedBoulder = new EntityResponse(initBoulder.getId(), initBoulder.getType(), new Position(3, -2), false);
 
@@ -118,7 +120,14 @@ public class BoulderTests {
 
         assertEquals(expectedBoulder, getEntityFromID(finalDungeonRes, initBoulder.getId()).get());
         assertEquals(initTreasure, getEntityFromID(finalDungeonRes, initTreasure.getId()).get());
+    }
 
-    
+    public static void main(String[] args) {
+        BoulderTests b = new BoulderTests();
+        b.testPushBoulderEmpty();
+        b.testBoulderWallPush();
+        b.testDoubleBoulderPush();
+        b.testBoulderCollectiblePush();
+
     }
 }
