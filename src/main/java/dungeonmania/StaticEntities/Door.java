@@ -1,7 +1,9 @@
 package dungeonmania.StaticEntities;
 
 import dungeonmania.CollectibleEntities.Key;
+import dungeonmania.response.models.EntityResponse;
 import dungeonmania.util.Position;
+import dungeonmania.util.UtilityFunctions;
 
 public class Door extends StaticEntity {
     private int key;
@@ -29,5 +31,22 @@ public class Door extends StaticEntity {
             return "Block";
         } 
         return "Pass";
+    }
+    @Override
+    public EntityResponse getEntityResponse() {
+        String type;
+        if (locked) {
+             type = getType();
+        } else {
+            type = getType() + "_open";
+        }
+        type = type.toLowerCase();
+        System.out.println(type);
+        System.out.println(UtilityFunctions.camelToSnake(type));
+        return new EntityResponse(
+                getId(),
+                UtilityFunctions.camelToSnake(type),
+                getPosition(),
+                getIsInteractable());
     }
 }

@@ -26,7 +26,6 @@ import dungeonmania.util.Direction;
 import dungeonmania.util.FileLoader;
 import dungeonmania.Goals.*;
 
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

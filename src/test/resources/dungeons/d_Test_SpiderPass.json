@@ -23,11 +23,18 @@
         }, {
             "type": "portal",
             "x": 6,
-            "y": 4
+            "y": 4,
+            "colour": "red"
+        }, {
+            "type": "portal",
+            "x": 10,
+            "y": 10,
+            "colour": "red"
         }, {
             "type": "door",
             "x": 6,
-            "y": 5
+            "y": 5,
+            "key": 1
         }, {
             "type": "switch",
             "x": 6,
@@ -36,6 +43,11 @@
             "type": "exit",
             "x": 5,
             "y": 6
+        }, {
+            "type": "key",
+            "x": 16,
+            "y": 15,
+            "key": 1
         }
     ],
     "goal-condition": {"goal": "exit"}
