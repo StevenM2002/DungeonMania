@@ -16,10 +16,13 @@ public class And extends ComplexGoal {
 
     @Override
     public String getTypeString(Player player, List<Entity> allEntities) {
+        if (this.hasCompleted(player, allEntities)) {
+            return "";
+        }
         if (getLeft().hasCompleted(player, allEntities)) {
-            return getRight().getTypeString(player, allEntities);
+            return "AND" + getRight().getTypeString(player, allEntities);
         } else if (getRight().hasCompleted(player, allEntities)) {
-            return getLeft().getTypeString(player, allEntities);
+            return getLeft().getTypeString(player, allEntities) + "AND";
         }
         return (getLeft().getTypeString(player, allEntities)+" AND "+getRight().getTypeString(player, allEntities));
     }
