@@ -36,7 +36,9 @@ public abstract class Entity {
     public void setInteractable(boolean isInteractable) {
         this.isInteractable = isInteractable;
     }
-
+    public boolean getIsInteractable() {
+        return isInteractable;
+    }
     public EntityResponse getEntityResponse() {
         return new EntityResponse(
             this.id, 
