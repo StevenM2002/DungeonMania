@@ -78,6 +78,10 @@ public class Player extends Entity implements CanMove {
         collisionManager.requestMove(this, direction);
         this.previousPosition = tempPosition;
     }
+
+    public Potion getCurrentEffect() {
+        return potionManager.getCurrPotion();
+    }
     
     public List<InventoryObject> getInventory() {
         return inventory;
