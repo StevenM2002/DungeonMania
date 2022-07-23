@@ -44,6 +44,14 @@ This specification is broken into four parts:
 - Tue 19 Jul 10pm - Fix M3 spec Typos
 - Wed 20 Jul 12am - Fix description for `midnight_armour_defence` and durability for midnight armour in the spec.
 - Wed 20 Jul 6pm - Removed redundant `hydra_spawn_rate` config field from the spec because hydra will not spawn from a spawner.
+- Wed 20 Jul 11pm - Fix description for `buildable` fields in `DungeonResponse`
+- Wed 20 Jul 11pm - Fix description for building `midnight_armour`
+- Thu 21 Jul 10pm - Clarify adjacent as being cardinally adjacent in description for logical entities
+- Fri 22 Jul 8am - Remove stale `gameMode` parameter from `generateDungeon`
+- Fri 22 Jul 3pm - Add rewind buttons for `time_turner` to frontend
+- Fri 22 Jul 3pm - Add dungeon generation to frontend and fix method signature for `generateDungeon`
+- Fri 22 Jul 5pm - Clarify Sun Stone and Sceptre.
+- Sat 23 Jul 12pm - Time travel clarifications
 
 ## 1. Aims
 
@@ -143,7 +151,7 @@ In Milestone 3, the following collectable entities have been added:
 
 | Entity    | Image         | Description |
 | --------- | --------------| ------------|
-| Sun Stone | <img src='images/sun_stone.png' /> | Can be picked up by the player, and can be used to open doors and interchangeably with treasure; except it cannot be used to bribe mercenaries or assassins. Since the sun stone is classed as treasure it counts towards the treasure goal. When used in place of a key, it is retained after use. |
+| Sun Stone | <img src='images/sun_stone.png' /> | A special form of treasure, hard and treasuable. It can be picked up by the player. Can be used to open doors, and can be used interchangeably with treasure when building entities. But it cannot be used to bribe mercenaries or assassins. Since it is classed as treasure it counts towards the treasure goal. When used for opening doors, or when replacing another material such as a key or treasure in building entities, it is retained after use. |
 
 ### 3.5 Buildable Entities
 
@@ -160,8 +168,8 @@ In Milestone 3, the following buildable entities have been added:
 
 | Entity    | Image         | Description |
 | --------- | --------------| ------------|
-| Sceptre   | <img src='images/sceptre.png' /> | Can be crafted with one wood or two arrows, one key or one treasure, and one sun stone. A character with a sceptre does not need to bribe mercenaries or assassins to become allies, as they can use the sceptre to control their minds. The effects only last for a certain number of ticks. |
-| Midnight Armour | <img src='images/midnight_armour.png' /> | Can be crafted with a sword and a sun stone if there are no zombies currently in the dungeon. Midnight armour provides extra attack damage as well as protection, and it lasts forever. |
+| Sceptre   | <img src='images/sceptre.png' /> | Can be crafted with (1 wood OR 2 arrows) + (1 key OR 1 treasure) + (1 sun stone). A character with a sceptre does not need to bribe mercenaries or assassins to become allies, as they can use the sceptre to control their minds without any distance constraint. But the effects only last for a certain number of ticks. |
+| Midnight Armour | <img src='images/midnight_armour.png' /> | Can be crafted with (1 sword + 1 sun stone) if there are no zombies currently in the dungeon. Midnight armour provides extra attack damage as well as protection, and it lasts forever. |
 
 ### 3.6 Battles
 
@@ -301,7 +309,7 @@ This part of the extension includes the following new entity:
 | --------- | --------------|
 | Time Travelling Portal | <img src="images/time_portal.png" /> |
 
-If a player travels through a time travelling portal, they exit through the same portal, except the dungeon state is that of 30 ticks previously.
+If a player travels through a time travelling portal, they exit through the same portal in a square cardinally adjacent to the portal, except the dungeon state is that of 30 ticks previously. If less than 30 ticks have passed, then the dungeon state is simply the initial dungeon state.
 
 #### 3.11.3 Time Travel Rules
 
@@ -318,7 +326,9 @@ Only the character can travel through time travel portals.
 Implementation Hint
 </summary>
 
-The design of this extension is up to you, however we recommend you treat time travel as moving backwards in a series of game states that are being stored (the state of the dungeon at tick X). When time travel occurs, the player is transported to that state, and all `tick` and `interact` functions are "played" out in the same order.
+The design of this extension is up to you, however we recommend you treat time travel as moving backwards in a series of game states that are being stored (the state of the dungeon at tick X). When time travel occurs, the player is transported to that state, and all `tick` and `interact` functions are "played" out in the same order *for the older player*, not the current player.
+
+This also means that when the older player reaches the tick during which they time travelled (either by using a time turner or through a portal), they should be removed from the map.
 
 </details>
 
@@ -391,20 +401,20 @@ Or, in a more wordy fashion;
 
 There are two new entities in this extension:
 
-| Entity      | Image                                                       | Description                                                                                                                                                                                                                           |
-|-------------|-------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Light Bulb  | <img src='images/lightbulb.png' />                          | Light bulbs cannot be collected, but can be lit up by placing a boulder on an adjacent switch. Light bulbs will always be created off. |
-| Wire        | <img src='images/wire.png' width="30" height="30" />        | Wires cannot be collected, but form part of a circuit and are connected to a switch and any entity that interacts via switches.                                                                                                       |
-| Switch Door | <img src='images/door.png' width="30" height="30" /> | Switch doors can be opened without a key if connected to an active switch/circuit. It should only remain open as long as it is connected to an active switch/circuit.                                                                 |
+| Entity      | Image                                                       | Description                                                                                                                                                           |
+|-------------|-------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Light Bulb  | <img src='images/lightbulb.png' />                          | Light bulbs cannot be collected, but can be lit up by placing a boulder on an cardinally adjacent switch. Light bulbs will always be created off.                               |
+| Wire        | <img src='images/wire.png' width="30" height="30" />        | Wires cannot be collected, but form part of a circuit and are connected to a switch and any entity that interacts via switches.                                       |
+| Switch Door | <img src='images/door.png' width="30" height="30" /> | Switch doors can be opened without a key if connected to an active switch/circuit. It should only remain open as long as it is connected to an active switch/circuit. |
 
 All entities which interact via switches (doors, bombs, and light bulbs), as well as switches themselves can become "logical" entities, where one of the following rules is adopted:
 
-* AND - the entity will be only activated if there are 2 or more adjacent activated entities (switches with boulders on them or active wires). If there are more than two switches adjacent, all must be activated.
-* OR - the entity will be activated if there are 1 or more adjacent activated entities
-* XOR - the entity will be activated if there is 1 and only 1 adjacent activated entity
-* CO_AND - the entity will only be activated if there are 2 or more activated entities adjacent, which are **both activated on the same tick** (i.e. a boulder is pushed onto them at the same time).
+* AND - the entity will be only activated if there are 2 or more cardinally adjacent activated entities (switches with boulders on them or active wires). If there are more than two switches adjacent, all must be activated.
+* OR - the entity will be activated if there are 1 or more cardinally adjacent activated entities
+* XOR - the entity will be activated if there is 1 and only 1 cardinally adjacent activated entity
+* CO_AND - the entity will only be activated if there are 2 or more activated entities cardinally adjacent, which are **both activated on the same tick** (i.e. a boulder is pushed onto them at the same time).
 
-If a switch adjacent to a wire is activated, all the other interactable entities adjacent to the wire are activated. This allows for the creation of dungeons with logic gates. For example:
+If a switch cardinally adjacent to a wire is activated, all the other interactable entities cardinally adjacent to the wire are activated. This allows for the creation of dungeons with logic gates. For example:
 
 <table>
 <tr>
@@ -612,7 +622,8 @@ public DungeonResponse(String dungeonId,
     <li><code>dungeonId</code> is the unique identifier for the dungeon</li>
     <li><code>dungeonName</code> is the name of the dungeon map being used (i.e. <code>maze</code>, which corresponds to the file <code>src/main/resources/dungeons/maze.json</code></li>
     <li><code>entities</code> is a list of all entities currently in the dungeon (all entities in the Player's inventory aren't included); if a Player or enemy dies it is removed from this list</li>
-    <li><code>inventory</code> is the Player's current inventory<code>buildables</code> is a list of buildable item types that the player can build, given their current inventory</li>
+    <li><code>inventory</code> is the Player's current inventory</li>
+    <li><code>buildables</code> is a list of buildable item types that the player can build, given their current inventory and game state</li>
     <li><code>battles</code> is the list of battles that has occured in total in the game so far (see <code>BattleResponse</code>), in the order that they occurred</li>
     <li><code>goals</code> is a string containing the goals yet to be completed. An empty string denotes the game has been won. Each goal in the string is preceded with a colon <code>:</code> and is one of the four basic goals listed in Section 4.2. How you represent conjunctions (AND) and disjunuctions (OR) is up to you, as the frontend will simply render your string with the goals as images. We will only check for the goal strings in our tests (e.g. <code>:exit</code>). An example of the <code>goals</code> string is <code>":exit AND (:treasure OR :enemies)"</code></li>
 </ul>
@@ -830,7 +841,7 @@ IllegalArgumentException:
 </ul>
 InvalidActionException:
 <ul>
-<li>If the player does not have sufficient items to craft the buildable</li>
+<li>If the player does not have sufficient items to craft the buildable, 💀 or unbuildable for <code>midnight_armour</code> because there are zombies currently in the dungeon.</li>
 </ul>
 </td>
 </tr>
@@ -965,7 +976,7 @@ Rewinds the game state a specified number of ticks.
 <td>
 
 ```java
-public DungeonResponse generateDungeon(int xStart, int yStart, int xEnd, int yEnd)
+public DungeonResponse generateDungeon(int xStart, int yStart, int xEnd, int yEnd, String configName)
 ```
 
 </td>
@@ -973,7 +984,8 @@ public DungeonResponse generateDungeon(int xStart, int yStart, int xEnd, int yEn
 Generates a dungeon surrounded by walls in a rectangular grid from the start to the end position on the map. An exit will need to be at <code>(xEnd, yEnd)</code>
 </td>
 <td>
-N/A
+IllegalArgumentException:
+<li>If <code>configName</code> is not a configuration that exists</li>
 </td>
 </tr>
 </table>
@@ -1014,7 +1026,7 @@ If you are completing Extension Tasks 1 + 2, you will need to add code to `App.j
 </td>
 <td>POST</td>
 <td>
-<b>Parameters</b>: <code>{ xStart: int, yStart: int, xEnd: int, yEnd: int, gameMode: String }</code>
+<b>Parameters</b>: <code>{ xStart: int, yStart: int, xEnd: int, yEnd: int, configName: String }</code>
 
 <b>Return Type</b>: <code>{ DungeonResponse }</code>
 </td>
