@@ -58,6 +58,15 @@ public class DungeonManiaController {
         return battleManager;
     }
 
+    public boolean hasZombies() {
+        for (Entity entity : allEntities) {
+            if (entity instanceof ZombieToast) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * gets the player, otherwise throws null
      * @return
@@ -192,7 +201,7 @@ public class DungeonManiaController {
                     inventoryList.add(i.getItemResponse());
                 }
             }
-            buildablesList = CraftingManager.getBuildables(getPlayer().getInventory());
+            buildablesList = CraftingManager.getBuildables(getPlayer().getInventory(), hasZombies());
         }
         return new DungeonResponse(
             getDungeonID(), 
@@ -253,7 +262,7 @@ public class DungeonManiaController {
      * /game/build
      */
     public DungeonResponse build(String buildable) throws IllegalArgumentException, InvalidActionException {
-        CraftingManager.craft(buildable, getPlayer().getInventory());
+        CraftingManager.craft(buildable, getPlayer().getInventory(), hasZombies());
         return getDungeonResponseModel();
     }
 

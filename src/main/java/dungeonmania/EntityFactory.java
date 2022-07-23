@@ -52,6 +52,8 @@ public class EntityFactory {
                 return new CollectibleEntity(id, position, new Bomb(id, config.getInt("bomb_radius")));
             case "sword":
                 return new CollectibleEntity(id, position, new Sword(id, config.getInt("sword_attack"), config.getInt("sword_durability")));
+            case "sun_stone":
+                return new CollectibleEntity(id, position, new Sunstone(id));
         }
         return null;
     }
