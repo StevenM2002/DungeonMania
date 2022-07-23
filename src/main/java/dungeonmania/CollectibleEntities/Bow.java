@@ -23,7 +23,7 @@ public class Bow extends InventoryObject implements Buildable, Weapon, Durabilit
     }
 
     @Override
-    public boolean canCraft(List<InventoryObject> inventory) {
+    public boolean canCraft(List<InventoryObject> inventory, boolean hasZombies) {
         int arrowNo = 0;
         int woodNo = 0;
         for (InventoryObject object : inventory) {

@@ -13,6 +13,7 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import dungeonmania.CollectibleEntities.MidnightArmor;
 import dungeonmania.exceptions.InvalidActionException;
 import dungeonmania.response.models.BattleResponse;
 import dungeonmania.response.models.DungeonResponse;
@@ -28,13 +29,14 @@ public class InventoryEntitiesTest {
         double enemyAttack = Double.parseDouble(getValueFromConfigFile(enemyType + "_attack", configFilePath));
         double swordBuff = Double.parseDouble(getValueFromConfigFile("sword_attack", configFilePath));
         double shieldDefence = Double.parseDouble(getValueFromConfigFile("shield_defence", configFilePath));
-        System.out.println(enemyHealth);
+        double midnightArmorBuff = Double.parseDouble(getValueFromConfigFile("midnight_armour_attack", configFilePath));
+        double midnightArmorDefence = Double.parseDouble(getValueFromConfigFile("midnight_armour_defence", configFilePath));
         if (accessory.equals("sword")) {
             for (RoundResponse round : rounds) {
-                assertEquals(round.getDeltaCharacterHealth(), enemyAttack / 10);
-                assertEquals(round.getDeltaEnemyHealth(), (playerAttack + swordBuff) / 5);
-                enemyHealth -= round.getDeltaEnemyHealth();
-                playerHealth -= round.getDeltaCharacterHealth();
+                assertEquals(round.getDeltaCharacterHealth(), -enemyAttack / 10);
+                assertEquals(round.getDeltaEnemyHealth(), -(playerAttack + swordBuff) / 5);
+                enemyHealth += round.getDeltaEnemyHealth();
+                playerHealth += round.getDeltaCharacterHealth();
             }
         }
         if (accessory.equals("bow")) {
@@ -47,13 +49,21 @@ public class InventoryEntitiesTest {
         }
         if (accessory.equals("shield")) {
             for (RoundResponse round : rounds) {
-                assertEquals(round.getDeltaCharacterHealth(), (enemyAttack - shieldDefence) / 10);
-                assertEquals(round.getDeltaEnemyHealth(), playerAttack / 5);
-                enemyHealth -= round.getDeltaEnemyHealth();
-                playerHealth -= round.getDeltaCharacterHealth();
+                assertEquals(round.getDeltaCharacterHealth(), -(enemyAttack - shieldDefence) / 10);
+                assertEquals(round.getDeltaEnemyHealth(), -playerAttack / 5);
+                enemyHealth += round.getDeltaEnemyHealth();
+                playerHealth += round.getDeltaCharacterHealth();
             }
         }
-        System.out.println(enemyHealth);
+        if (accessory.equals("midnight_armour")) {
+            System.out.println(playerAttack + midnightArmorBuff);
+            for (RoundResponse round : rounds) {
+                assertEquals(round.getDeltaCharacterHealth(), -(enemyAttack - midnightArmorDefence) / 10);
+                assertEquals(round.getDeltaEnemyHealth(), -(playerAttack + midnightArmorBuff)/ 5);
+                enemyHealth += round.getDeltaEnemyHealth();
+                playerHealth += round.getDeltaCharacterHealth();
+            }
+        }
         if (enemyDies) {
             assertTrue(enemyHealth <= 0);
         } else {
@@ -190,5 +200,124 @@ public class InventoryEntitiesTest {
         assertThrows(InvalidActionException.class, () -> {
             dmc.build("bow");
         });
+        assertThrows(InvalidActionException.class, () -> {
+            dmc.build("sceptre");
+        });
+        assertThrows(InvalidActionException.class, () -> {
+            dmc.build("midnight_armour");
+        });
+    }
+
+    @Test
+    @DisplayName("Test midnight armor successfully builds and helps in battle")
+    public void constructMidnightArmor() throws IllegalArgumentException, InvalidActionException {
+        DungeonManiaController dmc = new DungeonManiaController();
+        DungeonResponse res = dmc.newGame("d_midnightArmorTest", "c_midnightArmorTest");
+        assertTrue(getInventory(res, "midnight_armour").size() == 0);
+
+        dmc.tick(Direction.RIGHT);
+        res = dmc.tick(Direction.RIGHT);
+        assertEquals(1, getInventory(res, "sunstone").size());
+        assertEquals(1, getInventory(res, "sword").size());
+        res = dmc.build("midnight_armour");
+        assertEquals(0, getInventory(res, "sunstone").size());
+        assertEquals(0, getInventory(res, "sword").size());
+        assertEquals(1, getInventory(res, "midnight_armor").size()); // FIND WHERE THIS SPELLING MISTAKE COMES FROM
+
+        // Encounters Mercenary
+        dmc.tick(Direction.RIGHT);
+        DungeonResponse postBattleResponse = dmc.tick(Direction.RIGHT);
+        BattleResponse battle = postBattleResponse.getBattles().get(0);
+        assertBattleCalculationsOneAccessory("mercenary", battle, true, "c_midnightArmorTest", "midnight_armour");
+    }
+
+    @Test
+    @DisplayName("Test midnight armor fails to build when there are zombies")
+    public void armorConstructionZombies() throws InvalidActionException {
+        DungeonManiaController dmc = new DungeonManiaController();
+        dmc.newGame("d_midnightArmorTestWithZombies", "c_midnightArmorTest");
+        dmc.tick(Direction.RIGHT);
+        DungeonResponse res = dmc.tick(Direction.RIGHT);
+        assertEquals(1, getInventory(res, "sword").size());
+        assertThrows(InvalidActionException.class, () -> {
+            dmc.build("midnight_armour");
+        });
+    }
+
+    @Test
+    @DisplayName("Test sceptre build with wood and key")
+    public void sceptreBuildWoodAndKey() throws IllegalArgumentException, InvalidActionException {
+        DungeonManiaController dmc = new DungeonManiaController();
+        DungeonResponse res = dmc.newGame("d_sceptreBuildTestWoodAndKey", "c_midnightArmorTest");
+        assertTrue(getInventory(res, "sceptre").size() == 0);
+
+        dmc.tick(Direction.RIGHT);
+        dmc.tick(Direction.RIGHT);
+        res = dmc.tick(Direction.RIGHT);
+        assertEquals(1, getInventory(res, "sunstone").size());
+        assertEquals(1, getInventory(res, "key").size());
+        assertEquals(1, getInventory(res, "wood").size());
+        res = dmc.build("sceptre");
+        assertEquals(0, getInventory(res, "sunstone").size());
+        assertEquals(0, getInventory(res, "key").size());
+        assertEquals(0, getInventory(res, "wood").size());
+        assertEquals(1, getInventory(res, "sceptre").size());
+    }
+
+    @Test
+    @DisplayName("Test sceptre build with arrows and treasure")
+    public void sceptreBuildArrowsAndTreasure() throws IllegalArgumentException, InvalidActionException {
+        DungeonManiaController dmc = new DungeonManiaController();
+        DungeonResponse res = dmc.newGame("d_sceptreBuildTestArrowsAndTreasure", "c_midnightArmorTest");
+        assertTrue(getInventory(res, "sceptre").size() == 0);
+
+        dmc.tick(Direction.RIGHT);
+        dmc.tick(Direction.RIGHT);
+        dmc.tick(Direction.RIGHT);
+        res = dmc.tick(Direction.RIGHT);
+        assertEquals(1, getInventory(res, "sunstone").size());
+        assertEquals(1, getInventory(res, "treasure").size());
+        assertEquals(2, getInventory(res, "arrow").size());
+        res = dmc.build("sceptre");
+        assertEquals(0, getInventory(res, "sunstone").size());
+        assertEquals(0, getInventory(res, "treasure").size());
+        assertEquals(0, getInventory(res, "arrow").size());
+        assertEquals(1, getInventory(res, "sceptre").size());
+    }
+
+    @Test
+    @DisplayName("Test sceptre build with wood and 2 sunstones")
+    public void sceptreBuildTwoSunstones() throws IllegalArgumentException, InvalidActionException {
+        DungeonManiaController dmc = new DungeonManiaController();
+        DungeonResponse res = dmc.newGame("d_sceptreBuildTestTwoSunstones", "c_midnightArmorTest");
+        assertTrue(getInventory(res, "sceptre").size() == 0);
+
+        dmc.tick(Direction.RIGHT);
+        dmc.tick(Direction.RIGHT);
+        res = dmc.tick(Direction.RIGHT);
+        assertEquals(2, getInventory(res, "sunstone").size());
+        assertEquals(1, getInventory(res, "wood").size());
+        res = dmc.build("sceptre");
+        assertEquals(1, getInventory(res, "sunstone").size());
+        assertEquals(0, getInventory(res, "wood").size());
+        assertEquals(1, getInventory(res, "sceptre").size());
+    }
+
+    @Test
+    @DisplayName("Test shield construction with sunstone")
+    public void shieldBuildTwoSunstones() throws IllegalArgumentException, InvalidActionException {
+        DungeonManiaController dmc = new DungeonManiaController();
+        DungeonResponse res = dmc.newGame("d_shieldConstructionSunstoneTest", "c_shieldConstructionTest");
+        assertTrue(getInventory(res, "shield").size() == 0);
+
+        dmc.tick(Direction.RIGHT);
+        dmc.tick(Direction.RIGHT);
+        res = dmc.tick(Direction.RIGHT);
+        assertEquals(2, getInventory(res, "wood").size());
+        assertEquals(1, getInventory(res, "sunstone").size());
+        res = dmc.build("shield");
+        assertEquals(1, getInventory(res, "shield").size());
+        assertEquals(0, getInventory(res, "wood").size());
+        assertEquals(1, getInventory(res, "sunstone").size());
     }
 }

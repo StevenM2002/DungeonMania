@@ -5,6 +5,7 @@ import java.util.List;
 
 import dungeonmania.CollectibleEntities.Bow;
 import dungeonmania.CollectibleEntities.InventoryObject;
+import dungeonmania.CollectibleEntities.MidnightArmor;
 import dungeonmania.CollectibleEntities.Shield;
 import dungeonmania.CollectibleEntities.Sword;
 import dungeonmania.MovingEntities.MovingEntity;
@@ -31,10 +32,13 @@ public class BattleManager {
         Bow bow = getBow(inventory);
         Sword sword = getSword(inventory);
         Shield shield = getShield(inventory);
+        MidnightArmor midnightArmor = getMidnightArmor(inventory);
 
         double bowMod = 1;
         double swordMod = 0;
         double shieldMod = 0;
+        double midnightArmourAttack = 0;
+        double midnightArmourDefence = 0;
 
 
         // getting and deteriorating the items
@@ -62,9 +66,15 @@ public class BattleManager {
             }
         }
 
+        if (midnightArmor != null) {
+            midnightArmourAttack = midnightArmor.getModifier();
+            midnightArmourDefence = midnightArmor.getDefence();
+            weaponsUsed.add(new ItemResponse(midnightArmor.getId(), "midnight_armour"));
+        }
+
         while (player.getHealth() > 0 && enemy.getHealth() > 0) {
-            double deltaPlayerHealth = (enemy.getAttack() - shieldMod) / 10;
-            double deltaEnemyHealth = (bowMod * (player.getAttack() + swordMod)) / 5;
+            double deltaPlayerHealth = (enemy.getAttack() - shieldMod - midnightArmourDefence) / 10;
+            double deltaEnemyHealth = (bowMod * (player.getAttack() + swordMod + midnightArmourAttack)) / 5;
 
             player.setHealth(player.getHealth() - deltaPlayerHealth);
             enemy.setHealth(enemy.getHealth() - deltaEnemyHealth);
@@ -100,6 +110,16 @@ public class BattleManager {
         if (inventory.stream().anyMatch(e -> e instanceof Shield)) {
             return ((Shield) inventory.stream()
                     .filter(e -> e instanceof Shield)
+                    .findFirst().get());
+        }
+
+        return null;
+    }
+
+    private static MidnightArmor getMidnightArmor(List<InventoryObject> inventory) {
+        if (inventory.stream().anyMatch(e -> e instanceof MidnightArmor)) {
+            return ((MidnightArmor) inventory.stream()
+                    .filter(e -> e instanceof MidnightArmor)
                     .findFirst().get());
         }
 

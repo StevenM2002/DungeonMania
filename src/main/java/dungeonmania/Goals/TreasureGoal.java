@@ -13,7 +13,7 @@ public class TreasureGoal implements Goal{
     @Override
     public Boolean hasCompleted(Player player, List<Entity> allEntities) {
         return player.getInventory().stream()
-            .filter(x->(x instanceof Treasure))
+            .filter(x->(x instanceof Treasure || x instanceof Sunstone))
             .count() >= requiredTreasure;
     }
     @Override
