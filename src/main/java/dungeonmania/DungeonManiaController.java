@@ -1,6 +1,5 @@
 package dungeonmania;
 
-import dungeonmania.MovingEntities.Mercenary;
 import dungeonmania.MovingEntities.MovingEntity;
 import dungeonmania.CollectibleEntities.Bomb;
 import dungeonmania.CollectibleEntities.Potion;
@@ -142,7 +141,7 @@ public class DungeonManiaController {
         }
         loadEntities(dungeon.optJSONArray("entities"), config);
 
-        getDmc().goal = GoalManager.loadGoals(dungeon.getJSONObject("goal-condition"), config, battleManager);        
+        getDmc().goal = GoalManager.loadGoals(dungeon, config, battleManager);        
         PortalMatcher.configurePortals(allEntities);
         this.currTick = 0;
         return getDungeonResponseModel();
@@ -219,12 +218,16 @@ public class DungeonManiaController {
     private void doSharedTick() {
         currTick++;
         getPlayer().doPotionTick();
+
+        // move all entities
         for (MovingEntity e : getDmc().getAllEntities().stream()
             .filter(entity -> (entity instanceof MovingEntity))
-            .map(entity -> (MovingEntity) entity).collect(Collectors.toList())
+            .map(entity -> (MovingEntity) entity)
+            .collect(Collectors.toList())
         ) {
             e.doTickMovement();
         }
+
         CollisionManager.deactivateSwitches();
         if (getDmc().getPlayer() == null) return; // if player is killed
         goal.hasCompleted(getDmc().getPlayer(), getDmc().getAllEntities());

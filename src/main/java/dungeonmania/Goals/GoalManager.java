@@ -11,8 +11,13 @@ public class GoalManager {
      * @param config
      * @return
      */
-    public static Goal loadGoals(JSONObject goal_condition, JSONObject config, BattleManager battleManager) { // Recursion
+    public static Goal loadGoals(JSONObject dungeon, JSONObject config, BattleManager battleManager) { // Recursion
         // Leaf goals (Base cases)
+        JSONObject goal_condition = dungeon.optJSONObject("goal-condition");
+        if (goal_condition == null) {
+            return new EmptyGoal();
+        }
+
         if (goal_condition.length() == 1) {
             switch (goal_condition.getString("goal")) {
                 case "exit":
