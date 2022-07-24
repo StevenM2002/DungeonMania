@@ -1,5 +1,7 @@
 package dungeonmania.StaticEntities;
 
+import org.json.JSONObject;
+
 import dungeonmania.response.models.EntityResponse;
 import dungeonmania.util.Position;
 import dungeonmania.util.UtilityFunctions;
@@ -31,9 +33,6 @@ public class Portal extends StaticEntity {
     @Override
     public EntityResponse getEntityResponse() {
         var type = getType() + "_" + colour;
-        type = type.toLowerCase();
-        System.out.println(type);
-        System.out.println(UtilityFunctions.camelToSnake(type));
         return new EntityResponse(
                 getId(),
                 UtilityFunctions.camelToSnake(type),
@@ -41,5 +40,11 @@ public class Portal extends StaticEntity {
                 getIsInteractable());
     }
 
+    @Override
+    public JSONObject toJSON() {
+        JSONObject newJSON = super.toJSON();
+        newJSON.put("colour", colour);
+        return newJSON;
+    }
 
 }

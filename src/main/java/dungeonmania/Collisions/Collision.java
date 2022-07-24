@@ -10,6 +10,7 @@ public abstract class Collision {
      * appropriately
      * @param moved - Entity that moved into collided
      * @param collided - Entity that was collided with
+     * @return returns true if the entity should pass, false if blocked
      */
-    public abstract void processCollision(Entity moved, Entity collided, Direction direction);
+    public abstract boolean processCollision(Entity moved, Entity collided, Direction direction);
 }

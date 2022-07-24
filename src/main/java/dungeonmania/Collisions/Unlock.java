@@ -16,7 +16,7 @@ public class Unlock extends Collision {
      * door and moves, otherwise is blocked
      */
     @Override
-    public void processCollision(Entity moved, Entity collided, Direction direction) {
+    public boolean processCollision(Entity moved, Entity collided, Direction direction) {
         Player player = (Player) moved;
         Door door = (Door) collided;
         Key playerKey = player.getInventory().stream()
@@ -39,8 +39,9 @@ public class Unlock extends Collision {
         }
         
         if (!door.isLocked()) {
-            player.setPosition(collided.getPosition());
+            return true;
         }
+        return false;
     }
     
 }

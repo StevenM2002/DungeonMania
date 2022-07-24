@@ -153,4 +153,11 @@ public class TestBattles {
         BattleResponse battle = postBattleResponse.getBattles().get(0);
         assertHydraBattleCalculations("hydra", battle, false, "c_battleTests_basicHydraHeal");
     }
+
+    public static void main(String[] args) {
+        TestBattles t = new TestBattles();
+        t.testHealthBelowZeroHydra();
+        t.testHydraHeal();
+        t.testRoundCalculationsHydra();
+    }
 }

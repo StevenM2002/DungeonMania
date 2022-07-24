@@ -1,9 +1,19 @@
 package dungeonmania.MovingEntities;
 
-import dungeonmania.Entity;
 
 public interface Battling {
-    public double takeDamage(Entity entity);
 
-    public double dealDamage(Entity entity);
+    /**
+     * returns the amount of damage the entity took.
+     * adjusts the entities health accordingly
+     * @param damage
+     * @return
+     */
+    public double takeDamage(double damage);
+
+    /**
+     * returns the amount of damage the entity would deal
+     * @return
+     */
+    public double dealDamage();
 }

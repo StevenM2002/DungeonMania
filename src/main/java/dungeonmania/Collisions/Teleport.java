@@ -12,7 +12,7 @@ import dungeonmania.CanMove;
 public class Teleport extends Collision {
 
     @Override
-    public void processCollision(Entity moved, Entity collided, Direction direction) {
+    public boolean processCollision(Entity moved, Entity collided, Direction direction) {
         CanMove moving = (CanMove) moved;
         Portal entryPortal = (Portal) collided;
         Position initialPlayerPos = moved.getPosition();
@@ -33,5 +33,6 @@ public class Teleport extends Collision {
         if (moved.getPosition() == entryPortal.getOtherPortal().getPosition()) {
             moved.setPosition(initialPlayerPos);
         }
+        return false;
     }
 }

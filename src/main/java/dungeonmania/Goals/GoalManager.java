@@ -24,6 +24,8 @@ public class GoalManager {
                 case "boulders":
                     return new SwitchesGoal();
             }
+        } else if (goal_condition.length() == 0) {
+            return new EmptyGoal();
         }
         // Complex goals
         else {
@@ -37,6 +39,6 @@ public class GoalManager {
                     return new Or(loadGoals(left, config, battleManager), loadGoals(right, config, battleManager));
             }
         }
-        return null;
+        return new EmptyGoal();
     }
 }

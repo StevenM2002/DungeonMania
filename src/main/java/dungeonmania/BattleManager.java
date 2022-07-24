@@ -13,15 +13,16 @@ import dungeonmania.response.models.BattleResponse;
 import dungeonmania.response.models.ItemResponse;
 import dungeonmania.response.models.RoundResponse;
 
+import static dungeonmania.DungeonManiaController.getDmc;
+
+
 public class BattleManager {
     private List<BattleResponse> battleList;
-    private DungeonManiaController dmc;
     public int getVictimCount() {
         return battleList.size();
     }
 
-    public BattleManager(DungeonManiaController dmc) {
-        this.dmc = dmc;
+    public BattleManager() {
         this.battleList = new ArrayList<>();
     }
 
@@ -65,23 +66,12 @@ public class BattleManager {
         }
 
         while (player.getHealth() > 0 && enemy.getHealth() > 0) {
-            double deltaPlayerHealth = enemy.dealDamage(player);
-            double deltaEnemyHealth = enemy.takeDamage(player);
-
-            if (!isInvincible()) {
-                player.setHealth(player.getHealth() - deltaPlayerHealth);
-            }
-            
-            enemy.setHealth(enemy.getHealth() - deltaEnemyHealth);
-
+            double deltaPlayerHealth = player.takeDamage(enemy.dealDamage());
+            double deltaEnemyHealth = enemy.takeDamage(player.dealDamage());
             rounds.add(new RoundResponse(-deltaPlayerHealth, -deltaEnemyHealth, weaponsUsed));
         }
 
         return rounds;
-    }
-
-    private static boolean isInvincible() {
-        return false;
     }
 
     public void doBattle(Player player, MovingEntity enemy) {
@@ -99,10 +89,10 @@ public class BattleManager {
         );
 
         if (enemy.getHealth() <= 0) {
-            dmc.getAllEntities().remove(enemy);
+            getDmc().getAllEntities().remove(enemy);
 
         } else if (player.getHealth() <= 0) {
-            dmc.getAllEntities().remove(player);
+            getDmc().getAllEntities().remove(player);
         }
     }
 

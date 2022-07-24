@@ -10,9 +10,9 @@ public class Activate extends Collision {
      * Precondition: collided implements Switch
      */
     @Override
-    public void processCollision(Entity moved, Entity collided, Direction direction) {
+    public boolean processCollision(Entity moved, Entity collided, Direction direction) {
         Switch switchEntity = (Switch) collided;
-        moved.setPosition(collided.getPosition());
         switchEntity.setActivated(true);
+        return true;
     }    
 }

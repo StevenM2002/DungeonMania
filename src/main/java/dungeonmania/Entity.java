@@ -1,6 +1,7 @@
 package dungeonmania;
 
-import dungeonmania.Collisions.CollisionManager;
+import org.json.JSONObject;
+
 import dungeonmania.response.models.EntityResponse;
 import dungeonmania.util.Position;
 import dungeonmania.util.UtilityFunctions;
@@ -9,7 +10,6 @@ public abstract class Entity {
     private String id;
     private Position position;
     private boolean isInteractable;
-    public static CollisionManager collisionManager;
 
     public Entity(String id, Position position, boolean isInteractable) {
         this.id = id;
@@ -63,5 +63,12 @@ public abstract class Entity {
             return e.getId() == this.getId();
         }
         return false;
+    }
+    public JSONObject toJSON() {
+        JSONObject newJSON = new JSONObject();
+        newJSON.put("x", position.getX());
+        newJSON.put("y", position.getY());
+        newJSON.put("type", UtilityFunctions.camelToSnake(getType()));
+        return newJSON;
     }
 }
