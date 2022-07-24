@@ -1,7 +1,5 @@
 package dungeonmania.MovingEntities;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.stream.Collectors;
 
 import dungeonmania.Player;
@@ -40,36 +38,34 @@ public class Mercenary extends MovingEntity implements PlayerListener, Interacta
     public boolean isFriendly() {
         return isFriendly;
     }
+
+    /**
+     * returns true if the player is within bribing distance of the mercenary
+     * @param player
+     * @return
+     */
     public boolean isInInteractableRadius(Player player) {
-        HashSet<Position> radiusSquare = new HashSet<>();
-        radiusSquare.add(player.getPosition());
-        for (int i = 0; i < getDmc().getConfigValue("bribe_radius"); i++) {
-            ArrayList<Position> toBeAdded = new ArrayList<>();
-            for (var square : radiusSquare) {
-                toBeAdded.addAll(square.getAdjacentPositions());
-            }
-            radiusSquare.addAll(toBeAdded);
-        }
-        return radiusSquare.contains(this.getPosition());
+        return Math.abs(player.getPosition().getX() - getPosition().getX()) <= getDmc().getConfigValue("bribe_radius") 
+            && Math.abs(player.getPosition().getY() - getPosition().getY()) <= getDmc().getConfigValue("bribe_radius");
     }
 
-     @Override
-     public void interact(Player player) throws InvalidActionException {
-        if (isFriendly) throw new InvalidActionException("Already bribed");
-        if (player.getInventory().stream().filter(it -> it instanceof Treasure).collect(Collectors.toList()).size() >= getDmc().getConfigValue("bribe_amount")) {
-            if (isInInteractableRadius(player)) {
-                for (int i = 0; i < getDmc().getConfigValue("bribe_amount"); i++) {
-                    var key = player.getInventory().stream().filter(it -> it instanceof Treasure).findFirst().get().getId();
-                    player.getInventory().removeIf(it -> it.getId().equals(key));
-                }
-                this.setFriendly(true);
-            } else {
-                throw new InvalidActionException("Not in bribing range");
+    @Override
+    public void interact(Player player) throws InvalidActionException {
+    if (isFriendly) throw new InvalidActionException("Already bribed");
+    if (player.getInventory().stream().filter(it -> it instanceof Treasure).collect(Collectors.toList()).size() >= getDmc().getConfigValue("bribe_amount")) {
+        if (isInInteractableRadius(player)) {
+            for (int i = 0; i < getDmc().getConfigValue("bribe_amount"); i++) {
+                var key = player.getInventory().stream().filter(it -> it instanceof Treasure).findFirst().get().getId();
+                player.getInventory().removeIf(it -> it.getId().equals(key));
             }
+            this.setFriendly(true);
         } else {
-             throw new InvalidActionException("Bribe amount is not enough");
+            throw new InvalidActionException("Not in bribing range");
         }
-     }
+    } else {
+            throw new InvalidActionException("Bribe amount is not enough");
+    }
+    }
 
     public void setFriendly(boolean friendly) {
         isFriendly = friendly;
