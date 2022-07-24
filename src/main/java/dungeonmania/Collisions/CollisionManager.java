@@ -2,22 +2,15 @@ package dungeonmania.Collisions;
 
 import java.util.ArrayList;
 
-import dungeonmania.DungeonManiaController;
 import dungeonmania.Entity;
 import dungeonmania.MovingEntities.Mercenary;
 import dungeonmania.StaticEntities.Switch;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
+import static dungeonmania.DungeonManiaController.getDmc;
+
 public class CollisionManager {
-    private DungeonManiaController dmc;
-    
-
-    public CollisionManager(DungeonManiaController dmc) {
-        this.dmc = dmc;
-    }
-
-
     /**
      * is called when a moving entity attempts to move in a direction
      * checks for collisions with other objects in the direction the entity
@@ -28,26 +21,20 @@ public class CollisionManager {
      * @param entity
      * @param direction
      */
-    public void requestMove(Entity moved, Direction direction) {
+    public static void requestMove(Entity moved, Direction direction) {
         Position toMove = moved.getPosition().translateBy(direction);
         ArrayList<Entity> collisionQueue = new ArrayList<>();
-        dmc.getAllEntities().stream()
+        getDmc().getAllEntities().stream()
             .filter(x->x.getPosition().equals(toMove) && x.getId() != moved.getId())
             .forEach(x->collisionQueue.add(x));
-        // checks if no colliding entities and moves
-        // Then checks if anything blocking it
-        if (collisionQueue.size() == 0) {
-            moved.setPosition(toMove);
-            
-            // checking push collisions
-        } else if (!collisionQueue.stream()
-            .anyMatch(x->(
-                getCollision(moved, x) instanceof Block
-            ))
-        ) {
-            for (Entity collided : collisionQueue) {
-                getCollision(moved, collided).processCollision(moved, collided, direction);
+        boolean doMove = true;
+        for (Entity collided : collisionQueue) {
+            if (!getCollision(moved, collided).processCollision(moved, collided, direction)) {
+                doMove = false;
             }
+        }
+        if (doMove) {
+            moved.setPosition(toMove);
         }
     }
 
@@ -58,7 +45,7 @@ public class CollisionManager {
      * @param direction
      * @return
      */
-    private Collision getCollision(Entity moved, Entity collided) {
+    public static Collision getCollision(Entity moved, Entity collided) {
         switch (moved.getType()) {
             case "Player":
                 switch (collided.getType()) {
@@ -138,7 +125,7 @@ public class CollisionManager {
      * @param type
      * @return
      */
-    private Collision initCollision(String type) {
+    private static Collision initCollision(String type) {
         switch (type) {
             case "Block":
                 return new Block();
@@ -149,9 +136,9 @@ public class CollisionManager {
             case "Teleport":
                 return new Teleport();
             case "Battle":
-                return new Battle(dmc.getBattleManager());
+                return new Battle(getDmc().getBattleManager());
             case "Collect":
-                return new Collect(dmc.getAllEntities());
+                return new Collect(getDmc().getAllEntities());
             case "Activate":
                 return new Activate();
         }
@@ -162,13 +149,13 @@ public class CollisionManager {
      * Deactivates all switches that do not have their activation type on 
      * top of them
      */
-    public void deactivateSwitches() {
-        dmc.getAllEntities().stream()
+    public static void deactivateSwitches() {
+        getDmc().getAllEntities().stream()
             .filter(x->(x instanceof Switch))
             .map(x->(Switch) x)
             .forEach(x->{
                 Entity e = (Entity) x;
-                if (!dmc.getAllEntities()
+                if (!getDmc().getAllEntities()
                     .stream()
                     .anyMatch(y->
                         (y.getPosition().equals(e.getPosition())

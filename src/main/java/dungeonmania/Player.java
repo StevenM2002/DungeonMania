@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dungeonmania.CollectibleEntities.Potion;
+import dungeonmania.Collisions.CollisionManager;
 import dungeonmania.CollectibleEntities.Shield;
 import dungeonmania.CollectibleEntities.Sword;
 import dungeonmania.MovingEntities.Battling;
-import dungeonmania.MovingEntities.MovingEntity;
 import dungeonmania.CollectibleEntities.Bow;
 import dungeonmania.CollectibleEntities.InventoryObject;
 import dungeonmania.CollectibleEntities.MidnightArmor;
@@ -16,22 +16,65 @@ import dungeonmania.util.Position;
 
 public class Player extends Entity implements CanMove, Battling {
     private Position previousPosition = getPosition();
-    public Position getPreviousPosition() {
-        return previousPosition;
-    }
     private List<InventoryObject> inventory = new ArrayList<>();
     private double attack;
     private double health;
+    
+    public Player(String id, Position position, double health, double attack) {
+        super(id, position, false);
+        this.health = health;
+        this.attack = attack;
+    }
+
+    public Position getPreviousPosition() {
+        return previousPosition;
+    }
+    
+    public double getAttack() {
+        return attack;
+    }
+
+    public double getHealth() {
+        return health;
+    }
+
+    public void setHealth(double health) {
+        this.health = health;
+    }
+
+    /**
+     * Moves the player, and records its previous position.
+     * @param direction the direction of movement
+     */
+    @Override
+    public void move(Direction direction) {
+        var tempPosition = getPosition();
+        CollisionManager.requestMove(this, direction);
+        this.previousPosition = tempPosition;
+    }
+
+    
+    public List<InventoryObject> getInventory() {
+        return inventory;
+    }
+
+    @Override
+    public String getDefaultCollision() {
+        return "Battle";
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    //                            Potion Logic                                //
+    ////////////////////////////////////////////////////////////////////////////
     private List<PlayerListener> subscribers = new ArrayList<>();
+    
     // String is the event which the listener wants to subscribe to
     // This includes:
     // playerMovement, playerPotionEffect
     public void subscribe(PlayerListener subscriber) {
         subscribers.add(subscriber);
     }
-    public void unsubscribe(String eventType, PlayerListener subscriber) {
-        subscribers.remove(subscriber);
-    }
+
     private PotionManager potionManager = new PotionManager();
 
     /**
@@ -56,47 +99,16 @@ public class Player extends Entity implements CanMove, Battling {
     public void notify(PlayerDataArgs data) {
         subscribers.forEach(publisherListener -> publisherListener.update(data));
     }
-    public Player(String id, Position position, double health, double attack) {
-        super(id, position, false);
-        this.health = health;
-        this.attack = attack;
-    }
-
-    public double getAttack() {
-        return attack;
-    }
-
-    public double getHealth() {
-        return health;
-    }
-
-    public void setHealth(double health) {
-        this.health = health;
-    }
-
-    /**
-     * If there is no blocking entity in the next move, then move the player one block down else do not move
-     * @param direction the direction of movement
-     */
-    @Override
-    public void move(Direction direction) {
-        var tempPosition = getPosition();
-        collisionManager.requestMove(this, direction);
-        this.previousPosition = tempPosition;
-    }
 
     public Potion getCurrentEffect() {
         return potionManager.getCurrPotion();
     }
-    
-    public List<InventoryObject> getInventory() {
-        return inventory;
-    }
 
-    @Override
-    public String getDefaultCollision() {
-        return "Battle";
-    }
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //                             Batle Logic                                //
+    ////////////////////////////////////////////////////////////////////////////
 
     private Bow getBow() {
         if (this.inventory.stream().anyMatch(e -> e instanceof Bow)) {
@@ -182,9 +194,6 @@ public class Player extends Entity implements CanMove, Battling {
         MidnightArmor midnightArmor = getMidnightArmor();
 
         if (midnightArmor != null) {
-            if (midnightArmor.deteriorate()) {
-                inventory.remove(midnightArmor);
-            }
             return midnightArmor.getModifier();
         }
         return 0;
@@ -200,11 +209,16 @@ public class Player extends Entity implements CanMove, Battling {
     }
 
     @Override
-    public double takeDamage(Entity entity) {
-        return (((MovingEntity) entity).getAttack() - getShieldMod() - getMidnightArmorDefence()) / 10;
+    public double takeDamage(double damage) {
+        double damageTaken = (damage  - getShieldMod() - getMidnightArmorDefence()) / 10;
+        if (health - damageTaken < 0) {
+            damageTaken = health;
+        }
+        health -= damageTaken;
+        return damageTaken;
     }
     @Override
-    public double dealDamage(Entity entity) {
-        return (getBowMod() * (this.getAttack() + getSwordMod()) + getMidnightArmorAttack()) / 5;
+    public double dealDamage() {
+        return (getBowMod() * (getAttack() + getSwordMod()) + getMidnightArmorAttack());
     }
 }

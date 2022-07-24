@@ -1,6 +1,7 @@
 package dungeonmania.StaticEntities;
 
 import dungeonmania.util.Position;
+import org.json.JSONObject;
 
 public class FloorSwitch extends StaticEntity implements Switch {
     private boolean activated = false;
@@ -28,6 +29,11 @@ public class FloorSwitch extends StaticEntity implements Switch {
     public String getType() {
         return "switch";
     }
-
+    @Override
+    public JSONObject toJSON() {
+        JSONObject newJSON = super.toJSON();
+        newJSON.put("activated", activated);
+        return newJSON;
+    }
 
 }

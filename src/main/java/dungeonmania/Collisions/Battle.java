@@ -15,7 +15,7 @@ public class Battle extends Collision {
 
 
     @Override
-    public void processCollision(Entity moved, Entity collided, Direction direction) {
+    public boolean processCollision(Entity moved, Entity collided, Direction direction) {
         Player player;
         MovingEntity enemy;
         if (moved instanceof Player) {
@@ -25,7 +25,7 @@ public class Battle extends Collision {
             player = (Player) collided;
             enemy = (MovingEntity) moved;
         }
-        moved.setPosition(collided.getPosition());
         battleManager.doBattle(player, enemy);
+        return true;
     }
 }

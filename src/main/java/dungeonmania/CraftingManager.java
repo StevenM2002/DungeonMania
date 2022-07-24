@@ -10,10 +10,15 @@ import dungeonmania.CollectibleEntities.MidnightArmor;
 import dungeonmania.CollectibleEntities.Shield;
 import dungeonmania.CollectibleEntities.Sceptre;
 import dungeonmania.exceptions.InvalidActionException;
-import static dungeonmania.DungeonManiaController.getNewEntityID;
-import static dungeonmania.DungeonManiaController.getConfigValue;
+import static dungeonmania.DungeonManiaController.getDmc;
 
 public class CraftingManager {
+    private static int IDCounter = 0;
+    private static String getNewCraftingID() {
+        String newID = "c"+IDCounter;
+        IDCounter++;
+        return newID;
+    }
     /**
      * 
      * @param type
@@ -25,13 +30,13 @@ public class CraftingManager {
     {
         Buildable newObject;
         if (type.equals("bow")) {
-            newObject = new Bow(getNewEntityID(), 2, getConfigValue("bow_durability"));
+            newObject = new Bow(getNewCraftingID(), 2, getDmc().getConfigValue("bow_durability"));
         } else if (type.equals("shield")) {
-            newObject = new Shield(getNewEntityID(), getConfigValue("shield_defence"), getConfigValue("shield_durability"));
+            newObject = new Shield(getNewCraftingID(), getDmc().getConfigValue("shield_defence"), getDmc().getConfigValue("shield_durability"));
         } else if (type.equals("sceptre")) {
-            newObject = new Sceptre(getNewEntityID(), getConfigValue("mind_control_duration"));
+            newObject = new Sceptre(getNewCraftingID(), getDmc().getConfigValue("mind_control_duration"));
         } else if (type.equals("midnight_armour")) {
-            newObject = new MidnightArmor(getNewEntityID(), getConfigValue("midnight_armour_defence"), getConfigValue("midnight_armour_attack"));
+            newObject = new MidnightArmor(getNewCraftingID(), getDmc().getConfigValue("midnight_armour_defence"), getDmc().getConfigValue("midnight_armour_attack"));
         } else {
             throw new IllegalArgumentException("Cannot build item of type: "+type);
         }

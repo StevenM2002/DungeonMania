@@ -4,11 +4,12 @@ import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
 import java.util.*;
+import static dungeonmania.DungeonManiaController.getDmc;
 
 public class FollowMovement extends Movement {
     @Override
     public void moveEntity(MovingEntity entity) {
-        Position relativePos = Position.calculatePositionBetween(entity.getPosition(), player.getPosition());
+        Position relativePos = Position.calculatePositionBetween(entity.getPosition(), getDmc().getPlayer().getPosition());
         var x = relativePos.getX();
         var y = relativePos.getY();
         List<Direction> queuePrio = Arrays.asList();

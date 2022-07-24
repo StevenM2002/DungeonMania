@@ -1,5 +1,7 @@
 package dungeonmania.StaticEntities;
 
+import org.json.JSONObject;
+
 import dungeonmania.CollectibleEntities.Key;
 import dungeonmania.response.models.EntityResponse;
 import dungeonmania.util.Position;
@@ -40,13 +42,18 @@ public class Door extends StaticEntity {
         } else {
             type = getType() + "_open";
         }
-        type = type.toLowerCase();
-        System.out.println(type);
-        System.out.println(UtilityFunctions.camelToSnake(type));
         return new EntityResponse(
                 getId(),
                 UtilityFunctions.camelToSnake(type),
                 getPosition(),
                 getIsInteractable());
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject newJSON = super.toJSON();
+        newJSON.put("key", key);
+        newJSON.put("locked", locked);
+        return newJSON;
     }
 }

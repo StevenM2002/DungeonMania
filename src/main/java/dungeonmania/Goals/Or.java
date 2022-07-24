@@ -16,6 +16,9 @@ public class Or extends ComplexGoal {
 
     @Override
     public String getTypeString(Player player, List<Entity> allEntities) {
+        if (this.hasCompleted(player, allEntities)) {
+            return "";
+        }
         return getLeft().getTypeString(player, allEntities)+" OR "+getRight().getTypeString(player, allEntities);
     }
 }

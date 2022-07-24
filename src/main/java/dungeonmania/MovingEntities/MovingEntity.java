@@ -2,7 +2,7 @@ package dungeonmania.MovingEntities;
 
 import dungeonmania.CanMove;
 import dungeonmania.Entity;
-import dungeonmania.Player;
+import dungeonmania.Collisions.CollisionManager;
 import dungeonmania.util.Position;
 import dungeonmania.util.Direction;
 
@@ -21,10 +21,6 @@ public abstract class MovingEntity extends Entity implements CanMove, Battling {
         return health;
     }
 
-    public double getAttack() {
-        return attack;
-    }
-
     public Movement getMovementStrategy() {
         return movementStrategy;
     }
@@ -33,8 +29,7 @@ public abstract class MovingEntity extends Entity implements CanMove, Battling {
         this.movementStrategy = movementStrategy;
     }
 
-    public MovingEntity(String id, Position position, boolean isInteractable, double health, double attack,
-                        Movement movementStrategy) {
+    public MovingEntity(String id, Position position, boolean isInteractable, double health, double attack, Movement movementStrategy) {
         super(id, position, isInteractable);
         this.health = health;
         this.attack = attack;
@@ -47,7 +42,7 @@ public abstract class MovingEntity extends Entity implements CanMove, Battling {
     @Override
     public void move(Direction direction) {
         Position tempPos = getPosition();
-        collisionManager.requestMove(this, direction);
+        CollisionManager.requestMove(this, direction);
         if (tempPos != getPosition()) {
             previousPosition = tempPos;
         }
@@ -58,13 +53,18 @@ public abstract class MovingEntity extends Entity implements CanMove, Battling {
     }
 
     @Override
-    public double takeDamage(Entity entity) {
-        return ((Player) entity).dealDamage(this);
+    public double takeDamage(double damage) {
+        double damageTaken = damage / 5;
+        if (health - damageTaken < 0) {
+            damageTaken = health;
+        }
+        health -= damageTaken;
+        return damageTaken;
     }
 
     @Override
-    public double dealDamage(Entity entity) {
-        return ((Player) entity).takeDamage(this);
+    public double dealDamage() {
+        return attack;
     }
 }
 
