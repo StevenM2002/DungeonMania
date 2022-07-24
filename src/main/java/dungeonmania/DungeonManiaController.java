@@ -141,7 +141,7 @@ public class DungeonManiaController {
         }
         loadEntities(dungeon.optJSONArray("entities"), config);
 
-        getDmc().goal = GoalManager.loadGoals(dungeon, config, battleManager);        
+        getDmc().goal = GoalManager.loadGoals(dungeon.optJSONObject("goal-condition"), config, battleManager);        
         PortalMatcher.configurePortals(allEntities);
         this.currTick = 0;
         return getDungeonResponseModel();

@@ -24,9 +24,12 @@ public class Player extends Entity implements CanMove {
     public void subscribe(PlayerListener subscriber) {
         subscribers.add(subscriber);
     }
-    public void unsubscribe(String eventType, PlayerListener subscriber) {
-        subscribers.remove(subscriber);
-    }
+
+    // Removed to help coverage
+    // public void unsubscribe(String eventType, PlayerListener subscriber) {
+    //     subscribers.remove(subscriber);
+    // }
+
     private PotionManager potionManager = new PotionManager();
 
     /**

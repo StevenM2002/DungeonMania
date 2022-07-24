@@ -64,14 +64,11 @@ public abstract class Entity {
         }
         return false;
     }
-
-
     public JSONObject toJSON() {
         JSONObject newJSON = new JSONObject();
         newJSON.put("x", position.getX());
         newJSON.put("y", position.getY());
         newJSON.put("type", UtilityFunctions.camelToSnake(getType()));
         return newJSON;
-
     }
 }

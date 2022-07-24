@@ -2,6 +2,8 @@ package dungeonmania.MovingEntities;
 
 import java.util.stream.Collectors;
 
+import org.json.JSONObject;
+
 import dungeonmania.Player;
 import dungeonmania.CollectibleEntities.Treasure;
 import dungeonmania.exceptions.InvalidActionException;
@@ -24,13 +26,11 @@ public class Mercenary extends MovingEntity implements PlayerListener, Interacta
     @Override
     public void update(PlayerDataArgs data) {
         if (isFriendly) return;
-        if (data.getPotion() == null && isFriendly) {
-            setMovementStrategy(new FriendlyMovement());
-        } else if (data.getPotion() == null && !isFriendly) {
+        if (data.getPotion() == null) {
             setMovementStrategy(new FollowMovement());
         } else if (data.getPotion() instanceof InvisibilityPotion) {
             setMovementStrategy(new RandomMovement());
-        } else if (data.getPotion() instanceof InvincibilityPotion && !isFriendly) {
+        } else if (data.getPotion() instanceof InvincibilityPotion) {
             setMovementStrategy(new RunningMovement());
         }
     }
@@ -73,5 +73,12 @@ public class Mercenary extends MovingEntity implements PlayerListener, Interacta
             setInteractable(false);
             setMovementStrategy(new FriendlyMovement());
         }
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject newJSON = super.toJSON();
+        newJSON.put("isFriendly", isFriendly);
+        return newJSON;
     }
 }

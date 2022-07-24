@@ -53,6 +53,7 @@ public class Door extends StaticEntity {
     public JSONObject toJSON() {
         JSONObject newJSON = super.toJSON();
         newJSON.put("key", key);
+        newJSON.put("locked", locked);
         return newJSON;
     }
 }
