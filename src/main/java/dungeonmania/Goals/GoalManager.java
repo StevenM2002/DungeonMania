@@ -14,10 +14,6 @@ public class GoalManager {
     public static Goal loadGoals(JSONObject dungeon, JSONObject config, BattleManager battleManager) { // Recursion
         // Leaf goals (Base cases)
         JSONObject goal_condition = dungeon.optJSONObject("goal-condition");
-        if (goal_condition == null) {
-            return new EmptyGoal();
-        }
-
         if (goal_condition.length() == 1) {
             switch (goal_condition.getString("goal")) {
                 case "exit":
@@ -29,6 +25,8 @@ public class GoalManager {
                 case "boulders":
                     return new SwitchesGoal();
             }
+        } else if (goal_condition.length() == 0) {
+            return new EmptyGoal();
         }
         // Complex goals
         else {
@@ -42,6 +40,6 @@ public class GoalManager {
                     return new Or(loadGoals(left, config, battleManager), loadGoals(right, config, battleManager));
             }
         }
-        return null;
+        return new EmptyGoal();
     }
 }
