@@ -76,7 +76,10 @@ public class BattleManager {
             double deltaPlayerHealth = (enemy.getAttack() - shieldMod - midnightArmourDefence) / 10;
             double deltaEnemyHealth = (bowMod * (player.getAttack() + swordMod + midnightArmourAttack)) / 5;
 
-            player.setHealth(player.getHealth() - deltaPlayerHealth);
+            if (!isInvincible()) {
+                player.setHealth(player.getHealth() - deltaPlayerHealth);
+            }
+            
             enemy.setHealth(enemy.getHealth() - deltaEnemyHealth);
 
             rounds.add(new RoundResponse(-deltaPlayerHealth, -deltaEnemyHealth, weaponsUsed));
@@ -124,6 +127,9 @@ public class BattleManager {
         }
 
         return null;
+    }
+    private static boolean isInvincible() {
+        return false;
     }
 
     public void doBattle(Player player, MovingEntity enemy) {
