@@ -27,20 +27,14 @@ public class CollisionManager {
         getDmc().getAllEntities().stream()
             .filter(x->x.getPosition().equals(toMove) && x.getId() != moved.getId())
             .forEach(x->collisionQueue.add(x));
-        // checks if no colliding entities and moves
-        // Then checks if anything blocking it
-        if (collisionQueue.size() == 0) {
-            moved.setPosition(toMove);
-            
-            // checking push collisions
-        } else if (!collisionQueue.stream()
-            .anyMatch(x->(
-                getCollision(moved, x) instanceof Block
-            ))
-        ) {
-            for (Entity collided : collisionQueue) {
-                getCollision(moved, collided).processCollision(moved, collided, direction);
+        boolean doMove = true;
+        for (Entity collided : collisionQueue) {
+            if (!getCollision(moved, collided).processCollision(moved, collided, direction)) {
+                doMove = false;
             }
+        }
+        if (doMove) {
+            moved.setPosition(toMove);
         }
     }
 

@@ -20,15 +20,14 @@ public class Collect extends Collision {
      * Precondition: moved is Player, collided is CollectibleEntity
      */
     @Override
-    public void processCollision(Entity moved, Entity collided, Direction direction) {
+    public boolean processCollision(Entity moved, Entity collided, Direction direction) {
         Player player = (Player) moved;
         CollectibleEntity collectibleEntity = (CollectibleEntity) collided;
-        player.setPosition(collectibleEntity.getPosition());
         if (!(collectibleEntity.getCollectible() instanceof Key && player.getInventory().stream().anyMatch(x->x instanceof Key))) {
             player.getInventory().add((InventoryObject) collectibleEntity.getCollectible());
             entityList.remove(collided);
         }
-
+        return true;
     }
     
     
