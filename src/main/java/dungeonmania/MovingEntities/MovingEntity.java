@@ -2,6 +2,7 @@ package dungeonmania.MovingEntities;
 
 import dungeonmania.CanMove;
 import dungeonmania.Entity;
+import dungeonmania.Collisions.CollisionManager;
 import dungeonmania.util.Position;
 import dungeonmania.util.Direction;
 
@@ -46,7 +47,7 @@ public abstract class MovingEntity extends Entity implements CanMove {
     @Override
     public void move(Direction direction) {
         Position tempPos = getPosition();
-        collisionManager.requestMove(this, direction);
+        CollisionManager.requestMove(this, direction);
         if (tempPos != getPosition()) {
             previousPosition = tempPos;
         }

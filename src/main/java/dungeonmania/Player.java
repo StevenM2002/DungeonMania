@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dungeonmania.CollectibleEntities.Potion;
+import dungeonmania.Collisions.CollisionManager;
 import dungeonmania.CollectibleEntities.InventoryObject;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
@@ -75,7 +76,7 @@ public class Player extends Entity implements CanMove {
     @Override
     public void move(Direction direction) {
         var tempPosition = getPosition();
-        collisionManager.requestMove(this, direction);
+        CollisionManager.requestMove(this, direction);
         this.previousPosition = tempPosition;
     }
 

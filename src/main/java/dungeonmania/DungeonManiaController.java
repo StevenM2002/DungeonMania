@@ -1,12 +1,10 @@
 package dungeonmania;
 
 import dungeonmania.MovingEntities.Mercenary;
-import dungeonmania.MovingEntities.Movement;
 import dungeonmania.MovingEntities.MovingEntity;
 import dungeonmania.CollectibleEntities.Bomb;
 import dungeonmania.CollectibleEntities.Potion;
 import dungeonmania.MovingEntities.*;
-import dungeonmania.util.Position;
 import dungeonmania.StaticEntities.ZombieToastSpawner;
 
 import org.json.JSONArray;
@@ -36,22 +34,29 @@ import java.util.stream.Stream;
 
 
 public class DungeonManiaController {
-    private SpiderSpawning spiderSpawning;
-    private static List<Entity> allEntities;
-    private static int currentEntityID;
+    private static DungeonManiaController dmc;
+    private List<Entity> allEntities;
     private int currentDungeonID = 0;
-    private String currentDungeonName;
+    private String dungeonName;
     private Goal goal;
-    private static JSONObject config;
-    private CollisionManager collisionManager;
+    private JSONObject config;
     private BattleManager battleManager;
     private int currTick;
 
+    private void setConfig(JSONObject config) {
+        this.config = config;
+    }
+
+    /**
+     * Singleton pattern for thread safe static dmc
+     * @return
+     */
+    public static DungeonManiaController getDmc() {
+        return dmc;
+    }
+
     private String getDungeonID() {
         return Integer.toString(currentDungeonID);
-    }
-    private void nextDungeonID() {
-        currentDungeonID += 1;
     }
 
     public BattleManager getBattleManager() {
@@ -67,30 +72,20 @@ public class DungeonManiaController {
             .filter(x->x.getClass().getSimpleName().startsWith("Player"))
             .findFirst().orElse(null);
     }
-    public static JSONObject getConfig() {
+    public JSONObject getConfig() {
         return config;
     }
 
-    public static int getConfigValue(String key) {
+    public int getConfigValue(String key) {
         return config.getInt(key);
     }
 
-    /**
-     * returns a new id to be assigned to an entity object
-     * also iterates the current id to a new value, so each id is unique
-     * @return
-     */
-    public static String getNewEntityID() {
-        String newID = Integer.toString(currentEntityID);
-        currentEntityID += 1;
-        return newID;
-    }
 
     public List<Entity> getAllEntities() {
         return allEntities;
     }
 
-    public static void removeFromEntities(Entity entity) {
+    public void removeFromEntities(Entity entity) {
         allEntities.remove(entity);
     }
 
@@ -113,21 +108,26 @@ public class DungeonManiaController {
      */
     public static List<String> configs() {
         return FileLoader.listFileNamesInResourceDirectory("configs");
+    }    
+    
+    
+    private void initDmc(String dungeonName) {
+        int newDungeonId = currentDungeonID;
+        currentDungeonID++;
+        dmc = this;
+        dmc.currentDungeonID = newDungeonId;
+        allEntities = new ArrayList<>();
+        dmc.battleManager = new BattleManager();
+        dmc.currTick = 0;
+        dmc.dungeonName = dungeonName;
     }
-
     /**
      * /game/new
      */
     public DungeonResponse newGame(String dungeonName, String configName) throws IllegalArgumentException {
         // Initialising the new dungeon
-        allEntities = new ArrayList<>();
-        currentEntityID = 0;
-        nextDungeonID();
-        currentDungeonName = dungeonName;
-        battleManager = new BattleManager(this);
-        collisionManager = new CollisionManager(this);
-        Entity.collisionManager = collisionManager;
-        
+        EntityFactory.setCurrentEntityID(0);
+        initDmc(dungeonName);        
         JSONObject dungeon = null;
         JSONObject config = null;
         try {
@@ -136,15 +136,14 @@ public class DungeonManiaController {
             throw new IllegalArgumentException("Could not find dungeon file \""+dungeonName+"\"");
         } try {
             config = new JSONObject(FileLoader.loadResourceFile("/configs/"+configName+".json"));
-            DungeonManiaController.config = config;
+            getDmc().setConfig(config);
         } catch (IOException e) {
             throw new IllegalArgumentException("Could not find config file \""+configName+"\"");
         }
         loadEntities(dungeon.optJSONArray("entities"), config);
 
-        goal = GoalManager.loadGoals(dungeon.getJSONObject("goal-condition"), config, battleManager);        
+        getDmc().goal = GoalManager.loadGoals(dungeon.getJSONObject("goal-condition"), config, battleManager);        
         PortalMatcher.configurePortals(allEntities);
-        Movement.player = getPlayer();
         allEntities.stream().filter(it -> it instanceof Mercenary).forEach(it -> {
             if (it instanceof PlayerListener) {
                 PlayerListener casted = (PlayerListener) it;
@@ -157,7 +156,6 @@ public class DungeonManiaController {
                 getPlayer().subscribe(casted);
             }
         });
-        this.spiderSpawning = new SpiderSpawning();
         this.currTick = 0;
         return getDungeonResponseModel();
     }
@@ -166,8 +164,7 @@ public class DungeonManiaController {
 
     private void loadEntities(JSONArray entities, JSONObject config) {
         for (int i = 0; i < entities.length(); i++) {
-            JSONObject JSONEntity = entities.getJSONObject(i);
-            allEntities.add(EntityFactory.createEntity(getNewEntityID(), JSONEntity, config));
+            EntityFactory.createEntity(entities.getJSONObject(i));
         }
     }
 
@@ -175,13 +172,13 @@ public class DungeonManiaController {
      * /game/dungeonResponseModel
      */
     public DungeonResponse getDungeonResponseModel() {
-        // creating the entity list, TODO: could maybe do with streams
         ArrayList<EntityResponse> entityList = new ArrayList<>();
         for (Entity e : allEntities) {
             entityList.add(e.getEntityResponse());
         }
         ArrayList<BattleResponse> battleList = (ArrayList<BattleResponse>) battleManager.getBattleList();        
         // creating inventory object list
+        // NOTE: checks that player is still alive
         String goals = "dead";
         List<ItemResponse> inventoryList = new ArrayList<>();
         List<String> buildablesList = new ArrayList<>();
@@ -196,7 +193,7 @@ public class DungeonManiaController {
         }
         return new DungeonResponse(
             getDungeonID(), 
-            currentDungeonName, 
+            dungeonName, 
             entityList, 
             inventoryList, 
             battleList, 
@@ -234,18 +231,24 @@ public class DungeonManiaController {
     private void doSharedTick() {
         currTick++;
         getPlayer().doPotionTick();
-        List<MovingEntity> movingEntities = allEntities.stream().filter(entity -> entity instanceof MovingEntity).map(entity -> (MovingEntity) entity).collect(Collectors.toList());
-        movingEntities.forEach(entity -> entity.doTickMovement());
-        Position spiderPosition = spiderSpawning.getSpiderPositionSpawn(currTick);
-        if (spiderPosition != null) allEntities.add(new Spider(getNewEntityID(), spiderPosition, config.getDouble("spider_health"), config.getInt("spider_attack")));
-        collisionManager.deactivateSwitches();
+        getDmc().getAllEntities().stream()
+            .filter(entity -> (entity instanceof MovingEntity))
+            .map(entity -> (MovingEntity) entity)
+            .forEach(entity -> entity.doTickMovement());
+        CollisionManager.deactivateSwitches();
         if (getPlayer() == null) return; // if player is killed
         goal.hasCompleted(getPlayer(), allEntities);
     }
 
+    /**
+     * Runs the spawn function for all spawners, including the SpiderSpawner and ZombieToastSpawners
+     */
     private void doSharedSpawn() {
-        if (allEntities.stream().anyMatch(e -> e instanceof ZombieToastSpawner)) {
-            allEntities.stream().filter(e -> e instanceof ZombieToastSpawner).map(e -> (ZombieToastSpawner) e).collect(Collectors.toList()).forEach(e -> e.spawn(allEntities, currTick));
+        SpiderSpawner.doSpiderSpawn(currTick);
+        if (getDmc().getAllEntities().stream().anyMatch(e -> e instanceof ZombieToastSpawner)) {
+            for (ZombieToastSpawner z : getDmc().getAllEntities().stream().filter(e -> e instanceof ZombieToastSpawner).map(x->(ZombieToastSpawner) x).collect(Collectors.toList())) {
+                z.spawn(getDmc().currTick);
+            }
         }
     }
 

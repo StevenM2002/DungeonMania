@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
-import dungeonmania.DungeonManiaController;
 import dungeonmania.Player;
 import dungeonmania.CollectibleEntities.Treasure;
 import dungeonmania.exceptions.InvalidActionException;
@@ -14,6 +13,8 @@ import dungeonmania.CollectibleEntities.InvincibilityPotion;
 import dungeonmania.CollectibleEntities.InvisibilityPotion;
 import dungeonmania.PlayerDataArgs;
 import dungeonmania.PlayerListener;
+import static dungeonmania.DungeonManiaController.getDmc;
+
 
 public class Mercenary extends MovingEntity implements PlayerListener, Interactable {
     private boolean isFriendly = false;
@@ -42,7 +43,7 @@ public class Mercenary extends MovingEntity implements PlayerListener, Interacta
     public boolean isInInteractableRadius(Player player) {
         HashSet<Position> radiusSquare = new HashSet<>();
         radiusSquare.add(player.getPosition());
-        for (int i = 0; i < DungeonManiaController.getConfigValue("bribe_radius"); i++) {
+        for (int i = 0; i < getDmc().getConfigValue("bribe_radius"); i++) {
             ArrayList<Position> toBeAdded = new ArrayList<>();
             for (var square : radiusSquare) {
                 toBeAdded.addAll(square.getAdjacentPositions());
@@ -55,9 +56,9 @@ public class Mercenary extends MovingEntity implements PlayerListener, Interacta
      @Override
      public void interact(Player player) throws InvalidActionException {
         if (isFriendly) throw new InvalidActionException("Already bribed");
-        if (player.getInventory().stream().filter(it -> it instanceof Treasure).collect(Collectors.toList()).size() >= DungeonManiaController.getConfigValue("bribe_amount")) {
+        if (player.getInventory().stream().filter(it -> it instanceof Treasure).collect(Collectors.toList()).size() >= getDmc().getConfigValue("bribe_amount")) {
             if (isInInteractableRadius(player)) {
-                for (int i = 0; i < DungeonManiaController.getConfigValue("bribe_amount"); i++) {
+                for (int i = 0; i < getDmc().getConfigValue("bribe_amount"); i++) {
                     var key = player.getInventory().stream().filter(it -> it instanceof Treasure).findFirst().get().getId();
                     player.getInventory().removeIf(it -> it.getId().equals(key));
                 }

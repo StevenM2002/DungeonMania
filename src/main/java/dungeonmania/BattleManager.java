@@ -12,15 +12,16 @@ import dungeonmania.response.models.BattleResponse;
 import dungeonmania.response.models.ItemResponse;
 import dungeonmania.response.models.RoundResponse;
 
+import static dungeonmania.DungeonManiaController.getDmc;
+
+
 public class BattleManager {
     private List<BattleResponse> battleList;
-    private DungeonManiaController dmc;
     public int getVictimCount() {
         return battleList.size();
     }
 
-    public BattleManager(DungeonManiaController dmc) {
-        this.dmc = dmc;
+    public BattleManager() {
         this.battleList = new ArrayList<>();
     }
 
@@ -121,10 +122,10 @@ public class BattleManager {
         );
 
         if (enemy.getHealth() <= 0) {
-            dmc.getAllEntities().remove(enemy);
+            getDmc().getAllEntities().remove(enemy);
 
         } else if (player.getHealth() <= 0) {
-            dmc.getAllEntities().remove(player);
+            getDmc().getAllEntities().remove(player);
         }
     }
 

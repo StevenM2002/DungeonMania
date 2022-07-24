@@ -1,59 +1,41 @@
 package dungeonmania.StaticEntities;
 
 import java.util.List;
+import java.util.Random;
 
 import dungeonmania.*;
-import org.json.JSONObject;
+import static dungeonmania.DungeonManiaController.getDmc;
+
 
 import dungeonmania.CollectibleEntities.Weapon;
 import dungeonmania.MovingEntities.Interactable;
+import dungeonmania.MovingEntities.ZombieToast;
 import dungeonmania.exceptions.InvalidActionException;
+import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
 public class ZombieToastSpawner extends StaticEntity implements Interactable {
     private static int spawnRate;
-    private static int id_counter = 0;
+    private Random random;
 
     public ZombieToastSpawner(String id, Position position, int spawnRate) {
         super(id, position, true);
         ZombieToastSpawner.spawnRate = spawnRate;
+        random = new Random();
     }
 
-    private Position findNewPosition(List<Entity> allEntities) {
-        int x = this.getPosition().getX();
-        int y = this.getPosition().getY();
-        if (!allEntities.stream().anyMatch(entity -> entity.getPosition().equals(new Position(x + 1, y)))) {
-            return new Position(x + 1, y);
 
-        } else if (!allEntities.stream().anyMatch(entity -> entity.getPosition().equals(new Position(x - 1, y)))) {
-            return new Position(x - 1, y);
-
-        } else if (!allEntities.stream().anyMatch(entity -> entity.getPosition().equals(new Position(x, y + 1)))) {
-            return new Position(x, y + 1);
-
-        } else if (!allEntities.stream().anyMatch(entity -> entity.getPosition().equals(new Position(x - 1, y)))) {
-            return new Position(x, y - 1);
-        }
-
-        return null;
-    }
-
-    public void spawn(List<Entity> allEntities, int currTick) {
+    public void spawn(int currTick) {
         if (spawnRate == 0 || currTick % spawnRate != 0) return;
 
-        Position newPosition = findNewPosition(allEntities);
-        String zombie_id = this.getId() + "zombie" + id_counter;
-        id_counter++;
-        if (newPosition != null) {
-            JSONObject config = DungeonManiaController.getConfig();
-            JSONObject jsonEntity = new JSONObject();
-            jsonEntity.put("type", "zombie_toast");
-            jsonEntity.put("x", newPosition.getX());
-            jsonEntity.put("y", newPosition.getY());
-            Entity zombieToast = EntityFactory.createEntity(zombie_id, jsonEntity, config);
-            Player player = (Player) allEntities.stream().filter(entity -> entity instanceof Player).findFirst().get();
-            player.subscribe((PlayerListener) zombieToast);
-            allEntities.add(zombieToast);
+        ZombieToast newZombie = (ZombieToast) EntityFactory.createEntity("zombie_toast", getPosition(), null);
+        List<Direction> directionsToMove = Direction.allDirections();
+        newZombie.move(directionsToMove.get(random.nextInt(3)));
+        for (int i = 0; i < 4 && newZombie.getPosition().equals(getPosition()); i++) {
+            newZombie.move(directionsToMove.get(i));
+        }
+        if (newZombie.getPosition().equals(getPosition())) {
+            getDmc().removeFromEntities(newZombie);;
         }
 
     }
@@ -62,7 +44,7 @@ public class ZombieToastSpawner extends StaticEntity implements Interactable {
     public void interact(Player player) throws InvalidActionException {
         if (Position.isAdjacent(player.getPosition(), getPosition())) {
             if (player.getInventory().stream().anyMatch(e -> e instanceof Weapon)) {
-                DungeonManiaController.removeFromEntities(this);
+                getDmc().removeFromEntities(this);
 
             } else {
                 throw new InvalidActionException("Player does not have weapon");

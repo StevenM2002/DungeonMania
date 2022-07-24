@@ -1,6 +1,7 @@
 package dungeonmania.StaticEntities;
 
 import dungeonmania.CanMove;
+import dungeonmania.Collisions.CollisionManager;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
@@ -11,7 +12,7 @@ public class Boulder extends StaticEntity implements CanMove {
 
     @Override
     public void move(Direction direction) {
-        collisionManager.requestMove(this, direction);
+        CollisionManager.requestMove(this, direction);
     }
 
     @Override

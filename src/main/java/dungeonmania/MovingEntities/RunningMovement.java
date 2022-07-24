@@ -4,13 +4,15 @@ import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 import java.util.Arrays;
 import java.util.List;
+import static dungeonmania.DungeonManiaController.getDmc;
+
 
 public class RunningMovement extends Movement {
     @Override
     public void moveEntity(MovingEntity entity) {
 //        List<Direction> directions = getPossibleDirectionsOfPos(Position.calculatePositionBetween(player.getPosition(), entity.getPosition()));
 //        System.out.println(directions);
-        Position relativePositionOfPlayerToEntity = Position.calculatePositionBetween(player.getPosition(), entity.getPosition());
+        Position relativePositionOfPlayerToEntity = Position.calculatePositionBetween(getDmc().getPlayer().getPosition(), entity.getPosition());
         int x = relativePositionOfPlayerToEntity.getX();
         int y = relativePositionOfPlayerToEntity.getY();
         List<Direction> directions = Arrays.asList();
