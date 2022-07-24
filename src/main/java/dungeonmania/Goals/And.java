@@ -20,9 +20,9 @@ public class And extends ComplexGoal {
             return "";
         }
         if (getLeft().hasCompleted(player, allEntities)) {
-            return "AND" + getRight().getTypeString(player, allEntities);
+            return getRight().getTypeString(player, allEntities);
         } else if (getRight().hasCompleted(player, allEntities)) {
-            return getLeft().getTypeString(player, allEntities) + "AND";
+            return getLeft().getTypeString(player, allEntities);
         }
         return (getLeft().getTypeString(player, allEntities)+" AND "+getRight().getTypeString(player, allEntities));
     }

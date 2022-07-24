@@ -35,10 +35,10 @@ public class ToasterTests {
         assertTrue(getEntities(initDungeonRes, "zombie_toast").size() == 0);
         
         // first tick, one zombie spawns
-        DungeonResponse firstTickRes = dmc.tick(Direction.DOWN);
+        DungeonResponse firstTickRes = dmc.tick(Direction.LEFT);
         assertTrue(getEntities(firstTickRes, "zombie_toast").size() == 1);
 
-        DungeonResponse secondTickRes = dmc.tick(Direction.DOWN);
+        DungeonResponse secondTickRes = dmc.tick(Direction.LEFT);
         assertTrue(getEntities(secondTickRes, "zombie_toast").size() == 2);
     }
 
@@ -75,5 +75,9 @@ public class ToasterTests {
         dmc.tick(Direction.UP);
         assertThrows(InvalidActionException.class,()->dmc.interact(toaster.getId()));
 
+    }
+    public static void main(String[] args) {
+        ToasterTests t = new ToasterTests();
+        t.testSpawnZombies();
     }
 }

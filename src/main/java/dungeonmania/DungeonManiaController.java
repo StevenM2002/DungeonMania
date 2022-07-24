@@ -231,13 +231,15 @@ public class DungeonManiaController {
     private void doSharedTick() {
         currTick++;
         getPlayer().doPotionTick();
-        getDmc().getAllEntities().stream()
+        for (MovingEntity e : getDmc().getAllEntities().stream()
             .filter(entity -> (entity instanceof MovingEntity))
-            .map(entity -> (MovingEntity) entity)
-            .forEach(entity -> entity.doTickMovement());
+            .map(entity -> (MovingEntity) entity).collect(Collectors.toList())
+        ) {
+            e.doTickMovement();
+        }
         CollisionManager.deactivateSwitches();
-        if (getPlayer() == null) return; // if player is killed
-        goal.hasCompleted(getPlayer(), allEntities);
+        if (getDmc().getPlayer() == null) return; // if player is killed
+        goal.hasCompleted(getDmc().getPlayer(), getDmc().getAllEntities());
     }
 
     /**
