@@ -66,6 +66,7 @@ public class EntityFactory {
                 break;
             case "mercenary":
                 newEntity = new Mercenary(id, position, config.getInt("mercenary_health"), config.getInt("mercenary_attack"));
+                getDmc().getPlayer().subscribe((PlayerListener) newEntity);
                 break;
             case "treasure":
                 newEntity = new CollectibleEntity(id, position, new Treasure(id));

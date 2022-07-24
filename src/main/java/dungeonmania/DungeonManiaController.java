@@ -144,18 +144,6 @@ public class DungeonManiaController {
 
         getDmc().goal = GoalManager.loadGoals(dungeon.getJSONObject("goal-condition"), config, battleManager);        
         PortalMatcher.configurePortals(allEntities);
-        allEntities.stream().filter(it -> it instanceof Mercenary).forEach(it -> {
-            if (it instanceof PlayerListener) {
-                PlayerListener casted = (PlayerListener) it;
-                getPlayer().subscribe(casted);
-            }
-        });
-        allEntities.stream().filter(it -> it instanceof ZombieToast).forEach(it -> {
-            if (it instanceof PlayerListener) {
-                PlayerListener casted = (PlayerListener) it;
-                getPlayer().subscribe(casted);
-            }
-        });
         this.currTick = 0;
         return getDungeonResponseModel();
     }
