@@ -92,6 +92,9 @@ public class EntityFactory {
             case "sword":
                 newEntity = new CollectibleEntity(id, position, new Sword(id, config.getInt("sword_attack"), config.getInt("sword_durability")));
                 break;
+            case "sun_stone":
+                newEntity = new CollectibleEntity(id, position, new Sunstone(id));
+                break;
         }
         if (newEntity != null) {
             getDmc().getAllEntities().add(newEntity);

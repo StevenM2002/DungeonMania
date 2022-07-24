@@ -83,6 +83,8 @@ public class CollisionManager {
                         return initCollision("Collect");
                     case "Wood":
                         return initCollision("Collect");
+                    case "Sunstone":
+                        return initCollision("Collect");
                 }
                 break;
             case "Mercenary":
