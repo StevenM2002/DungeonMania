@@ -78,6 +78,8 @@ public class CollisionManager {
                         return initCollision("Battle");
                     case "ZombieToast":
                         return initCollision("Battle");
+                    case "Hydra":
+                        return initCollision("Battle");
                     case "Exit":
                         return initCollision("Activate");
                     case "Arrow":

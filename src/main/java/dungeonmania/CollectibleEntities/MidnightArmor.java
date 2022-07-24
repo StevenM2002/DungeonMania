@@ -3,7 +3,7 @@ package dungeonmania.CollectibleEntities;
 import java.util.List;
 import java.util.ArrayList;
 
-public class MidnightArmor extends InventoryObject implements Buildable, Weapon{
+public class MidnightArmor extends InventoryObject implements Buildable, Weapon, Durability{
     private int defence;
     private int attackDamage;
     public MidnightArmor(String id, int defence, int attackDamage) {
@@ -59,5 +59,11 @@ public class MidnightArmor extends InventoryObject implements Buildable, Weapon{
             }
         }
         return usedMaterials;
+    }
+
+    @Override
+    public boolean deteriorate() {
+        // TODO Auto-generated method stub
+        return false;
     }
 }

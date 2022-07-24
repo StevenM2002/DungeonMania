@@ -2,10 +2,11 @@ package dungeonmania.MovingEntities;
 
 import dungeonmania.CanMove;
 import dungeonmania.Entity;
+import dungeonmania.Player;
 import dungeonmania.util.Position;
 import dungeonmania.util.Direction;
 
-public abstract class MovingEntity extends Entity implements CanMove {
+public abstract class MovingEntity extends Entity implements CanMove, Battling {
     private double health;
     private double attack;
 
@@ -54,6 +55,16 @@ public abstract class MovingEntity extends Entity implements CanMove {
 
     public Position getPreviousPosition() {
         return previousPosition;
+    }
+
+    @Override
+    public double takeDamage(Entity entity) {
+        return ((Player) entity).dealDamage(this);
+    }
+
+    @Override
+    public double dealDamage(Entity entity) {
+        return ((Player) entity).takeDamage(this);
     }
 }
 

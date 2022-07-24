@@ -40,7 +40,7 @@ public class TestMobsRun {
 
         int x1 = posZombie.getX();
         int y1 = posZombie.getY();
-        movementTrajectory2.add(new Position(x1 + 1, y1));
+        movementTrajectory2.add(new Position(x1 - 1, y1));
 
         try {
             res = dmc.tick(getInventory(res, "invincibility_potion").get(0).getId());
