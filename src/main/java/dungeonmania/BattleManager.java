@@ -25,45 +25,35 @@ public class BattleManager {
         this.battleList = new ArrayList<>();
     }
 
+    private static boolean hasBow(List<InventoryObject> inventory) {
+        return inventory.stream().anyMatch(e -> e instanceof Bow);
+    }
+
+    private static boolean hasSword(List<InventoryObject> inventory) {
+        return inventory.stream().anyMatch(e -> e instanceof Sword);
+    }
+
+    private static boolean hasShield(List<InventoryObject> inventory) {
+        return inventory.stream().anyMatch(e -> e instanceof Shield);
+    }
+
     public List<RoundResponse> doRounds(Player player, MovingEntity enemy) {
-        List<InventoryObject> inventory = player.getInventory();
         List<RoundResponse> rounds = new ArrayList<>();
+        List<InventoryObject> inventory = player.getInventory();
         List<ItemResponse> weaponsUsed = new ArrayList<>();
-        Bow bow = getBow(inventory);
-        Sword sword = getSword(inventory);
-        Shield shield = getShield(inventory);
-        MidnightArmor midnightArmor = getMidnightArmor(inventory);
-
-        double bowMod = 1;
-        double swordMod = 0;
-        double shieldMod = 0;
-        double midnightArmourAttack = 0;
-        double midnightArmourDefence = 0;
 
 
-        // getting and deteriorating the items
-        if (bow != null) {
-            bowMod = bow.getModifier();
-            weaponsUsed.add(new ItemResponse(bow.getId(), "bow"));
-            if (bow.deteriorate()) {
-                inventory.remove(bow);
-            }
+        // getting and deteriorating the item.
+        if (hasBow(inventory)) {
+            weaponsUsed.add(new ItemResponse(((Bow) inventory.stream().filter(e -> e instanceof Bow).findFirst().get()).getId(), "bow"));
         }
 
-        if (sword != null) {
-            swordMod = sword.getModifier();
-            weaponsUsed.add(new ItemResponse(sword.getId(), "sword"));
-            if (sword.deteriorate()) {
-                inventory.remove(sword);
-            }
+        if (hasSword(inventory)) {
+            weaponsUsed.add(new ItemResponse(((Sword) inventory.stream().filter(e -> e instanceof Sword).findFirst().get()).getId(), "sword"));
         }
 
-        if (shield != null) {
-            shieldMod = shield.getDefence();
-            weaponsUsed.add(new ItemResponse(shield.getId(), "shield"));
-            if (shield.deteriorate()) {
-                inventory.remove(shield);
-            }
+        if (hasShield(inventory)) {
+            weaponsUsed.add(new ItemResponse(((Shield) inventory.stream().filter(e -> e instanceof Shield).findFirst().get()).getId(), "shield"));
         }
 
         if (midnightArmor != null) {
@@ -73,8 +63,8 @@ public class BattleManager {
         }
 
         while (player.getHealth() > 0 && enemy.getHealth() > 0) {
-            double deltaPlayerHealth = (enemy.getAttack() - shieldMod - midnightArmourDefence) / 10;
-            double deltaEnemyHealth = (bowMod * (player.getAttack() + swordMod + midnightArmourAttack)) / 5;
+            double deltaPlayerHealth = enemy.dealDamage(player);
+            double deltaEnemyHealth = enemy.takeDamage(player);
 
             if (!isInvincible()) {
                 player.setHealth(player.getHealth() - deltaPlayerHealth);
@@ -88,46 +78,6 @@ public class BattleManager {
         return rounds;
     }
 
-
-    private static Bow getBow(List<InventoryObject> inventory) {
-        if (inventory.stream().anyMatch(e -> e instanceof Bow)) {
-            return ((Bow) inventory.stream()
-                    .filter(e -> e instanceof Bow)
-                    .findFirst().get());
-        }
-
-        return null;
-    }
-
-    private static Sword getSword(List<InventoryObject> inventory) {
-        if (inventory.stream().anyMatch(e -> e instanceof Sword)) {
-            return ((Sword) inventory.stream()
-                    .filter(e -> e instanceof Sword)
-                    .findFirst().get());
-        }
-
-        return null;
-    }
-
-    private static Shield getShield(List<InventoryObject> inventory) {
-        if (inventory.stream().anyMatch(e -> e instanceof Shield)) {
-            return ((Shield) inventory.stream()
-                    .filter(e -> e instanceof Shield)
-                    .findFirst().get());
-        }
-
-        return null;
-    }
-
-    private static MidnightArmor getMidnightArmor(List<InventoryObject> inventory) {
-        if (inventory.stream().anyMatch(e -> e instanceof MidnightArmor)) {
-            return ((MidnightArmor) inventory.stream()
-                    .filter(e -> e instanceof MidnightArmor)
-                    .findFirst().get());
-        }
-
-        return null;
-    }
     private static boolean isInvincible() {
         return false;
     }

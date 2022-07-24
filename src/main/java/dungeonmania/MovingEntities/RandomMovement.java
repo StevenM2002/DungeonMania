@@ -9,7 +9,7 @@ public class RandomMovement extends Movement {
     }
 
     private Direction getRandomDirection() {
-        java.util.Random rand = new java.util.Random();
+        java.util.Random rand = new java.util.Random(1);
         int randNum = rand.nextInt(4) + 1;
         if (randNum == 1) return Direction.RIGHT;
         if (randNum == 2) return Direction.UP;

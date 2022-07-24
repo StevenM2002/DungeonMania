@@ -36,6 +36,8 @@ public class EntityFactory {
                 return new ZombieToast(id, position, config.getInt("zombie_health"), config.getInt("zombie_attack"));
             case "mercenary":
                 return new Mercenary(id, position, config.getInt("mercenary_health"), config.getInt("mercenary_attack"));
+            case "hydra":
+                return new Hydra(id, position, config.getInt("hydra_health"), config.getInt("hydra_attack"));
             case "treasure":
                 return new CollectibleEntity(id, position, new Treasure(id));
             case "key":

@@ -4,11 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dungeonmania.CollectibleEntities.Potion;
+import dungeonmania.CollectibleEntities.Shield;
+import dungeonmania.CollectibleEntities.Sword;
+import dungeonmania.MovingEntities.Battling;
+import dungeonmania.MovingEntities.MovingEntity;
+import dungeonmania.CollectibleEntities.Bow;
 import dungeonmania.CollectibleEntities.InventoryObject;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
-public class Player extends Entity implements CanMove {
+public class Player extends Entity implements CanMove, Battling {
     private Position previousPosition = getPosition();
     public Position getPreviousPosition() {
         return previousPosition;
@@ -90,5 +95,83 @@ public class Player extends Entity implements CanMove {
     @Override
     public String getDefaultCollision() {
         return "Battle";
+    }
+
+    private Bow getBow() {
+        if (this.inventory.stream().anyMatch(e -> e instanceof Bow)) {
+            return ((Bow) this.inventory.stream()
+                    .filter(e -> e instanceof Bow)
+                    .findFirst().get());
+        }
+
+        return null;
+    }
+
+    private Sword getSword() {
+        if (this.inventory.stream().anyMatch(e -> e instanceof Sword)) {
+            return ((Sword) this.inventory.stream()
+                    .filter(e -> e instanceof Sword)
+                    .findFirst().get());
+        }
+
+        return null;
+    }
+
+    private Shield getShield() {
+        if (inventory.stream().anyMatch(e -> e instanceof Shield)) {
+            return ((Shield) inventory.stream()
+                    .filter(e -> e instanceof Shield)
+                    .findFirst().get());
+        }
+
+        return null;
+    }
+
+    private double getBowMod() {
+        Bow bow = getBow();
+
+        if (bow != null) {
+            if (bow.deteriorate()) {
+                this.inventory.remove(bow);
+            }
+
+            return bow.getModifier();
+        }
+
+        return 1;
+    }
+
+    private double getSwordMod() {
+        Sword sword = getSword();
+
+        if (sword != null) {
+            if (sword.deteriorate()) {
+                inventory.remove(sword);
+            }
+            return sword.getModifier();
+        }
+
+        return 0;
+    }
+
+    private double getShieldMod() {
+        Shield shield = getShield();
+
+        if (shield != null) {
+            if (shield.deteriorate()) {
+                inventory.remove(shield);
+            }
+            return shield.getDefence();
+        }
+        return 0;
+    }
+
+    @Override
+    public double takeDamage(Entity entity) {
+        return (((MovingEntity) entity).getAttack() - getShieldMod()) / 10;
+    }
+    @Override
+    public double dealDamage(Entity entity) {
+        return (getBowMod() * (this.getAttack() + getSwordMod())) / 5;
     }
 }
