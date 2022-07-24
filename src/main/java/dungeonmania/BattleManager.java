@@ -37,6 +37,10 @@ public class BattleManager {
         return inventory.stream().anyMatch(e -> e instanceof Shield);
     }
 
+    private static boolean hasMidnightArmour(List<InventoryObject> inventory) {
+        return inventory.stream().anyMatch(e -> e instanceof MidnightArmor);
+    }
+    
     public List<RoundResponse> doRounds(Player player, MovingEntity enemy) {
         List<RoundResponse> rounds = new ArrayList<>();
         List<InventoryObject> inventory = player.getInventory();
@@ -56,10 +60,8 @@ public class BattleManager {
             weaponsUsed.add(new ItemResponse(((Shield) inventory.stream().filter(e -> e instanceof Shield).findFirst().get()).getId(), "shield"));
         }
 
-        if (midnightArmor != null) {
-            midnightArmourAttack = midnightArmor.getModifier();
-            midnightArmourDefence = midnightArmor.getDefence();
-            weaponsUsed.add(new ItemResponse(midnightArmor.getId(), "midnight_armour"));
+        if (hasMidnightArmour(inventory)) {
+            weaponsUsed.add(new ItemResponse(((MidnightArmor) inventory.stream().filter(e -> e instanceof MidnightArmor).findFirst().get()).getId(), "midnight_armour"));
         }
 
         while (player.getHealth() > 0 && enemy.getHealth() > 0) {

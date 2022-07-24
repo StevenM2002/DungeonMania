@@ -10,6 +10,7 @@ import dungeonmania.MovingEntities.Battling;
 import dungeonmania.MovingEntities.MovingEntity;
 import dungeonmania.CollectibleEntities.Bow;
 import dungeonmania.CollectibleEntities.InventoryObject;
+import dungeonmania.CollectibleEntities.MidnightArmor;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
@@ -118,14 +119,25 @@ public class Player extends Entity implements CanMove, Battling {
     }
 
     private Shield getShield() {
-        if (inventory.stream().anyMatch(e -> e instanceof Shield)) {
-            return ((Shield) inventory.stream()
+        if (this.inventory.stream().anyMatch(e -> e instanceof Shield)) {
+            return ((Shield) this.inventory.stream()
                     .filter(e -> e instanceof Shield)
                     .findFirst().get());
         }
 
         return null;
     }
+
+    private MidnightArmor getMidnightArmor() {
+        if (this.inventory.stream().anyMatch(e -> e instanceof MidnightArmor)) {
+            return ((MidnightArmor) this.inventory.stream()
+                    .filter(e -> e instanceof MidnightArmor)
+                    .findFirst().get());
+        }
+
+        return null;
+    }
+
 
     private double getBowMod() {
         Bow bow = getBow();
@@ -166,12 +178,33 @@ public class Player extends Entity implements CanMove, Battling {
         return 0;
     }
 
+    private double getMidnightArmorAttack() {
+        MidnightArmor midnightArmor = getMidnightArmor();
+
+        if (midnightArmor != null) {
+            if (midnightArmor.deteriorate()) {
+                inventory.remove(midnightArmor);
+            }
+            return midnightArmor.getModifier();
+        }
+        return 0;
+    }
+
+    private double getMidnightArmorDefence() {
+        MidnightArmor midnightArmor = getMidnightArmor();
+
+        if (midnightArmor != null) {
+            return midnightArmor.getDefence();
+        }
+        return 0;
+    }
+
     @Override
     public double takeDamage(Entity entity) {
-        return (((MovingEntity) entity).getAttack() - getShieldMod()) / 10;
+        return (((MovingEntity) entity).getAttack() - getShieldMod() - getMidnightArmorDefence()) / 10;
     }
     @Override
     public double dealDamage(Entity entity) {
-        return (getBowMod() * (this.getAttack() + getSwordMod())) / 5;
+        return (getBowMod() * (this.getAttack() + getSwordMod()) + getMidnightArmorAttack()) / 5;
     }
 }
