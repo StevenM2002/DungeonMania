@@ -68,6 +68,12 @@ public class EntityFactory {
                 newEntity = new Mercenary(id, position, config.getInt("mercenary_health"), config.getInt("mercenary_attack"));
                 getDmc().getPlayer().subscribe((PlayerListener) newEntity);
                 break;
+            case "hydra":
+                newEntity = new Hydra(id, position, config.getInt("hydra_health"), config.getInt("hydra_attack"), 
+                    config.getDouble("hydra_health_increase_rate"), config.getDouble("hydra_health_increase_amount")
+                );
+                getDmc().getPlayer().subscribe((PlayerListener) newEntity);
+                break;
             case "treasure":
                 newEntity = new CollectibleEntity(id, position, new Treasure(id));
                 break;

@@ -311,5 +311,4 @@ public class DungeonManiaController {
     public List<String> allGames() {
         return new ArrayList<>();
     }
-
 }

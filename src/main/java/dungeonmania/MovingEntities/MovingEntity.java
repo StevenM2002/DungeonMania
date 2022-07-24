@@ -6,7 +6,7 @@ import dungeonmania.Collisions.CollisionManager;
 import dungeonmania.util.Position;
 import dungeonmania.util.Direction;
 
-public abstract class MovingEntity extends Entity implements CanMove {
+public abstract class MovingEntity extends Entity implements CanMove, Battling {
     private double health;
     private double attack;
 
@@ -21,10 +21,6 @@ public abstract class MovingEntity extends Entity implements CanMove {
         return health;
     }
 
-    public double getAttack() {
-        return attack;
-    }
-
     public Movement getMovementStrategy() {
         return movementStrategy;
     }
@@ -33,8 +29,7 @@ public abstract class MovingEntity extends Entity implements CanMove {
         this.movementStrategy = movementStrategy;
     }
 
-    public MovingEntity(String id, Position position, boolean isInteractable, double health, double attack,
-                        Movement movementStrategy) {
+    public MovingEntity(String id, Position position, boolean isInteractable, double health, double attack, Movement movementStrategy) {
         super(id, position, isInteractable);
         this.health = health;
         this.attack = attack;
@@ -55,6 +50,21 @@ public abstract class MovingEntity extends Entity implements CanMove {
 
     public Position getPreviousPosition() {
         return previousPosition;
+    }
+
+    @Override
+    public double takeDamage(double damage) {
+        double damageTaken = damage / 5;
+        if (health - damageTaken < 0) {
+            damageTaken = health;
+        }
+        health -= damageTaken;
+        return damageTaken;
+    }
+
+    @Override
+    public double dealDamage() {
+        return attack;
     }
 }
 
