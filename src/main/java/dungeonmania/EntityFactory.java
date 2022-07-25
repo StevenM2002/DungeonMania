@@ -13,6 +13,9 @@ import org.json.JSONObject;
 
 public class EntityFactory {
     private static int currentEntityID = 0;
+    public static int getCurrentEntityID() {
+        return currentEntityID;
+    }
     private static String getNewEntityID() {
         String newID = Integer.toString(currentEntityID);
         currentEntityID += 1;
@@ -23,7 +26,7 @@ public class EntityFactory {
     }
 
     /**
-     * Creates an entity with a unique id and returns it
+     * Creates an entity with a unique id, adds it to dmc.allEntites, and returns it
      * @param type
      * @param position
      * @param extraInfo - used when creating portals, keys and doors, otherwise leave null

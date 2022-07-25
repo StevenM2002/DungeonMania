@@ -14,6 +14,10 @@ import static dungeonmania.DungeonManiaController.getDmc;
 
 public class CraftingManager {
     private static int IDCounter = 0;
+    public static int getIDCounter() {
+        return IDCounter;
+    }
+
     private static String getNewCraftingID() {
         String newID = "c"+IDCounter;
         IDCounter++;

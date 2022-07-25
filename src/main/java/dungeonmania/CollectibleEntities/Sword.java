@@ -1,5 +1,7 @@
 package dungeonmania.CollectibleEntities;
 
+import org.json.JSONObject;
+
 public class Sword extends InventoryObject implements Weapon, Durability, MapCollectible {
     private static int attackDamage;
     private int durability;
@@ -18,5 +20,12 @@ public class Sword extends InventoryObject implements Weapon, Durability, MapCol
     @Override
     public double getModifier() {
         return attackDamage;
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject newJSON = super.toJSON();
+        newJSON.put("durability", durability);
+        return newJSON;
     }
 }

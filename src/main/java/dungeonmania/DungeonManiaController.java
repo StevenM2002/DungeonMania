@@ -62,6 +62,10 @@ public class DungeonManiaController {
         return battleManager;
     }
 
+    public int getCurrTick() {
+        return currTick;
+    }
+
     public boolean hasZombies() {
         for (Entity entity : allEntities) {
             if (entity instanceof ZombieToast) {
@@ -148,7 +152,7 @@ public class DungeonManiaController {
         } catch (IOException e) {
             throw new IllegalArgumentException("Could not find config file \""+configName+"\"");
         }
-        loadEntities(dungeon.optJSONArray("entities"), config);
+        loadEntities(dungeon.optJSONArray("entities"));
 
         getDmc().goal = GoalManager.loadGoals(dungeon.optJSONObject("goal-condition"), config, battleManager);        
         PortalMatcher.configurePortals(allEntities);
@@ -157,10 +161,19 @@ public class DungeonManiaController {
     }
 
 
-
-    private void loadEntities(JSONArray entities, JSONObject config) {
+    // Loads entities from a json array. loads the player first
+    private void loadEntities(JSONArray entities) {
+        // creating the player
         for (int i = 0; i < entities.length(); i++) {
-            EntityFactory.createEntity(entities.getJSONObject(i));
+            if (entities.getJSONObject(i).getString("type").equals("player")) {
+                EntityFactory.createEntity(entities.getJSONObject(i));
+            }
+        }
+        //creating everything else
+        for (int i = 0; i < entities.length(); i++) {
+            if (!entities.getJSONObject(i).getString("type").equals("player")) {
+                EntityFactory.createEntity(entities.getJSONObject(i));
+            }
         }
     }
 
@@ -311,4 +324,6 @@ public class DungeonManiaController {
     public List<String> allGames() {
         return new ArrayList<>();
     }
+
+
 }

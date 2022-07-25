@@ -3,6 +3,9 @@ package dungeonmania;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import dungeonmania.CollectibleEntities.Potion;
 import dungeonmania.Collisions.CollisionManager;
 import dungeonmania.CollectibleEntities.Shield;
@@ -19,6 +22,8 @@ public class Player extends Entity implements CanMove, Battling {
     private List<InventoryObject> inventory = new ArrayList<>();
     private double attack;
     private double health;
+    private List<PlayerListener> subscribers = new ArrayList<>();
+
     
     public Player(String id, Position position, double health, double attack) {
         super(id, position, false);
@@ -63,10 +68,23 @@ public class Player extends Entity implements CanMove, Battling {
         return "Battle";
     }
 
+    @Override
+    public JSONObject toJSON() {
+        JSONObject newJSON = super.toJSON();
+        newJSON.put("health", health);
+        newJSON.put("prevX", previousPosition.getX());
+        newJSON.put("prevY", previousPosition.getY());
+        newJSON.put("inventory", new JSONArray());
+        for (InventoryObject i : inventory) {
+            newJSON.getJSONArray("inventory").put(i.toJSON());
+        }
+        return newJSON;
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     //                            Potion Logic                                //
     ////////////////////////////////////////////////////////////////////////////
-    private List<PlayerListener> subscribers = new ArrayList<>();
+
     
     // String is the event which the listener wants to subscribe to
     // This includes:
@@ -75,7 +93,6 @@ public class Player extends Entity implements CanMove, Battling {
         subscribers.add(subscriber);
     }
 
-    private PotionManager potionManager = new PotionManager();
 
     /**
      * Assuming id given is to a potion
@@ -87,11 +104,11 @@ public class Player extends Entity implements CanMove, Battling {
             return;
         }
         Potion potion = (Potion) inventoryObject;
-        potionManager.addPotionEffect(potion.getDurationEffect(), potion);
+        PotionManager.addPotionEffect(potion.getDurationEffect(), potion);
         inventory.remove(inventoryObject);
     }
     public void doPotionTick() {
-        Potion potion = potionManager.getNextEffect();
+        Potion potion = PotionManager.getNextEffect();
         PlayerDataArgs data = new PlayerDataArgs();
         data.setPotion(potion);
         notify(data);
@@ -101,7 +118,7 @@ public class Player extends Entity implements CanMove, Battling {
     }
 
     public Potion getCurrentEffect() {
-        return potionManager.getCurrPotion();
+        return PotionManager.getCurrPotion();
     }
 
 

@@ -1,6 +1,9 @@
 package dungeonmania.CollectibleEntities;
 
 import java.util.List;
+
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 public class Bow extends InventoryObject implements Buildable, Weapon, Durability {
@@ -60,5 +63,12 @@ public class Bow extends InventoryObject implements Buildable, Weapon, Durabilit
             }
         }
         return usedMaterials;
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject newJSON = super.toJSON();
+        newJSON.put("durability", durability);
+        return newJSON;
     }
 }
