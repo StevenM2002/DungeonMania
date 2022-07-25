@@ -89,6 +89,8 @@ public class CollisionManager {
                         return initCollision("Collect");
                     case "Sunstone":
                         return initCollision("Collect");
+                    case "SwampTile":
+                        return initCollision("Pass");
                 }
                 break;
             case "Mercenary":
@@ -114,6 +116,8 @@ public class CollisionManager {
                 switch (collided.getType()) {
                     case "switch":
                         return initCollision("Activate");
+                    case "SwampTile":
+                        return initCollision("Pass");
                 }
                 break;
         }
@@ -143,6 +147,8 @@ public class CollisionManager {
                 return new Collect(getDmc().getAllEntities());
             case "Activate":
                 return new Activate();
+            case "Stuck":
+                return new Stuck();
         }
         return new Pass();
     }

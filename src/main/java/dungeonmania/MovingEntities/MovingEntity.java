@@ -12,6 +12,7 @@ public abstract class MovingEntity extends Entity implements CanMove, Battling {
 
     private Movement movementStrategy;
     private Position previousPosition;
+    private int stuckAmount = 0;
 
     public void setHealth(double health) {
         this.health = health;
@@ -36,7 +37,11 @@ public abstract class MovingEntity extends Entity implements CanMove, Battling {
         this.movementStrategy = movementStrategy;
     }
     public void doTickMovement() {
-        movementStrategy.moveEntity(this);
+        if (stuckAmount > 0) {
+            stuckAmount -= 1;
+        } else {
+            movementStrategy.moveEntity(this);
+        }
     }
 
     @Override
@@ -65,6 +70,18 @@ public abstract class MovingEntity extends Entity implements CanMove, Battling {
     @Override
     public double dealDamage() {
         return attack;
+    }
+
+    public void setAttack(double attack) {
+        this.attack = attack;
+    }
+
+    public void setPreviousPosition(Position previousPosition) {
+        this.previousPosition = previousPosition;
+    }
+
+    public void setStuckAmount(int stuckAmount) {
+        this.stuckAmount = stuckAmount;
     }
 }
 

@@ -50,7 +50,7 @@ public class DungeonManiaController {
      * Singleton pattern for thread safe static dmc
      * @return
      */
-    public static DungeonManiaController getDmc() {
+    public static synchronized DungeonManiaController getDmc() {
         return dmc;
     }
 
@@ -144,12 +144,12 @@ public class DungeonManiaController {
         JSONObject config = null;
         try {
             dungeon = new JSONObject(FileLoader.loadResourceFile("/dungeons/"+dungeonName+".json"));
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             throw new IllegalArgumentException("Could not find dungeon file \""+dungeonName+"\"");
         } try {
             config = new JSONObject(FileLoader.loadResourceFile("/configs/"+configName+".json"));
             getDmc().setConfig(config);
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             throw new IllegalArgumentException("Could not find config file \""+configName+"\"");
         }
         loadEntities(dungeon.optJSONArray("entities"));
@@ -218,7 +218,6 @@ public class DungeonManiaController {
         if (item == null) throw new InvalidActionException("Gimme something normal");
         if (!(item instanceof Bomb) && !(item instanceof Potion)) throw new IllegalArgumentException("Not usable");
         getPlayer().queuePotion(itemUsedId);
-        doSharedSpawn();
         doSharedTick();
         return getDungeonResponseModel();
     }
@@ -232,7 +231,6 @@ public class DungeonManiaController {
         if (getPlayer() == null) {
             return getDungeonResponseModel();
         }
-        doSharedSpawn();
         doSharedTick();
         return getDungeonResponseModel();
     }
@@ -249,9 +247,9 @@ public class DungeonManiaController {
         ) {
             e.doTickMovement();
         }
-
-        CollisionManager.deactivateSwitches();
         if (getDmc().getPlayer() == null) return; // if player is killed
+        doSharedSpawn();
+        CollisionManager.deactivateSwitches();
         goal.hasCompleted(getDmc().getPlayer(), getDmc().getAllEntities());
     }
 
