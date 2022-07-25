@@ -3,14 +3,9 @@ package dungeonmania;
 import java.util.ArrayList;
 import java.util.List;
 
-import dungeonmania.CollectibleEntities.Potion;
+import dungeonmania.CollectibleEntities.*;
 import dungeonmania.Collisions.CollisionManager;
-import dungeonmania.CollectibleEntities.Shield;
-import dungeonmania.CollectibleEntities.Sword;
 import dungeonmania.MovingEntities.Battling;
-import dungeonmania.CollectibleEntities.Bow;
-import dungeonmania.CollectibleEntities.InventoryObject;
-import dungeonmania.CollectibleEntities.MidnightArmor;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
@@ -24,6 +19,10 @@ public class Player extends Entity implements CanMove, Battling {
         super(id, position, false);
         this.health = health;
         this.attack = attack;
+    }
+
+    public void removeInventoryItem(InventoryObject item) {
+        inventory.remove(item);
     }
 
     public Position getPreviousPosition() {
@@ -210,6 +209,7 @@ public class Player extends Entity implements CanMove, Battling {
 
     @Override
     public double takeDamage(double damage) {
+        if (potionManager.getCurrPotion() instanceof InvincibilityPotion) return 0;
         double damageTaken = (damage  - getShieldMod() - getMidnightArmorDefence()) / 10;
         if (health - damageTaken < 0) {
             damageTaken = health;

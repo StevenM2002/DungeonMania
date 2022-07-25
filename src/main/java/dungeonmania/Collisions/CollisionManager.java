@@ -43,7 +43,7 @@ public class CollisionManager {
      * @param moved
      * @param collided
      * @param direction
-     * @return
+     * @return type Block if it is blocking else random shit
      */
     public static Collision getCollision(Entity moved, Entity collided) {
         switch (moved.getType()) {

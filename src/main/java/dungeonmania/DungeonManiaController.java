@@ -4,6 +4,7 @@ import dungeonmania.MovingEntities.MovingEntity;
 import dungeonmania.CollectibleEntities.Bomb;
 import dungeonmania.CollectibleEntities.Potion;
 import dungeonmania.MovingEntities.*;
+import dungeonmania.StaticEntities.ActiveBomb;
 import dungeonmania.StaticEntities.ZombieToastSpawner;
 
 import org.json.JSONArray;
@@ -202,9 +203,15 @@ public class DungeonManiaController {
      */
     public DungeonResponse tick(String itemUsedId) throws IllegalArgumentException, InvalidActionException {
         var item = getPlayer().getInventory().stream().filter(it -> it.getId().equals(itemUsedId)).findFirst().orElse(null);
-        if (item == null) throw new InvalidActionException("Gimme something normal");
-        if (!(item instanceof Bomb) && !(item instanceof Potion)) throw new IllegalArgumentException("Not usable");
-        getPlayer().queuePotion(itemUsedId);
+        if (item instanceof Bomb) {
+            allEntities.add(new ActiveBomb(item.getId(), getPlayer().getPosition(), false));
+            getPlayer().removeInventoryItem(item);
+        } else if (item instanceof Potion) {
+            getPlayer().queuePotion(itemUsedId);
+        } else {
+            if (item == null) throw new InvalidActionException("Gimme something normal");
+            throw new IllegalArgumentException("Not usable");
+        }
         doSharedSpawn();
         doSharedTick();
         return getDungeonResponseModel();
@@ -236,8 +243,12 @@ public class DungeonManiaController {
         ) {
             e.doTickMovement();
         }
-
         CollisionManager.deactivateSwitches();
+        List<ActiveBomb> explodingBombs = allEntities.stream().filter(entity -> entity instanceof ActiveBomb && ((ActiveBomb) entity).isGoingToExplode(allEntities)).map(entity -> (ActiveBomb) entity).collect(Collectors.toList());
+        List<Entity> toBeRemoved = new ArrayList<>();
+        // Do this so we can remove all the entities without a exploding bomb exploding another exploding bomb
+        explodingBombs.forEach(activeBomb -> toBeRemoved.addAll(activeBomb.getEntitiesInRadiusIfExplode(allEntities)));
+        allEntities.removeAll(toBeRemoved);
         if (getDmc().getPlayer() == null) return; // if player is killed
         goal.hasCompleted(getDmc().getPlayer(), getDmc().getAllEntities());
     }
