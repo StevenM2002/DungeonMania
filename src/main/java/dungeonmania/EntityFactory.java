@@ -69,6 +69,9 @@ public class EntityFactory {
             case "zombie_toast_spawner":
                 newEntity = new ZombieToastSpawner(id, position, config.getInt("zombie_spawn_rate"));
                 break;
+            case "swamp_tile":
+                newEntity = new SwampTile(id, position, extraInfo.getInt("movement_factor"));
+                break;
             case "spider":
                 newEntity = new Spider(id, position, config.getInt("spider_health"), config.getInt("spider_attack"));
                 break;
