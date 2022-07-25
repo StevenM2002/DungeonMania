@@ -51,7 +51,7 @@ public class DungeonManiaController {
      * Singleton pattern for thread safe static dmc
      * @return
      */
-    public static DungeonManiaController getDmc() {
+    public static synchronized DungeonManiaController getDmc() {
         return dmc;
     }
 
@@ -212,7 +212,6 @@ public class DungeonManiaController {
             if (item == null) throw new InvalidActionException("Gimme something normal");
             throw new IllegalArgumentException("Not usable");
         }
-        doSharedSpawn();
         doSharedTick();
         return getDungeonResponseModel();
     }
@@ -226,7 +225,6 @@ public class DungeonManiaController {
         if (getPlayer() == null) {
             return getDungeonResponseModel();
         }
-        doSharedSpawn();
         doSharedTick();
         return getDungeonResponseModel();
     }
@@ -250,6 +248,8 @@ public class DungeonManiaController {
         explodingBombs.forEach(activeBomb -> toBeRemoved.addAll(activeBomb.getEntitiesInRadiusIfExplode(allEntities)));
         allEntities.removeAll(toBeRemoved);
         if (getDmc().getPlayer() == null) return; // if player is killed
+        doSharedSpawn();
+        CollisionManager.deactivateSwitches();
         goal.hasCompleted(getDmc().getPlayer(), getDmc().getAllEntities());
     }
 
