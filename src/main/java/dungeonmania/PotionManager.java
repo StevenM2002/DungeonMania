@@ -32,4 +32,11 @@ public class PotionManager {
     public static Queue<Potion> getPotionQueue() {
         return potionQueue;
     }
+    public static void setCurrPotion(Potion currPotion) {
+        PotionManager.currPotion = currPotion;
+    }
+    public static void setPotionQueue(Queue<Potion> potionQueue) {
+        PotionManager.potionQueue = potionQueue;
+    }
+    
 }

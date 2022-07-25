@@ -14,6 +14,9 @@ import static dungeonmania.DungeonManiaController.getDmc;
 
 public class CraftingManager {
     private static int IDCounter = 0;
+    public static void setIDCounter(int iDCounter) {
+        IDCounter = iDCounter;
+    }
     public static int getIDCounter() {
         return IDCounter;
     }
@@ -77,4 +80,6 @@ public class CraftingManager {
         }
         return buildables;
     }
+
+
 }

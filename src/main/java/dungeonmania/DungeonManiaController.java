@@ -12,6 +12,8 @@ import org.json.JSONObject;
 import java.lang.IllegalArgumentException;
 
 import dungeonmania.CollectibleEntities.InventoryObject;
+import dungeonmania.CollectibleEntities.InvincibilityPotion;
+import dungeonmania.CollectibleEntities.InvisibilityPotion;
 import dungeonmania.Collisions.CollisionManager;
 import dungeonmania.Goals.GoalManager;
 import dungeonmania.exceptions.InvalidActionException;
@@ -32,6 +34,7 @@ import java.util.stream.Stream;
 
 
 
+
 public class DungeonManiaController {
     private static DungeonManiaController dmc;
     private List<Entity> allEntities;
@@ -40,6 +43,7 @@ public class DungeonManiaController {
     private Goal goal;
     private JSONObject config;
     private BattleManager battleManager;
+    private DungeonSaver dungeonSaver;
     private int currTick;
 
     private void setConfig(JSONObject config) {
@@ -156,7 +160,7 @@ public class DungeonManiaController {
 
         getDmc().goal = GoalManager.loadGoals(dungeon.optJSONObject("goal-condition"), config, battleManager);        
         PortalMatcher.configurePortals(allEntities);
-        this.currTick = 0;
+        getDmc().dungeonSaver = new DungeonSaver(dungeon, config, getDmc(), dungeonName, getDmc().currentDungeonID);
         return getDungeonResponseModel();
     }
 
@@ -251,6 +255,7 @@ public class DungeonManiaController {
         doSharedSpawn();
         CollisionManager.deactivateSwitches();
         goal.hasCompleted(getDmc().getPlayer(), getDmc().getAllEntities());
+        dungeonSaver.storeCurrentTick(getDmc());
     }
 
     /**
@@ -306,14 +311,57 @@ public class DungeonManiaController {
      * /game/save
      */
     public DungeonResponse saveGame(String name) throws IllegalArgumentException {
-        return null;
+        getDmc().dungeonSaver.saveToFile(name);
+        return getDungeonResponseModel();
     }
 
     /**
      * /game/load
      */
     public DungeonResponse loadGame(String name) throws IllegalArgumentException {
-        return null;
+        JSONObject loadedDungeon = null;
+        try {
+            loadedDungeon = new JSONObject(FileLoader.loadResourceFile("SavedGames/"+name+".json"));
+        } catch (IOException | NullPointerException e) {
+            throw new IllegalArgumentException("Could not find saved game with name: "+name);
+        }
+
+
+        return getDungeonResponseModel();
+    }
+
+    public static void loadGameFromJSON(JSONObject savedDungeon) {
+
+        loadGameFromJSON(savedDungeon, 0);
+    }
+
+    /**
+     * @precondition assumes tick is less than or equal to the total number of 
+     * ticks in savedDungeon
+     * @param savedDungeon
+     * @param tick
+     */
+    private static void loadGameFromJSON(JSONObject savedDungeon, int tick) {
+        //dmc = new DungeonManiaController(); // might cause problems if things still dont use getDmc
+        dmc.config = savedDungeon.getJSONObject("config");
+        dmc.dungeonName = savedDungeon.getString("dungeonName");
+        dmc.currentDungeonID = savedDungeon.getInt("currentDungeonID");
+        dmc.currTick = tick;
+        JSONObject currentTick = savedDungeon.getJSONArray("ticks").getJSONObject(tick);
+        EntityFactory.setCurrentEntityID(currentTick.getInt("currentEntityID"));
+        CraftingManager.setIDCounter(currentTick.getInt("currentCraftingID"));
+        JSONObject currPotion = currentTick.getJSONObject("currPotion");
+        if (currPotion.getString("name").equals("none")) {
+            PotionManager.setCurrPotion(null);
+        } else if (currPotion.getString("name").equals("InvisibilityPotion")) {
+            PotionManager.setCurrPotion(new InvisibilityPotion(currPotion.getString("id"), dmc.config.getInt("invisibility_potion_duration")));
+        } else if (currPotion.getString("name").equals("InvincibilityPotion")) {
+            PotionManager.setCurrPotion(new InvincibilityPotion(currPotion.getString("id"), dmc.config.getInt("invincibility_potion_duration")));
+        }
+        //TODO: potion queue
+        //TODO: entities
+        // after tick
+        //dmc.goal = GoalManager.loadGoals(goal_condition, config, battleManager)
     }
 
     /**

@@ -70,7 +70,6 @@ public class TestBattles {
         List<RoundResponse> rounds = battle.getRounds();
         double playerHealth = Double.parseDouble(getValueFromConfigFile("player_health", configFilePath));
         double enemyHealth = Double.parseDouble(getValueFromConfigFile(enemyType + "_attack", configFilePath));
-        double playerAttack = Double.parseDouble(getValueFromConfigFile("player_attack", configFilePath));
         double enemyAttack = Double.parseDouble(getValueFromConfigFile(enemyType + "_attack", configFilePath));
 
         for (RoundResponse round : rounds) {

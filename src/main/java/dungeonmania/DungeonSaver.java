@@ -2,21 +2,45 @@ package dungeonmania;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import java.util.List;
-import dungeonmania.response.models.BattleResponse;
-import dungeonmania.response.models.ItemResponse;
-import dungeonmania.response.models.RoundResponse;
+
+import dungeonmania.CollectibleEntities.InventoryObject;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+
 
 public class DungeonSaver {
     private JSONObject savedDungeon;
 
-    public DungeonSaver(JSONObject dungeon, JSONObject config, DungeonManiaController dmc, String name, String dungeonName, int dungeonID) {
-        savedDungeon.put("name", name);
+    public DungeonSaver(JSONObject dungeon, JSONObject config, DungeonManiaController dmc, String dungeonName, int dungeonID) {
+        savedDungeon = new JSONObject();
         savedDungeon.put("config", config);
         savedDungeon.put("goal-condition", dungeon.getJSONObject("goal-condition"));
         savedDungeon.put("dungeonName", dungeonName);
         savedDungeon.put("currentDungeonID", dungeonID);
         savedDungeon.put("ticks", new JSONArray());
+        storeCurrentTick(dmc);
+    }
+
+    public DungeonSaver(JSONObject savedDungeon) {
+        this.savedDungeon = savedDungeon;
+    }
+
+    /**
+     * Saves all ticks in savedDungeon up to tick
+     * @param savedDungeon
+     * @param tick
+     */
+    public DungeonSaver(JSONObject savedDungeon, int tick) {
+        this.savedDungeon = savedDungeon;
+        JSONArray ticks = savedDungeon.getJSONArray("ticks");
+        this.savedDungeon.remove("ticks");
+        JSONArray newTicks = new JSONArray();
+        for (int i = 0; i <= tick && i < ticks.length(); i++) {
+            newTicks.put(ticks.getJSONObject(i));
+        }
+        this.savedDungeon.put("ticks", newTicks);
     }
 
     /**
@@ -39,7 +63,14 @@ public class DungeonSaver {
         currTick.put("currentCraftingID", CraftingManager.getIDCounter());
         
         // doing potions
-        currTick.put("currPotion", PotionManager.getCurrPotion().getName());
+        JSONObject currentPotion = new JSONObject();
+        if (PotionManager.getCurrPotion() == null) {
+            currentPotion.put("name", "none");
+        } else {
+            currentPotion.put("name", PotionManager.getCurrPotion().getName());
+            currentPotion.put("id", ((InventoryObject) PotionManager.getCurrPotion()).getId());
+        }
+        currTick.put("currPotion", currentPotion);
         currTick.put("potionQueue", new JSONArray());
         PotionManager.getPotionQueue()
             .forEach(p->currTick.getJSONArray("potionQueue").put((new JSONObject()).put("potion", p.getName())));
@@ -50,35 +81,20 @@ public class DungeonSaver {
             currTick.getJSONArray("entities").put(e.toJSON());
         }
 
-        currTick.put("battleList", battleListToJSON(dmc.getBattleManager().getBattleList()));
+        currTick.put("battleList", dmc.getBattleManager().battleListToJSON());
         savedDungeon.getJSONArray("ticks").put(currTick);
         
     }
-
-    private JSONArray battleListToJSON(List<BattleResponse> battleList) {
-        JSONArray JSONBattleList = new JSONArray();
-        for (BattleResponse b : battleList) {
-            JSONObject battle = new JSONObject();
-            battle.put("enemy", b.getEnemy());
-            battle.put("initialPlayerHealth", b.getInitialPlayerHealth());
-            battle.put("initialEnemyHealth", b.getInitialEnemyHealth());
-            battle.put("rounds", new JSONArray());
-            for (RoundResponse r : b.getRounds()) {
-                JSONObject round = new JSONObject();
-                round.put("deltaPlayerHealth", r.getDeltaCharacterHealth());
-                round.put("deltaEnemyHealth", r.getDeltaEnemyHealth());
-                round.put("weaponryUsed", new JSONArray());
-                for (ItemResponse i : r.getWeaponryUsed()) {
-                    JSONObject weapon = new JSONObject();
-                    weapon.put("id", i.getId());
-                    weapon.put("type", i.getType());
-                    round.getJSONArray("weaponryUsed").put(weapon);
-                }
-                battle.getJSONArray("rounds").put(round);
-            }
-            JSONBattleList.put(battle);
+    /**
+     * Saves the current stored
+     */
+    public void saveToFile(String fileName) {
+        String path = "src/main/resources/SavedGames/"+fileName+".json";
+        try (PrintWriter out = new PrintWriter(new FileWriter(path));){
+            out.write(savedDungeon.toString());
+        } catch (IOException e) {
+            System.err.println("File could not be saved");
+            e.printStackTrace();
         }
-        return JSONBattleList;
-    } 
-    
+    }
 }
