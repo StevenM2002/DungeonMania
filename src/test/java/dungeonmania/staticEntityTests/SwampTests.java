@@ -28,7 +28,7 @@ public class SwampTests {
     @DisplayName("Tests that the swamp tile affects the mercenary")
     public void testSwampMercenary() {
         DungeonManiaController dmc = new DungeonManiaController();
-        DungeonResponse initDungeonRes = dmc.newGame("d_staticTests_swampTest", "c_staticTests_testSwampMercenary");
+        DungeonResponse initDungeonRes = dmc.newGame("d_staticTests_testSwampMercenary", "c_staticTests_swampTest");
         EntityResponse initMerc = initDungeonRes.getEntities().stream().filter(x->x.getType().equals("mercenary")).findFirst().get();
         assertEquals(initMerc.getPosition(), new Position(2, 1));
 
@@ -51,7 +51,7 @@ public class SwampTests {
     @DisplayName("Tests that the player is not affected by swamp tiles")
     public void testSwampPlayer() {
         DungeonManiaController dmc = new DungeonManiaController();
-        dmc.newGame("d_staticTests_swampTest", "c_staticTests_testSwampMercenary");
+        dmc.newGame("d_staticTests_testSwampMercenary", "c_staticTests_swampTest");
         
         // check player moves onto the swamp
         DungeonResponse firstTick = dmc.tick(Direction.RIGHT);
@@ -61,5 +61,11 @@ public class SwampTests {
         DungeonResponse secondTick = dmc.tick(Direction.RIGHT);
         EntityResponse secondPlayer = getPlayer(secondTick).get();
         assertEquals(secondPlayer.getPosition(), new Position(2, 1));
+    }
+
+    public static void main(String[] args) {
+        SwampTests s = new SwampTests();
+        s.testSwampMercenary();
+        s.testSwampPlayer();
     }
 }
