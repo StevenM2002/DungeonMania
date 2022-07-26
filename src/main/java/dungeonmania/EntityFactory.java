@@ -116,6 +116,9 @@ public class EntityFactory {
             case "sun_stone":
                 newEntity = new CollectibleEntity(id, position, new Sunstone(id));
                 break;
+            case "active_bomb":
+                newEntity = new ActiveBomb(id, position, false);
+                break;
         }
         if (newEntity != null) {
             getDmc().getAllEntities().add(newEntity);

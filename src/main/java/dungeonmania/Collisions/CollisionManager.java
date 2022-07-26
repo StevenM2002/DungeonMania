@@ -18,7 +18,7 @@ public class CollisionManager {
      * 
      * If there is a collision, runs appropriate collision logic, then moves
      * the entity accordingly
-     * @param entity
+     * @param moved
      * @param direction
      */
     public static void requestMove(Entity moved, Direction direction) {
@@ -42,8 +42,7 @@ public class CollisionManager {
      * Matches the two entities with the correct collision type
      * @param moved
      * @param collided
-     * @param direction
-     * @return
+     * @return type Block if it is blocking else random shit
      */
     public static Collision getCollision(Entity moved, Entity collided) {
         switch (moved.getType()) {
@@ -107,6 +106,8 @@ public class CollisionManager {
                     case "Portal":
                         return initCollision("Pass");
                     case "Door":
+                        return initCollision("Pass");
+                    case "ActiveBomb":
                         return initCollision("Pass");
                 }
                 break;
