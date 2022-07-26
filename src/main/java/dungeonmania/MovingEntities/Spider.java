@@ -1,5 +1,6 @@
 package dungeonmania.MovingEntities;
 
+
 import dungeonmania.util.Position;
 
 public class Spider extends MovingEntity {

@@ -1,20 +1,20 @@
 package dungeonmania.MovingEntities;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
-import dungeonmania.DungeonManiaController;
-import dungeonmania.Entity;
+import org.json.JSONObject;
+
 import dungeonmania.Player;
 import dungeonmania.CollectibleEntities.Treasure;
 import dungeonmania.exceptions.InvalidActionException;
-import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
 import dungeonmania.CollectibleEntities.InvincibilityPotion;
 import dungeonmania.CollectibleEntities.InvisibilityPotion;
 import dungeonmania.PlayerDataArgs;
 import dungeonmania.PlayerListener;
+import static dungeonmania.DungeonManiaController.getDmc;
+
 
 public class Mercenary extends MovingEntity implements PlayerListener, Interactable {
     private boolean isFriendly = false;
@@ -25,13 +25,12 @@ public class Mercenary extends MovingEntity implements PlayerListener, Interacta
 
     @Override
     public void update(PlayerDataArgs data) {
-        if (data.getPotion() == null && isFriendly) {
-            setMovementStrategy(new FriendlyMovement());
-        } else if (data.getPotion() == null && !isFriendly) {
+        if (isFriendly) return;
+        if (data.getPotion() == null) {
             setMovementStrategy(new FollowMovement());
         } else if (data.getPotion() instanceof InvisibilityPotion) {
             setMovementStrategy(new RandomMovement());
-        } else if (data.getPotion() instanceof InvincibilityPotion && !isFriendly) {
+        } else if (data.getPotion() instanceof InvincibilityPotion) {
             setMovementStrategy(new RunningMovement());
         }
     }
@@ -40,49 +39,46 @@ public class Mercenary extends MovingEntity implements PlayerListener, Interacta
         return isFriendly;
     }
 
-    @Override
-    public void interact(Player player) {
-        // TODO Auto-generated method stub
-        
+    /**
+     * returns true if the player is within bribing distance of the mercenary
+     * @param player
+     * @return
+     */
+    public boolean isInInteractableRadius(Player player) {
+        return Math.abs(player.getPosition().getX() - getPosition().getX()) <= getDmc().getConfigValue("bribe_radius") 
+            && Math.abs(player.getPosition().getY() - getPosition().getY()) <= getDmc().getConfigValue("bribe_radius");
     }
-    
-    // public int distanceToPlayer(List<Entity> allEntities) {
-    //     Player player = ((Player) allEntities.stream().filter(e -> e instanceof Player).collect(Collectors.toList()).get(0));
-    //     int delta_x = Math.abs(player.getPosition().getX() - this.getPosition().getX());
-    //     int delta_y = Math.abs(player.getPosition().getY() - this.getPosition().getY());
-    //     return Math.max(delta_x, delta_y);
-    // }
 
-    // @Override
-    // public void interact(Player player) {
-
-    //     if (player.getInventory().stream().filter(i -> i instanceof Treasure).collect(Collectors.toList()).size() == DungeonManiaController.getConfigValue("bribe_amount")) {
-    //         if (DungeonManiaController.getConfigValue("bribe_radius") >= distanceToPlayer(DungeonManiaController.getAllEntities()) &&
-    //             !(this.getMovementStrategy() instanceof FriendlyMovement)) {
-
-    //             this.setMovementStrategy(new FriendlyMovement());
-
-    //         } else {
-    //             try {
-    //                 throw new InvalidActionException("Not in bribing range");
-    //             } catch (InvalidActionException e) {
-    //                 e.printStackTrace();
-    //             }
-    //         }
-
-    //     } else {
-    //         try {
-    //             throw new InvalidActionException("Bribe amount is not enough");
-    //         } catch (InvalidActionException e) {
-    //             e.printStackTrace();
-    //         }
-    //     }
-    // }
+    @Override
+    public void interact(Player player) throws InvalidActionException {
+    if (isFriendly) throw new InvalidActionException("Already bribed");
+    if (player.getInventory().stream().filter(it -> it instanceof Treasure).collect(Collectors.toList()).size() >= getDmc().getConfigValue("bribe_amount")) {
+        if (isInInteractableRadius(player)) {
+            for (int i = 0; i < getDmc().getConfigValue("bribe_amount"); i++) {
+                var key = player.getInventory().stream().filter(it -> it instanceof Treasure).findFirst().get().getId();
+                player.getInventory().removeIf(it -> it.getId().equals(key));
+            }
+            this.setFriendly(true);
+        } else {
+            throw new InvalidActionException("Not in bribing range");
+        }
+    } else {
+            throw new InvalidActionException("Bribe amount is not enough");
+    }
+    }
 
     public void setFriendly(boolean friendly) {
         isFriendly = friendly;
         if (isFriendly) {
+            setInteractable(false);
             setMovementStrategy(new FriendlyMovement());
         }
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject newJSON = super.toJSON();
+        newJSON.put("isFriendly", isFriendly);
+        return newJSON;
     }
 }

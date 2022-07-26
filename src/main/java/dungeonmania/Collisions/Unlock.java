@@ -4,6 +4,7 @@ package dungeonmania.Collisions;
 import dungeonmania.Entity;
 import dungeonmania.Player;
 import dungeonmania.CollectibleEntities.Key;
+import dungeonmania.CollectibleEntities.Sunstone;
 import dungeonmania.StaticEntities.Door;
 import dungeonmania.util.Direction;
 
@@ -15,7 +16,7 @@ public class Unlock extends Collision {
      * door and moves, otherwise is blocked
      */
     @Override
-    public void processCollision(Entity moved, Entity collided, Direction direction) {
+    public boolean processCollision(Entity moved, Entity collided, Direction direction) {
         Player player = (Player) moved;
         Door door = (Door) collided;
         Key playerKey = player.getInventory().stream()
@@ -24,15 +25,23 @@ public class Unlock extends Collision {
             .filter(x->door.keyMatchesDoor(x))
             .findFirst()
             .orElseGet(()->{return null;});
-        
-        if (door.isLocked() && playerKey != null) {
+        Sunstone playerSunstone = player.getInventory().stream()
+            .filter(x->(x instanceof Sunstone))
+            .map(x->(Sunstone) x)
+            .findFirst()
+            .orElseGet(()->{return null;});
+        if (door.isLocked() && (playerKey != null || playerSunstone != null)) {
+            System.out.println("unlocking door");
             door.unlock();
-            player.getInventory().remove(playerKey);
-        } 
+            if (playerSunstone == null) {
+                player.getInventory().remove(playerKey);
+            }
+        }
         
         if (!door.isLocked()) {
-            player.setPosition(collided.getPosition());
+            return true;
         }
+        return false;
     }
     
 }

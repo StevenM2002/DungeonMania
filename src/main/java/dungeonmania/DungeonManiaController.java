@@ -1,8 +1,12 @@
 package dungeonmania;
 
-import dungeonmania.MovingEntities.Movement;
-import dungeonmania.MovingEntities.Interactable;
 import dungeonmania.MovingEntities.MovingEntity;
+import dungeonmania.CollectibleEntities.Bomb;
+import dungeonmania.CollectibleEntities.Potion;
+import dungeonmania.MovingEntities.*;
+import dungeonmania.StaticEntities.ActiveBomb;
+import dungeonmania.StaticEntities.ZombieToastSpawner;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -10,6 +14,7 @@ import java.lang.IllegalArgumentException;
 
 import dungeonmania.CollectibleEntities.InventoryObject;
 import dungeonmania.Collisions.CollisionManager;
+import dungeonmania.Goals.GoalManager;
 import dungeonmania.exceptions.InvalidActionException;
 import dungeonmania.response.models.BattleResponse;
 import dungeonmania.response.models.DungeonResponse;
@@ -17,7 +22,7 @@ import dungeonmania.response.models.EntityResponse;
 import dungeonmania.response.models.ItemResponse;
 import dungeonmania.util.Direction;
 import dungeonmania.util.FileLoader;
-
+import dungeonmania.Goals.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,45 +31,71 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+
+
 public class DungeonManiaController {
+    private static DungeonManiaController dmc;
     private List<Entity> allEntities;
-    private int currentEntityID;
     private int currentDungeonID = 0;
-    private String currentDungeonName;
-    private static JSONObject config;
-    private CollisionManager collisionManager;
+    private String dungeonName;
+    private Goal goal;
+    private JSONObject config;
     private BattleManager battleManager;
+    private int currTick;
+
+    private void setConfig(JSONObject config) {
+        this.config = config;
+    }
+
+    /**
+     * Singleton pattern for thread safe static dmc
+     * @return
+     */
+    public static synchronized DungeonManiaController getDmc() {
+        return dmc;
+    }
+
+    private String getDungeonID() {
+        return Integer.toString(currentDungeonID);
+    }
 
     public BattleManager getBattleManager() {
         return battleManager;
     }
-    private String getDungeonID() {
-        return Integer.toString(currentDungeonID);
-    }
-    private void nextDungeonID() {
-        currentDungeonID += 1;
+
+    public boolean hasZombies() {
+        for (Entity entity : allEntities) {
+            if (entity instanceof ZombieToast) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public Player getPlayer() {
-        return (Player) allEntities.stream().filter(x->(x instanceof Player)).findFirst().get();
-    }
-
-    public static int getConfigValue(String key) {
-        return config.getInt(key);
-    }
     /**
-     * returns a new id to be assigned to an entity object
-     * also iterates the current id to a new value, so each id is unique
+     * gets the player, otherwise throws null
      * @return
      */
-    private String getNewEntityID() {
-        String newID = Integer.toString(currentEntityID);
-        currentEntityID += 1;
-        return newID;
+    public Player getPlayer() {
+        return (Player) allEntities.stream()
+            .filter(x->x.getClass().getSimpleName().startsWith("Player"))
+            .findFirst().orElse(null);
     }
+    public JSONObject getConfig() {
+        return config;
+    }
+
+    public int getConfigValue(String key) {
+        return config.getInt(key);
+    }
+
 
     public List<Entity> getAllEntities() {
         return allEntities;
+    }
+
+    public void removeFromEntities(Entity entity) {
+        allEntities.remove(entity);
     }
 
     public String getSkin() {
@@ -86,81 +117,84 @@ public class DungeonManiaController {
      */
     public static List<String> configs() {
         return FileLoader.listFileNamesInResourceDirectory("configs");
+    }    
+    
+    
+    private void initDmc(String dungeonName) {
+        int newDungeonId = currentDungeonID;
+        currentDungeonID++;
+        dmc = this;
+        dmc.currentDungeonID = newDungeonId;
+        allEntities = new ArrayList<>();
+        dmc.battleManager = new BattleManager();
+        dmc.currTick = 0;
+        dmc.dungeonName = dungeonName;
     }
-
     /**
      * /game/new
      */
     public DungeonResponse newGame(String dungeonName, String configName) throws IllegalArgumentException {
         // Initialising the new dungeon
-        allEntities = new ArrayList<>();
-        currentEntityID = 0;
-        nextDungeonID();
-        currentDungeonName = dungeonName;
-
-        // initialising collisions
-        collisionManager = new CollisionManager(this);
-        Entity.collisionManager = collisionManager;
-        battleManager = new BattleManager(this);
-        
+        EntityFactory.setCurrentEntityID(0);
+        initDmc(dungeonName);        
         JSONObject dungeon = null;
         JSONObject config = null;
-
-        //TODO: fix this, now its a precondition that loadResourceFile gets a file that exists
         try {
             dungeon = new JSONObject(FileLoader.loadResourceFile("/dungeons/"+dungeonName+".json"));
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             throw new IllegalArgumentException("Could not find dungeon file \""+dungeonName+"\"");
         } try {
             config = new JSONObject(FileLoader.loadResourceFile("/configs/"+configName+".json"));
-            DungeonManiaController.config = config;
-        } catch (IOException e) {
+            getDmc().setConfig(config);
+        } catch (IOException | NullPointerException e) {
             throw new IllegalArgumentException("Could not find config file \""+configName+"\"");
         }
         loadEntities(dungeon.optJSONArray("entities"), config);
-        
+
+        getDmc().goal = GoalManager.loadGoals(dungeon.optJSONObject("goal-condition"), config, battleManager);        
         PortalMatcher.configurePortals(allEntities);
-        Movement.player = getPlayer();
+        this.currTick = 0;
         return getDungeonResponseModel();
     }
 
+
+
     private void loadEntities(JSONArray entities, JSONObject config) {
         for (int i = 0; i < entities.length(); i++) {
-            JSONObject JSONEntity = entities.getJSONObject(i);
-            allEntities.add(EntityFactory.createEntity(getNewEntityID(), JSONEntity, config));
+            EntityFactory.createEntity(entities.getJSONObject(i));
         }
     }
-
-
 
     /**
      * /game/dungeonResponseModel
      */
     public DungeonResponse getDungeonResponseModel() {
-        // creating the entity list, TODO: could maybe do with streams
         ArrayList<EntityResponse> entityList = new ArrayList<>();
         for (Entity e : allEntities) {
             entityList.add(e.getEntityResponse());
         }
+        ArrayList<BattleResponse> battleList = (ArrayList<BattleResponse>) battleManager.getBattleList();        
         // creating inventory object list
-        ArrayList<ItemResponse> inventoryList = new ArrayList<>();
-        for (InventoryObject i : getPlayer().getInventory()) {
-            inventoryList.add(i.getItemResponse());
+        // NOTE: checks that player is still alive
+        String goals = "dead";
+        List<ItemResponse> inventoryList = new ArrayList<>();
+        List<String> buildablesList = new ArrayList<>();
+        if (getPlayer() != null) {
+            goals = goal.getTypeString(getPlayer(), allEntities);
+            if (allEntities.stream().anyMatch(e -> e instanceof Player)) {
+                for (InventoryObject i : getPlayer().getInventory()) {
+                    inventoryList.add(i.getItemResponse());
+                }
+            }
+            buildablesList = CraftingManager.getBuildables(getPlayer().getInventory(), hasZombies());
         }
-
-        ArrayList<BattleResponse> battleList = (ArrayList<BattleResponse>) battleManager.getBattleList();
-        //TODO: add once crafting is implemented
-        ArrayList<String> buildables = new ArrayList<>();
-        //TODO: finish once goals are implemented
-        String goals = "";
-
         return new DungeonResponse(
             getDungeonID(), 
-            currentDungeonName, 
+            dungeonName, 
             entityList, 
             inventoryList, 
             battleList, 
-            buildables, 
+            buildablesList,
             goals
         );
     }
@@ -168,10 +202,19 @@ public class DungeonManiaController {
      * /game/tick/item
      */
     public DungeonResponse tick(String itemUsedId) throws IllegalArgumentException, InvalidActionException {
+        var item = getPlayer().getInventory().stream().filter(it -> it.getId().equals(itemUsedId)).findFirst().orElse(null);
+        if (item instanceof Bomb) {
+            EntityFactory.createEntity(item.getId(), "active_bomb", getPlayer().getPosition(), null);
+//            allEntities.add(new ActiveBomb(item.getId(), getPlayer().getPosition(), false));
+            getPlayer().removeInventoryItem(item);
+        } else if (item instanceof Potion) {
+            getPlayer().queuePotion(itemUsedId);
+        } else {
+            if (item == null) throw new InvalidActionException("Gimme something normal");
+            throw new IllegalArgumentException("Not usable");
+        }
         doSharedTick();
-        // TODO check that itemUsedId is actually a potion before queuing potion
-        getPlayer().queuePotion(itemUsedId);
-        return null;
+        return getDungeonResponseModel();
     }
 
     /**
@@ -179,25 +222,54 @@ public class DungeonManiaController {
      */
     public DungeonResponse tick(Direction movementDirection) {
         getPlayer().move(movementDirection);
+        // if player dies
+        if (getPlayer() == null) {
+            return getDungeonResponseModel();
+        }
         doSharedTick();
         return getDungeonResponseModel();
     }
+    
     private void doSharedTick() {
+        currTick++;
         getPlayer().doPotionTick();
-        List<MovingEntity> movingEntities = allEntities.stream().filter(entity -> entity instanceof MovingEntity).map(entity -> (MovingEntity) entity).collect(Collectors.toList());
-        movingEntities.forEach(entity -> entity.doTickMovement());
-        collisionManager.deactivateSwitches();
+
+        // move all entities
+        for (MovingEntity e : getDmc().getAllEntities().stream()
+            .filter(entity -> (entity instanceof MovingEntity))
+            .map(entity -> (MovingEntity) entity)
+            .collect(Collectors.toList())
+        ) {
+            e.doTickMovement();
+        }
+        if (getDmc().getPlayer() == null) return; // if player is killed
+        doSharedSpawn();
+        CollisionManager.deactivateSwitches();
+        List<ActiveBomb> explodingBombs = getDmc().getAllEntities().stream().filter(entity -> entity instanceof ActiveBomb && ((ActiveBomb) entity).isGoingToExplode(allEntities)).map(entity -> (ActiveBomb) entity).collect(Collectors.toList());
+        List<Entity> toBeRemoved = new ArrayList<>();
+        // Do this so we can remove all the entities without a exploding bomb exploding another exploding bomb
+        explodingBombs.forEach(activeBomb -> toBeRemoved.addAll(activeBomb.getEntitiesInRadiusIfExplode(getDmc().getAllEntities())));
+        getDmc().getAllEntities().removeAll(toBeRemoved);
+        goal.hasCompleted(getDmc().getPlayer(), getDmc().getAllEntities());
+    }
+
+    /**
+     * Runs the spawn function for all spawners, including the SpiderSpawner and ZombieToastSpawners
+     */
+    private void doSharedSpawn() {
+        SpiderSpawner.doSpiderSpawn(currTick);
+        if (getDmc().getAllEntities().stream().anyMatch(e -> e instanceof ZombieToastSpawner)) {
+            for (ZombieToastSpawner z : getDmc().getAllEntities().stream().filter(e -> e instanceof ZombieToastSpawner).map(x->(ZombieToastSpawner) x).collect(Collectors.toList())) {
+                z.spawn(getDmc().currTick);
+            }
+        }
     }
 
     /**
      * /game/build
      */
     public DungeonResponse build(String buildable) throws IllegalArgumentException, InvalidActionException {
-        // IllegalArgumentException
-        if (!buildable.equals("bow") || !buildable.equals("shield")) {
-            throw new IllegalArgumentException("You can only construct bows or shields");
-        }
-        getPlayer().addCraftItemToInventory(buildable, this.config, allEntities.size());
+        CraftingManager.craft(buildable, getPlayer().getInventory(), hasZombies());
         return getDungeonResponseModel();
     }
 
@@ -205,12 +277,12 @@ public class DungeonManiaController {
      * /game/interact
      */
     public DungeonResponse interact(String entityId) throws IllegalArgumentException, InvalidActionException {
-        if (allEntities.stream().anyMatch(e -> e.getId().equals(entityId))) {
-            ((Interactable) allEntities.stream().filter(e -> e.getId().equals(entityId)).collect(Collectors.toList()).get(0)).interact(getPlayer());;
-        } else {
-            throw new IllegalArgumentException("Entity cannot be found with specified Id");
-        }
+        var toInteractWith = getDmc().getAllEntities().stream().filter(entity -> entity.getId().equals(entityId)).findFirst().get();
+        if (toInteractWith == null || !(toInteractWith instanceof Interactable)) throw new IllegalArgumentException("Entity cannot be found with specified Id");
+        ((Interactable) toInteractWith).interact(getPlayer());
 
+        doSharedSpawn();
+        doSharedTick();
         return getDungeonResponseModel();
     }
 
@@ -219,14 +291,35 @@ public class DungeonManiaController {
     }
 
     public static int countEntityOfType(DungeonResponse res, String type) {
-        return getEntitiesResponse(res, type).size();
+        return getEntities(res, type).size();
     }
 
-    public static Optional<EntityResponse> getPlayerResponse(DungeonResponse res) {
+    public static Optional<EntityResponse> getPlayer(DungeonResponse res) {
         return getEntitiesStream(res, "player").findFirst();
     }
 
-    public static List<EntityResponse> getEntitiesResponse(DungeonResponse res, String type) {
+    public static List<EntityResponse> getEntities(DungeonResponse res, String type) {
         return getEntitiesStream(res, type).collect(Collectors.toList());
+    }
+
+    /**
+     * /game/save
+     */
+    public DungeonResponse saveGame(String name) throws IllegalArgumentException {
+        return null;
+    }
+
+    /**
+     * /game/load
+     */
+    public DungeonResponse loadGame(String name) throws IllegalArgumentException {
+        return null;
+    }
+
+    /**
+     * /games/all
+     */
+    public List<String> allGames() {
+        return new ArrayList<>();
     }
 }

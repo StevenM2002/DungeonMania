@@ -1,6 +1,7 @@
 package dungeonmania.MovingEntitiesTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static dungeonmania.TestUtils.getEntities;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class TestZombie {
         int x = pos.getX();
         int y = pos.getY();
         int nextPositionElement = 0;
-        movementTrajectory.add(new Position(x + 1, y));
+        movementTrajectory.add(new Position(x, y));
         movementTrajectory.add(new Position(x, y));
 
         for (int i = 0; i < 1; i++) {
@@ -46,15 +47,10 @@ public class TestZombie {
         List<Position> movementTrajectory = new ArrayList<Position>();
         int x = pos.getX();
         int y = pos.getY();
-        int nextPositionElement = 0;
-        movementTrajectory.add(new Position(x + 1, y));
         movementTrajectory.add(new Position(x, y));
+        movementTrajectory.add(new Position(x+ 1, y));
 
-        for (int i = 0; i < 1; i++) {
-            res = dmc.tick(Direction.RIGHT);
-            assertEquals(movementTrajectory.get(nextPositionElement),
-                    getEntities(res, "zombie_toast").get(0).getPosition());
-            nextPositionElement++;
-        }
+        res = dmc.tick(Direction.RIGHT);
+        assertTrue(movementTrajectory.contains(getEntities(res, "zombie_toast").get(0).getPosition()));
     }
 }

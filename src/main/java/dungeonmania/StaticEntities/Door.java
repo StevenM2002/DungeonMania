@@ -1,7 +1,11 @@
 package dungeonmania.StaticEntities;
 
+import org.json.JSONObject;
+
 import dungeonmania.CollectibleEntities.Key;
+import dungeonmania.response.models.EntityResponse;
 import dungeonmania.util.Position;
+import dungeonmania.util.UtilityFunctions;
 
 public class Door extends StaticEntity {
     private int key;
@@ -9,7 +13,7 @@ public class Door extends StaticEntity {
     public Door(String id, Position position, int key) {
         super(id, position, false);
         this.key = key;
-        this.locked = false;
+        this.locked = true;
     }
 
     public boolean keyMatchesDoor(Key k) {
@@ -17,7 +21,7 @@ public class Door extends StaticEntity {
     }
 
     public void unlock() {
-        locked = true;
+        locked = false;
     }
     public boolean isLocked() {
         return locked;
@@ -30,7 +34,26 @@ public class Door extends StaticEntity {
         } 
         return "Pass";
     }
+    @Override
+    public EntityResponse getEntityResponse() {
+        String type;
+        if (locked) {
+             type = getType();
+        } else {
+            type = getType() + "_open";
+        }
+        return new EntityResponse(
+                getId(),
+                UtilityFunctions.camelToSnake(type),
+                getPosition(),
+                getIsInteractable());
+    }
 
-    
-
+    @Override
+    public JSONObject toJSON() {
+        JSONObject newJSON = super.toJSON();
+        newJSON.put("key", key);
+        newJSON.put("locked", locked);
+        return newJSON;
+    }
 }

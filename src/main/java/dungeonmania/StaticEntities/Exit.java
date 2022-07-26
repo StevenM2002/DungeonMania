@@ -1,5 +1,7 @@
 package dungeonmania.StaticEntities;
 
+import org.json.JSONObject;
+
 import dungeonmania.util.Position;
 
 public class Exit extends StaticEntity  implements Switch{
@@ -20,7 +22,12 @@ public class Exit extends StaticEntity  implements Switch{
         return "Player";
     }
 
-    
+    @Override
+    public JSONObject toJSON() {
+        JSONObject newJSON = super.toJSON();
+        newJSON.put("activated", activated);
+        return newJSON;
+    }
     
     
 }

@@ -8,8 +8,8 @@ public class Pass extends Collision {
 
 
     @Override
-    public void processCollision(Entity moved, Entity collided, Direction direction) {
-        moved.setPosition(collided.getPosition());
+    public boolean processCollision(Entity moved, Entity collided, Direction direction) {
+        return true;
     }
     
     

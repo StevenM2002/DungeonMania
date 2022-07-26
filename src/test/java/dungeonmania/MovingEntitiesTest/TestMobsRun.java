@@ -40,10 +40,10 @@ public class TestMobsRun {
 
         int x1 = posZombie.getX();
         int y1 = posZombie.getY();
-        movementTrajectory2.add(new Position(x1 + 1, y1));
+        movementTrajectory2.add(new Position(x1 - 1, y1));
 
         try {
-            res = dmc.tick(getInventory(res, "invcincibility_potion").get(0).getId());
+            res = dmc.tick(getInventory(res, "invincibility_potion").get(0).getId());
             assertEquals(movementTrajectory.get(nextPositionElement1),
                     getEntities(res, "mercenary").get(0).getPosition());
             assertEquals(movementTrajectory.get(nextPositionElement2),

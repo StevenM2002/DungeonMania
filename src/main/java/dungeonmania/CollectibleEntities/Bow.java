@@ -1,6 +1,5 @@
 package dungeonmania.CollectibleEntities;
 
-import dungeonmania.exceptions.InvalidActionException;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -24,43 +23,42 @@ public class Bow extends InventoryObject implements Buildable, Weapon, Durabilit
     }
 
     @Override
-    public void craft(List<InventoryObject> inventory) throws IllegalArgumentException, InvalidActionException {
+    public boolean canCraft(List<InventoryObject> inventory, boolean hasZombies) {
         int arrowNo = 0;
         int woodNo = 0;
-        List<InventoryObject> usedMaterial = new ArrayList<InventoryObject>();
         for (InventoryObject object : inventory) {
             if (object instanceof Arrow) {
                 arrowNo += 1;
-                if (arrowNo <= 3) {
-                    usedMaterial.add(object);
-                }
             }
             if (object instanceof Wood) {
                 woodNo += 1;
-                if (woodNo == 1) {
-                    usedMaterial.add(object);
+            }
+        }
+        if (arrowNo < 3 || woodNo < 1) {
+            return false;
+        }
+        return true;
+    }
+    
+    @Override
+    public List<InventoryObject> getUsedMaterials(List<InventoryObject> inventory) {
+        int arrowCount = 0;
+        int woodCount = 0;
+        List<InventoryObject> usedMaterials = new ArrayList<InventoryObject>();
+        for (InventoryObject object : inventory) {
+            if (object instanceof Arrow) {
+                if (arrowCount < 3) {
+                    usedMaterials.add(object);
+                    arrowCount++;
+                }
+            }
+            if (object instanceof Wood) {
+                if (woodCount == 0) {
+                    usedMaterials.add(object);
+                    woodCount++;
                 }
             }
         }
-        // InvalidActionException
-        if (arrowNo < 3) {
-            throw new InvalidActionException("Not enough arrows");
-        }
-        if (woodNo < 1) {
-            throw new InvalidActionException("Not enough wood");
-        }
-        // Crafting
-        int newId = Integer.parseInt(super.getId()) + 1; // Can't have the new entity be the same id as this entity
-        inventory.add(new Bow(String.valueOf(newId), 2, this.durability));
-        // Removing crafting materials
-        for (InventoryObject object : usedMaterial) {
-            inventory.remove(object);
-        }
-    }
-
-    @Override
-    public boolean canCraft(List<InventoryObject> inventory) {
-        // TODO Auto-generated method stub
-        return true;
+        return usedMaterials;
     }
 }

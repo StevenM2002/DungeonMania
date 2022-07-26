@@ -26,9 +26,9 @@ public class CircularMovement extends Movement {
     private void moveEntityCircular(MovingEntity entity) {
         int index = pivot.getAdjacentPositions().indexOf(entity.getPosition());
         if (isReversed) {
-            iterateIndex(index, -1, pivot.getAdjacentPositions().size());
+            index = iterateIndex(index, -1, pivot.getAdjacentPositions().size());
         } else {
-            iterateIndex(index, 1, pivot.getAdjacentPositions().size());
+            index = iterateIndex(index, 1, pivot.getAdjacentPositions().size());
         }
         Direction direction = entity.getPosition().getDirectionTo(pivot.getAdjacentPositions().get(index));
         entity.move(direction);
@@ -36,7 +36,7 @@ public class CircularMovement extends Movement {
 
     private int iterateIndex(int index, int iteration, int maxSize) {
         index += iteration;
-        if (index >= maxSize) {
+        if (index > maxSize - 1) {
             index = 0;
         } else if (index < 0) {
             index = maxSize - 1;

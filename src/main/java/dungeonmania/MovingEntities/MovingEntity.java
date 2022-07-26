@@ -2,14 +2,17 @@ package dungeonmania.MovingEntities;
 
 import dungeonmania.CanMove;
 import dungeonmania.Entity;
+import dungeonmania.Collisions.CollisionManager;
 import dungeonmania.util.Position;
 import dungeonmania.util.Direction;
 
-public abstract class MovingEntity extends Entity implements CanMove {
+public abstract class MovingEntity extends Entity implements CanMove, Battling {
     private double health;
     private double attack;
 
     private Movement movementStrategy;
+    private Position previousPosition;
+    private int stuckAmount = 0;
 
     public void setHealth(double health) {
         this.health = health;
@@ -17,10 +20,6 @@ public abstract class MovingEntity extends Entity implements CanMove {
 
     public double getHealth() {
         return health;
-    }
-
-    public double getAttack() {
-        return attack;
     }
 
     public Movement getMovementStrategy() {
@@ -31,20 +30,59 @@ public abstract class MovingEntity extends Entity implements CanMove {
         this.movementStrategy = movementStrategy;
     }
 
-    public MovingEntity(String id, Position position, boolean isInteractable, double health, double attack,
-                        Movement movementStrategy) {
-        super(id, position, false);
+    public MovingEntity(String id, Position position, boolean isInteractable, double health, double attack, Movement movementStrategy) {
+        super(id, position, isInteractable);
         this.health = health;
         this.attack = attack;
         this.movementStrategy = movementStrategy;
     }
     public void doTickMovement() {
-        movementStrategy.moveEntity(this);
+        if (stuckAmount > 0) {
+            stuckAmount -= 1;
+        } else {
+            movementStrategy.moveEntity(this);
+        }
     }
 
     @Override
     public void move(Direction direction) {
-        collisionManager.requestMove(this, direction);
+        Position tempPos = getPosition();
+
+        CollisionManager.requestMove(this, direction);
+        if (tempPos != getPosition()) {
+            previousPosition = tempPos;
+        }
+    }
+
+    public Position getPreviousPosition() {
+        return previousPosition;
+    }
+
+    @Override
+    public double takeDamage(double damage) {
+        double damageTaken = damage / 5;
+        if (health - damageTaken < 0) {
+            damageTaken = health;
+        }
+        health -= damageTaken;
+        return damageTaken;
+    }
+
+    @Override
+    public double dealDamage() {
+        return attack;
+    }
+
+    public void setAttack(double attack) {
+        this.attack = attack;
+    }
+
+    public void setPreviousPosition(Position previousPosition) {
+        this.previousPosition = previousPosition;
+    }
+
+    public void setStuckAmount(int stuckAmount) {
+        this.stuckAmount = stuckAmount;
     }
 }
 

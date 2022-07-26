@@ -15,10 +15,17 @@ public class Battle extends Collision {
 
 
     @Override
-    public void processCollision(Entity moved, Entity collided, Direction direction) {
-        Player player = (Player) moved;
-        MovingEntity enemy = (MovingEntity) collided;
-        player.setPosition(enemy.getPosition());
+    public boolean processCollision(Entity moved, Entity collided, Direction direction) {
+        Player player;
+        MovingEntity enemy;
+        if (moved instanceof Player) {
+            player = (Player) moved;
+            enemy = (MovingEntity) collided;
+        } else {
+            player = (Player) collided;
+            enemy = (MovingEntity) moved;
+        }
         battleManager.doBattle(player, enemy);
+        return true;
     }
 }

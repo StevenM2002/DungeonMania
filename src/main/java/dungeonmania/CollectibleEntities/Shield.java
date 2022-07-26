@@ -1,6 +1,5 @@
 package dungeonmania.CollectibleEntities;
 
-import dungeonmania.exceptions.InvalidActionException;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -21,8 +20,28 @@ public class Shield extends InventoryObject implements Buildable, Durability {
     }
 
     @Override
-    public boolean canCraft(List<InventoryObject> inventory) {
-        // TODO Auto-generated method stub
+    public boolean canCraft(List<InventoryObject> inventory, boolean hasZombies) {
+        int treasureNo = 0;
+        int woodNo = 0;
+        int keyNo = 0;
+        int sunstoneNo = 0;
+        for (InventoryObject object : inventory) {
+            if (object instanceof Wood) {
+                woodNo += 1;
+            }
+            if (object instanceof Treasure) {
+                treasureNo += 1;
+            }
+            if (object instanceof Sunstone) {
+                sunstoneNo += 1;
+            }
+            if (object instanceof Key) {
+                keyNo += 1;
+            }
+        }
+        if ((keyNo < 1 && treasureNo < 1 && sunstoneNo < 1) || woodNo < 2) {
+            return false;
+        }
         return true;
     }
 
@@ -30,47 +49,38 @@ public class Shield extends InventoryObject implements Buildable, Durability {
         return defence;
     }
 
-    @Override
-    public void craft(List<InventoryObject> inventory) throws IllegalArgumentException, InvalidActionException {
+    public List<InventoryObject> getUsedMaterials(List<InventoryObject> inventory) {
         int woodNo = 0;
         int treasureNo = 0;
         int keyNo = 0;
-        List<InventoryObject> usedMaterial = new ArrayList<InventoryObject>();
+        List<InventoryObject> usedMaterials = new ArrayList<InventoryObject>();
+        boolean sunstoneExists = false;
+        for (InventoryObject object : inventory) {
+            if (object instanceof Sunstone) {
+                sunstoneExists = true;
+                break;
+            }
+        }
         for (InventoryObject object : inventory) {    
             if (object instanceof Wood) {
-                woodNo += 1;
-                if (woodNo <= 2) {
-                    usedMaterial.add(object);
+                if (woodNo < 2) {
+                    usedMaterials.add(object);
+                    woodNo++;
                 }
             }
             if (object instanceof Treasure) {
-                treasureNo += 1;
-                if (treasureNo == 1) {
-                    usedMaterial.add(object);
+                if (treasureNo == 0 && keyNo == 0 && !sunstoneExists) {
+                    usedMaterials.add(object);
+                    treasureNo++;
                 }
             }
             if (object instanceof Key) {
-                keyNo += 1;
-                if (keyNo == 1) {
-                    usedMaterial.add(object);
+                if (keyNo == 0 && treasureNo == 0 && !sunstoneExists) {
+                    usedMaterials.add(object);
+                    keyNo++;
                 }
             }
         }
-        // InvalidActionException
-        if (woodNo < 2) {
-            throw new InvalidActionException("Not enough wood");
-        }
-        if (keyNo < 1 && treasureNo < 1) {
-            throw new InvalidActionException("Not enough metal");
-        }
-        // Crafting
-        int newId = Integer.parseInt(super.getId()) + 1; // Can't have the new entity be the same id as this entity
-        inventory.add(new Shield(String.valueOf(newId), this.defence, this.durability));
-        // Removing crafting materials
-        for (InventoryObject object : usedMaterial) {
-            if (!(treasureNo > 0 && object instanceof Key)) { // If the player had a treasure, then don't remove the key
-                inventory.remove(object);
-            }
-        }
+        return usedMaterials;
     }
 }

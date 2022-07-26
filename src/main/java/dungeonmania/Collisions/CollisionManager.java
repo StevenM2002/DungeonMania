@@ -1,24 +1,16 @@
 package dungeonmania.Collisions;
 
 import java.util.ArrayList;
-import java.util.stream.Stream;
 
-import dungeonmania.DungeonManiaController;
 import dungeonmania.Entity;
 import dungeonmania.MovingEntities.Mercenary;
 import dungeonmania.StaticEntities.Switch;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
+import static dungeonmania.DungeonManiaController.getDmc;
+
 public class CollisionManager {
-    private DungeonManiaController dmc;
-    
-
-    public CollisionManager(DungeonManiaController dmc) {
-        this.dmc = dmc;
-    }
-
-
     /**
      * is called when a moving entity attempts to move in a direction
      * checks for collisions with other objects in the direction the entity
@@ -26,26 +18,23 @@ public class CollisionManager {
      * 
      * If there is a collision, runs appropriate collision logic, then moves
      * the entity accordingly
-     * @param entity
+     * @param moved
      * @param direction
      */
-    public void requestMove(Entity moved, Direction direction) {
+    public static void requestMove(Entity moved, Direction direction) {
         Position toMove = moved.getPosition().translateBy(direction);
         ArrayList<Entity> collisionQueue = new ArrayList<>();
-        dmc.getAllEntities().stream()
+        getDmc().getAllEntities().stream()
             .filter(x->x.getPosition().equals(toMove) && x.getId() != moved.getId())
             .forEach(x->collisionQueue.add(x));
-        // checks if no colliding entities and moves
-        // Then checks if anything blocking it
-        if (collisionQueue.size() == 0) {
-            moved.setPosition(toMove);
-        } else if (!collisionQueue.stream()
-            .anyMatch(x->(getCollision(moved, x) instanceof Block))
-        ) {
-            for (Entity collided : collisionQueue) {
-                getCollision(moved, collided).processCollision(moved, collided, direction);
+        boolean doMove = true;
+        for (Entity collided : collisionQueue) {
+            if (!getCollision(moved, collided).processCollision(moved, collided, direction)) {
+                doMove = false;
             }
-        } else {
+        }
+        if (doMove) {
+            moved.setPosition(toMove);
         }
     }
 
@@ -53,9 +42,9 @@ public class CollisionManager {
      * Matches the two entities with the correct collision type
      * @param moved
      * @param collided
-     * @return
+     * @return type Block if it is blocking else random shit
      */
-    private Collision getCollision(Entity moved, Entity collided) {
+    public static Collision getCollision(Entity moved, Entity collided) {
         switch (moved.getType()) {
             case "Player":
                 switch (collided.getType()) {
@@ -75,6 +64,8 @@ public class CollisionManager {
                         return initCollision("Battle");
                     case "ZombieToast":
                         return initCollision("Battle");
+                    case "Hydra":
+                        return initCollision("Battle");
                     case "Exit":
                         return initCollision("Activate");
                     case "Arrow":
@@ -93,6 +84,10 @@ public class CollisionManager {
                         return initCollision("Collect");
                     case "Wood":
                         return initCollision("Collect");
+                    case "Sunstone":
+                        return initCollision("Collect");
+                    case "SwampTile":
+                        return initCollision("Pass");
                 }
                 break;
             case "Mercenary":
@@ -112,12 +107,16 @@ public class CollisionManager {
                         return initCollision("Pass");
                     case "Door":
                         return initCollision("Pass");
+                    case "ActiveBomb":
+                        return initCollision("Pass");
                 }
                 break;
             case "Boulder":
                 switch (collided.getType()) {
-                    case "FloorSwitch":
+                    case "switch":
                         return initCollision("Activate");
+                    case "SwampTile":
+                        return initCollision("Pass");
                 }
                 break;
         }
@@ -131,7 +130,7 @@ public class CollisionManager {
      * @param type
      * @return
      */
-    private Collision initCollision(String type) {
+    private static Collision initCollision(String type) {
         switch (type) {
             case "Block":
                 return new Block();
@@ -142,11 +141,13 @@ public class CollisionManager {
             case "Teleport":
                 return new Teleport();
             case "Battle":
-                return new Battle(dmc.getBattleManager());
+                return new Battle(getDmc().getBattleManager());
             case "Collect":
-                return new Collect(dmc.getAllEntities());
+                return new Collect(getDmc().getAllEntities());
             case "Activate":
                 return new Activate();
+            case "Stuck":
+                return new Stuck();
         }
         return new Pass();
     }
@@ -155,22 +156,23 @@ public class CollisionManager {
      * Deactivates all switches that do not have their activation type on 
      * top of them
      */
-    public void deactivateSwitches() {
-        Stream<Switch> switchStream = dmc.getAllEntities().stream()
+    public static void deactivateSwitches() {
+        getDmc().getAllEntities().stream()
             .filter(x->(x instanceof Switch))
-            .map(x->(Switch) x);
-        switchStream.forEach(x->{
-            Entity e = (Entity) x;
-            if (!dmc.getAllEntities()
-                .stream()
-                .anyMatch(y->
-                    (y.getPosition() == e.getPosition() 
-                    && y.getType() == x.getActivationType()
-                ))
-                && x.getActivated()
-            ) {
-                x.setActivated(false);
+            .map(x->(Switch) x)
+            .forEach(x->{
+                Entity e = (Entity) x;
+                if (!getDmc().getAllEntities()
+                    .stream()
+                    .anyMatch(y->
+                        (y.getPosition().equals(e.getPosition())
+                        && y.getType().equals(x.getActivationType())
+                    ))
+                    && x.getActivated()
+                ) {
+                    x.setActivated(false);
+                }
             }
-        });   
+        );   
     }
 }
