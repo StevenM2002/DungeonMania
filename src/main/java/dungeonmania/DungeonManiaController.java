@@ -204,7 +204,8 @@ public class DungeonManiaController {
     public DungeonResponse tick(String itemUsedId) throws IllegalArgumentException, InvalidActionException {
         var item = getPlayer().getInventory().stream().filter(it -> it.getId().equals(itemUsedId)).findFirst().orElse(null);
         if (item instanceof Bomb) {
-            allEntities.add(new ActiveBomb(item.getId(), getPlayer().getPosition(), false));
+            EntityFactory.createEntity(item.getId(), "active_bomb", getPlayer().getPosition(), null);
+//            allEntities.add(new ActiveBomb(item.getId(), getPlayer().getPosition(), false));
             getPlayer().removeInventoryItem(item);
         } else if (item instanceof Potion) {
             getPlayer().queuePotion(itemUsedId);
@@ -241,15 +242,14 @@ public class DungeonManiaController {
         ) {
             e.doTickMovement();
         }
+        if (getDmc().getPlayer() == null) return; // if player is killed
+        doSharedSpawn();
         CollisionManager.deactivateSwitches();
         List<ActiveBomb> explodingBombs = allEntities.stream().filter(entity -> entity instanceof ActiveBomb && ((ActiveBomb) entity).isGoingToExplode(allEntities)).map(entity -> (ActiveBomb) entity).collect(Collectors.toList());
         List<Entity> toBeRemoved = new ArrayList<>();
         // Do this so we can remove all the entities without a exploding bomb exploding another exploding bomb
         explodingBombs.forEach(activeBomb -> toBeRemoved.addAll(activeBomb.getEntitiesInRadiusIfExplode(allEntities)));
         allEntities.removeAll(toBeRemoved);
-        if (getDmc().getPlayer() == null) return; // if player is killed
-        doSharedSpawn();
-        CollisionManager.deactivateSwitches();
         goal.hasCompleted(getDmc().getPlayer(), getDmc().getAllEntities());
     }
 
