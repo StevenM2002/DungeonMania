@@ -245,11 +245,11 @@ public class DungeonManiaController {
         if (getDmc().getPlayer() == null) return; // if player is killed
         doSharedSpawn();
         CollisionManager.deactivateSwitches();
-        List<ActiveBomb> explodingBombs = allEntities.stream().filter(entity -> entity instanceof ActiveBomb && ((ActiveBomb) entity).isGoingToExplode(allEntities)).map(entity -> (ActiveBomb) entity).collect(Collectors.toList());
+        List<ActiveBomb> explodingBombs = getDmc().getAllEntities().stream().filter(entity -> entity instanceof ActiveBomb && ((ActiveBomb) entity).isGoingToExplode(allEntities)).map(entity -> (ActiveBomb) entity).collect(Collectors.toList());
         List<Entity> toBeRemoved = new ArrayList<>();
         // Do this so we can remove all the entities without a exploding bomb exploding another exploding bomb
-        explodingBombs.forEach(activeBomb -> toBeRemoved.addAll(activeBomb.getEntitiesInRadiusIfExplode(allEntities)));
-        allEntities.removeAll(toBeRemoved);
+        explodingBombs.forEach(activeBomb -> toBeRemoved.addAll(activeBomb.getEntitiesInRadiusIfExplode(getDmc().getAllEntities())));
+        getDmc().getAllEntities().removeAll(toBeRemoved);
         goal.hasCompleted(getDmc().getPlayer(), getDmc().getAllEntities());
     }
 
@@ -277,7 +277,7 @@ public class DungeonManiaController {
      * /game/interact
      */
     public DungeonResponse interact(String entityId) throws IllegalArgumentException, InvalidActionException {
-        var toInteractWith = allEntities.stream().filter(entity -> entity.getId().equals(entityId)).findFirst().get();
+        var toInteractWith = getDmc().getAllEntities().stream().filter(entity -> entity.getId().equals(entityId)).findFirst().get();
         if (toInteractWith == null || !(toInteractWith instanceof Interactable)) throw new IllegalArgumentException("Entity cannot be found with specified Id");
         ((Interactable) toInteractWith).interact(getPlayer());
 

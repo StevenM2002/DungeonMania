@@ -58,7 +58,6 @@ public class ActiveBomb extends StaticEntity {
                 this.getPosition(),
                 this.getIsInteractable());
     }
-    // Is this correct usage??
     @Override
     public String getDefaultCollision() {
         return "Block";
