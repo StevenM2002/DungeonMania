@@ -30,6 +30,17 @@ public class Player extends Entity implements CanMove, Battling {
         this.health = health;
         this.attack = attack;
     }
+    public Player(String id, Position position, Position previousPosition,
+            List<InventoryObject> inventory, double attack, double health, List<PlayerListener> subscribers) {
+        super(id, position, false);
+        this.previousPosition = previousPosition;
+        this.inventory = inventory;
+        this.attack = attack;
+        this.health = health;
+        this.subscribers = subscribers;
+    }
+
+
 
     public Position getPreviousPosition() {
         return previousPosition;

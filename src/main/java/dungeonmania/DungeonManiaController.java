@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -71,7 +73,7 @@ public class DungeonManiaController {
     }
 
     public boolean hasZombies() {
-        for (Entity entity : allEntities) {
+        for (Entity entity : getDmc().getAllEntities()) {
             if (entity instanceof ZombieToast) {
                 return true;
             }
@@ -84,7 +86,7 @@ public class DungeonManiaController {
      * @return
      */
     public Player getPlayer() {
-        return (Player) allEntities.stream()
+        return (Player) getDmc().getAllEntities().stream()
             .filter(x->x.getClass().getSimpleName().startsWith("Player"))
             .findFirst().orElse(null);
     }
@@ -186,7 +188,7 @@ public class DungeonManiaController {
      */
     public DungeonResponse getDungeonResponseModel() {
         ArrayList<EntityResponse> entityList = new ArrayList<>();
-        for (Entity e : allEntities) {
+        for (Entity e : getDmc().getAllEntities()) {
             entityList.add(e.getEntityResponse());
         }
         ArrayList<BattleResponse> battleList = (ArrayList<BattleResponse>) battleManager.getBattleList();        
@@ -196,8 +198,8 @@ public class DungeonManiaController {
         List<ItemResponse> inventoryList = new ArrayList<>();
         List<String> buildablesList = new ArrayList<>();
         if (getPlayer() != null) {
-            goals = goal.getTypeString(getPlayer(), allEntities);
-            if (allEntities.stream().anyMatch(e -> e instanceof Player)) {
+            goals = goal.getTypeString(getPlayer(), getDmc().getAllEntities());
+            if (getDmc().getAllEntities().stream().anyMatch(e -> e instanceof Player)) {
                 for (InventoryObject i : getPlayer().getInventory()) {
                     inventoryList.add(i.getItemResponse());
                 }
@@ -350,6 +352,8 @@ public class DungeonManiaController {
         JSONObject currentTick = savedDungeon.getJSONArray("ticks").getJSONObject(tick);
         EntityFactory.setCurrentEntityID(currentTick.getInt("currentEntityID"));
         CraftingManager.setIDCounter(currentTick.getInt("currentCraftingID"));
+
+        // setting the current potion in PotionManager
         JSONObject currPotion = currentTick.getJSONObject("currPotion");
         if (currPotion.getString("name").equals("none")) {
             PotionManager.setCurrPotion(null);
@@ -358,10 +362,34 @@ public class DungeonManiaController {
         } else if (currPotion.getString("name").equals("InvincibilityPotion")) {
             PotionManager.setCurrPotion(new InvincibilityPotion(currPotion.getString("id"), dmc.config.getInt("invincibility_potion_duration")));
         }
-        //TODO: potion queue
-        //TODO: entities
-        // after tick
-        //dmc.goal = GoalManager.loadGoals(goal_condition, config, battleManager)
+
+        // setting the correct potion queue
+        Queue<Potion> potionQueue= new LinkedBlockingQueue<>();
+        for (int i = 0; i < currentTick.getJSONArray("potionQueue").length(); i++) {
+            JSONObject currQueuedPotion = currentTick.getJSONArray("potionQueue").getJSONObject(i);
+            if (currQueuedPotion.getString("name").equals("InvisibilityPotion")) {
+                potionQueue.add(new InvisibilityPotion(currQueuedPotion.getString("id"), dmc.config.getInt("invisibility_potion_duration")));
+            } else if (currQueuedPotion.getString("name").equals("InvincibilityPotion")) {
+                potionQueue.add(new InvincibilityPotion(currQueuedPotion.getString("id"), dmc.config.getInt("invincibility_potion_duration")));
+            }
+        }
+        PotionManager.setPotionQueue(potionQueue);
+
+
+        // Loading the entities. Loads the player first (to avoid null pointer errors with subscriptions)
+        for (int i = 0; i < currentTick.getJSONArray("entities").length(); i++) {
+            if (currentTick.getJSONArray("entities").getJSONObject(i).getString("type").equals("player")) {
+                EntityFactory.createEntity(currentTick.getJSONArray("entities").getJSONObject(i));
+            }
+        }
+        // loading all the other entites
+        for (int i = 0; i < currentTick.getJSONArray("entities").length(); i++) {
+            if (!currentTick.getJSONArray("entities").getJSONObject(i).getString("type").equals("player")) {
+                EntityFactory.createEntity(currentTick.getJSONArray("entities").getJSONObject(i));
+            }
+
+        }
+        dmc.goal = GoalManager.loadGoals(savedDungeon.getJSONObject("goal-condition"), dmc.config, dmc.battleManager);
     }
 
     /**

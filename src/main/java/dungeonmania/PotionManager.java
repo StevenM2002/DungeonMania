@@ -38,5 +38,4 @@ public class PotionManager {
     public static void setPotionQueue(Queue<Potion> potionQueue) {
         PotionManager.potionQueue = potionQueue;
     }
-    
 }

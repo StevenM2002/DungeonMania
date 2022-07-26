@@ -38,4 +38,23 @@ public final class BattleResponse {
     public final List<RoundResponse> getRounds(){
         return rounds;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
+        if (obj == this) return true;
+        if (obj.getClass() != getClass()) return false;
+
+        BattleResponse battleResponse = (BattleResponse) obj;
+        boolean roundsEqual = true;
+        for (int i = 0; i < rounds.size() && i < battleResponse.rounds.size(); i++) {
+            if (!rounds.get(i).equals(battleResponse.rounds.get(i))) {
+                roundsEqual = false;
+            }
+        }
+        return (battleResponse.initialEnemyHealth == initialEnemyHealth)
+            && (battleResponse.initialPlayerHealth == initialPlayerHealth)
+            && (enemy.equals(battleResponse.enemy))
+            && roundsEqual;
+    }
 }

@@ -4,6 +4,8 @@ import dungeonmania.CollectibleEntities.*;
 import dungeonmania.MovingEntities.*;
 import dungeonmania.StaticEntities.*;
 import dungeonmania.util.Position;
+import dungeonmania.util.UtilityFunctions;
+
 import static dungeonmania.DungeonManiaController.getDmc;
 
 
@@ -127,9 +129,19 @@ public class EntityFactory {
         }
         return newEntity;
     }
+
+    /**
+     * Creates the entity from the given JSONObject jsonEntity
+     * @param jsonEntity
+     */
     public static void createEntity(JSONObject jsonEntity) {
-        createEntity(jsonEntity.getString("type"), getPositionOfEntity(jsonEntity), jsonEntity);
+        if (jsonEntity.has("id")) {
+            createEntity(jsonEntity.getString("id"), UtilityFunctions.camelToSnake(jsonEntity.getString("type")), getPositionOfEntity(jsonEntity), jsonEntity);
+        } else {
+            createEntity(UtilityFunctions.camelToSnake(jsonEntity.getString("type")), getPositionOfEntity(jsonEntity), jsonEntity);
+        }
     }
+
     private static Position getPositionOfEntity(JSONObject entity) {
         return new Position(entity.getInt("x"), entity.getInt("y"));
     }

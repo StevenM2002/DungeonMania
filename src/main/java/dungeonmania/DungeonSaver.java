@@ -72,8 +72,14 @@ public class DungeonSaver {
         }
         currTick.put("currPotion", currentPotion);
         currTick.put("potionQueue", new JSONArray());
+        // for each potion in potionqueue, put in a jsonObject containing the 
+        // name and id of the potion
         PotionManager.getPotionQueue()
-            .forEach(p->currTick.getJSONArray("potionQueue").put((new JSONObject()).put("potion", p.getName())));
+            .forEach(p->currTick.getJSONArray("potionQueue").put(
+                (new JSONObject())
+                .put("name", p.getName())
+                .put("id", ((InventoryObject) p).getId()))
+        );
         
         // doing entity list
         currTick.put("entities", new JSONArray());
