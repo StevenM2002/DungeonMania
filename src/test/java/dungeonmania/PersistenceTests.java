@@ -2,7 +2,7 @@ package dungeonmania;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import dungeonmania.response.models.DungeonResponse;
 import dungeonmania.response.models.EntityResponse;
@@ -25,6 +25,11 @@ public class PersistenceTests {
         assertEquals(prev.getDungeonName(), load.getDungeonName());
         assertEquals(prev.getGoals(), load.getGoals());
         for (EntityResponse e : prev.getEntities()) {
+            if (load.getEntities().stream().filter(x->x.equals(e)).count() != 1) {
+                System.out.println("actual entity: "+e.toString());
+                System.out.println("loaded entities: ");
+                load.getEntities().stream().filter(x->x.getType().equals(e.getType())).forEach(x->System.out.println(x.toString()));
+            }
             assertEquals(1, load.getEntities().stream().filter(x->x.equals(e)).count());
         }
         for (ItemResponse i : prev.getInventory()) {
@@ -42,14 +47,15 @@ public class PersistenceTests {
     @Test
     @DisplayName("Test advanced")
     public void testAdvancedDungeon() {
+        System.out.println("advanced test");
         DungeonManiaController dmc = new DungeonManiaController();
         DungeonResponse initResponse = dmc.newGame("d_persistenceTests_advanced", "c_persistenceTests");
-        dmc.saveGame("SavedGame");
+        dmc.saveGame("AdvancedSave");
         DungeonManiaController dmc2 = new DungeonManiaController();
-        DungeonResponse loadResponse = dmc2.loadGame("SavedGame");
+        DungeonResponse loadResponse = dmc2.loadGame("AdvancedSave");
         assertDungeonResponsesEqual(initResponse, loadResponse);
+        System.out.println("end advanced test");
     }
-
 
     @Test
     @DisplayName("Test moving before save")
@@ -58,21 +64,20 @@ public class PersistenceTests {
         dmc.newGame("d_persistenceTests_advanced", "c_persistenceTests");
         dmc.tick(Direction.RIGHT);
         DungeonResponse initResponse = dmc.tick(Direction.RIGHT);
-        dmc.saveGame("SavedGame");
+        dmc.saveGame("MovingSave");
         DungeonManiaController dmc2 = new DungeonManiaController();
-        DungeonResponse loadResponse = dmc2.loadGame("SavedGame");
+        DungeonResponse loadResponse = dmc2.loadGame("MovingSave");
         assertDungeonResponsesEqual(initResponse, loadResponse);
     }
 
-    
     @Test
     @DisplayName("Test moving after loading")
     public void testMoveAfterLoad() {
         DungeonManiaController dmc = new DungeonManiaController();
         dmc.newGame("d_persistenceTests_advanced", "c_persistenceTests");
-        dmc.saveGame("SavedGame");
+        dmc.saveGame("MoveAfterSave");
         DungeonManiaController dmc2 = new DungeonManiaController();
-        dmc2.loadGame("SavedGame");
+        dmc2.loadGame("MoveAfterSave");
         assertDoesNotThrow(()->dmc2.tick(Direction.RIGHT));
         assertDoesNotThrow(()->dmc2.tick(Direction.RIGHT));
     }
@@ -89,9 +94,9 @@ public class PersistenceTests {
         assertDoesNotThrow(()->dmc.tick(firstPotionID));
         assertDoesNotThrow(()->dmc.tick(secondPotionID));
         DungeonResponse potionUseResponse = dmc.tick(Direction.UP);
-        dmc.saveGame("SavedGame");
+        dmc.saveGame("PotionSave");
         DungeonManiaController dmc2 = new DungeonManiaController();
-        DungeonResponse loadResponse = dmc2.loadGame("SavedGame");
+        DungeonResponse loadResponse = dmc2.loadGame("PotionSave");
         assertDungeonResponsesEqual(potionUseResponse, loadResponse);
     }
 
@@ -107,9 +112,9 @@ public class PersistenceTests {
         assertDoesNotThrow(()->dmc.tick(secondPotionID));
         assertDoesNotThrow(()->dmc.tick(firstPotionID));
         DungeonResponse potionUseResponse = dmc.tick(Direction.UP);
-        dmc.saveGame("SavedGame");
+        dmc.saveGame("Potion2Save");
         DungeonManiaController dmc2 = new DungeonManiaController();
-        DungeonResponse loadResponse = dmc2.loadGame("SavedGame");
+        DungeonResponse loadResponse = dmc2.loadGame("Potion2Save");
         assertDungeonResponsesEqual(potionUseResponse, loadResponse);
     }
 
@@ -120,11 +125,16 @@ public class PersistenceTests {
         dmc.newGame("d_persistenceTests_advanced", "c_persistenceTests");
         dmc.tick(Direction.DOWN);
         DungeonResponse initResponse = dmc.tick(Direction.DOWN);
-        dmc.saveGame("SavedGame");
+        dmc.saveGame("DoorSave");
         DungeonManiaController dmc2 = new DungeonManiaController();
-        DungeonResponse loadResponse = dmc2.loadGame("SavedGame");
+        DungeonResponse loadResponse = dmc2.loadGame("DoorSave");
         assertDungeonResponsesEqual(initResponse, loadResponse);
     }
 
-
+    public static void main(String[] args) {
+        PersistenceTests p = new PersistenceTests();
+        p.testAdvancedDungeon();
+        p.testSaveAfterMovement();
+        p.testMoveAfterLoad();
+    }
 }

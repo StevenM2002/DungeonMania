@@ -31,13 +31,16 @@ public class Player extends Entity implements CanMove, Battling {
         this.attack = attack;
     }
     public Player(String id, Position position, Position previousPosition,
-            List<InventoryObject> inventory, double attack, double health, List<PlayerListener> subscribers) {
+            JSONArray inventory, double attack, double health) {
         super(id, position, false);
         this.previousPosition = previousPosition;
-        this.inventory = inventory;
         this.attack = attack;
         this.health = health;
-        this.subscribers = subscribers;
+        for (int i = 0; i < inventory.length(); i++) {
+            JSONObject item = inventory.getJSONObject(i);
+            this.inventory.add(ItemFactory.createItem(item.getString("type"), item.getString("id"), item));
+        }
+        
     }
 
 

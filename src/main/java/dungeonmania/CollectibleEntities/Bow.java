@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class Bow extends InventoryObject implements Buildable, Weapon, Durability {
     private int durability;
 
-    public Bow(String id, int attackDamage, int durability) {
+    public Bow(String id, int durability) {
         super(id);
         this.durability = durability;
     }

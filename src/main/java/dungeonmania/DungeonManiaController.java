@@ -52,6 +52,9 @@ public class DungeonManiaController {
         this.config = config;
     }
 
+    public DungeonManiaController() {
+        dmc = this;
+    }
     /**
      * Singleton pattern for thread safe static dmc
      * @return
@@ -132,7 +135,6 @@ public class DungeonManiaController {
     private void initDmc(String dungeonName) {
         int newDungeonId = currentDungeonID;
         currentDungeonID++;
-        dmc = this;
         dmc.currentDungeonID = newDungeonId;
         allEntities = new ArrayList<>();
         dmc.battleManager = new BattleManager();
@@ -313,7 +315,11 @@ public class DungeonManiaController {
      * /game/save
      */
     public DungeonResponse saveGame(String name) throws IllegalArgumentException {
+        System.out.println("saving the game");
         getDmc().dungeonSaver.saveToFile(name);
+        // Sleep to give time to establish file before loading
+        try {Thread.sleep(1000);} catch (InterruptedException e){System.err.println("sleep failed");}
+
         return getDungeonResponseModel();
     }
 
@@ -346,7 +352,13 @@ public class DungeonManiaController {
         dmc.dungeonName = savedDungeon.getString("dungeonName");
         dmc.currentDungeonID = savedDungeon.getInt("currentDungeonID");
         dmc.currTick = tick;
+        dmc.dungeonSaver = new DungeonSaver(savedDungeon);
+
+        // per tick
+        
         JSONObject currentTick = savedDungeon.getJSONArray("ticks").getJSONObject(tick);
+        System.out.println(currentTick.getInt("tick"));
+        // setting id counters
         EntityFactory.setCurrentEntityID(currentTick.getInt("currentEntityID"));
         CraftingManager.setIDCounter(currentTick.getInt("currentCraftingID"));
 
@@ -397,7 +409,7 @@ public class DungeonManiaController {
      * /games/all
      */
     public List<String> allGames() {
-        return new ArrayList<>();
+        return FileLoader.listFileNamesInResourceDirectory("SavedGames");
     }
 
 
