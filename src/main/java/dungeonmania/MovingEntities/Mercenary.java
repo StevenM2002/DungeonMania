@@ -51,20 +51,18 @@ public class Mercenary extends MovingEntity implements PlayerListener, Interacta
 
     @Override
     public void interact(Player player) throws InvalidActionException {
-    if (isFriendly) throw new InvalidActionException("Already bribed");
-    if (player.getInventory().stream().filter(it -> it instanceof Treasure).collect(Collectors.toList()).size() >= getDmc().getConfigValue("bribe_amount")) {
-        if (isInInteractableRadius(player)) {
-            for (int i = 0; i < getDmc().getConfigValue("bribe_amount"); i++) {
-                var key = player.getInventory().stream().filter(it -> it instanceof Treasure).findFirst().get().getId();
-                player.getInventory().removeIf(it -> it.getId().equals(key));
-            }
-            this.setFriendly(true);
-        } else {
+        if (isFriendly) throw new InvalidActionException("Already bribed");
+        if (!isInInteractableRadius(player)) {
             throw new InvalidActionException("Not in bribing range");
-        }
-    } else {
+        };
+        if (player.getInventory().stream().filter(it -> it instanceof Treasure).collect(Collectors.toList()).size() < getDmc().getConfigValue("bribe_amount")) {
             throw new InvalidActionException("Bribe amount is not enough");
-    }
+        }
+        for (int i = 0; i < getDmc().getConfigValue("bribe_amount"); i++) {
+            var key = player.getInventory().stream().filter(it -> it instanceof Treasure).findFirst().get().getId();
+            player.getInventory().removeIf(it -> it.getId().equals(key));
+        }
+        this.setFriendly(true);
     }
 
     public void setFriendly(boolean friendly) {

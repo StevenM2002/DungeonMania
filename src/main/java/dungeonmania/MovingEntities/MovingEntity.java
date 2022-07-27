@@ -46,12 +46,7 @@ public abstract class MovingEntity extends Entity implements CanMove, Battling {
 
     @Override
     public void move(Direction direction) {
-        Position tempPos = getPosition();
-
         CollisionManager.requestMove(this, direction);
-        if (tempPos != getPosition()) {
-            previousPosition = tempPos;
-        }
     }
 
     public Position getPreviousPosition() {
