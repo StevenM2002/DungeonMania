@@ -72,6 +72,7 @@ public class FollowMovement extends Movement {
         // If there is no way to the source then null
         if (lastVisited.get(dest) == null) return null;
         Position nextPos = lastVisited.get(dest);
+        if (nextPos.equals(source)) return dest;
         while (lastVisited.get(nextPos) != source) {
             nextPos = lastVisited.get(nextPos);
         }
