@@ -13,7 +13,7 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import dungeonmania.CollectibleEntities.MidnightArmor;
+import dungeonmania.CollectibleEntities.MidnightArmour;
 import dungeonmania.exceptions.InvalidActionException;
 import dungeonmania.response.models.BattleResponse;
 import dungeonmania.response.models.DungeonResponse;
@@ -217,12 +217,12 @@ public class InventoryEntitiesTest {
 
         dmc.tick(Direction.RIGHT);
         res = dmc.tick(Direction.RIGHT);
-        assertEquals(1, getInventory(res, "sunstone").size());
+        assertEquals(1, getInventory(res, "sun_stone").size());
         assertEquals(1, getInventory(res, "sword").size());
         res = dmc.build("midnight_armour");
-        assertEquals(0, getInventory(res, "sunstone").size());
+        assertEquals(0, getInventory(res, "sun_stone").size());
         assertEquals(0, getInventory(res, "sword").size());
-        assertEquals(1, getInventory(res, "midnight_armor").size()); // FIND WHERE THIS SPELLING MISTAKE COMES FROM
+        assertEquals(1, getInventory(res, "midnight_armour").size());
 
         // Encounters Mercenary
         dmc.tick(Direction.RIGHT);
@@ -254,11 +254,11 @@ public class InventoryEntitiesTest {
         dmc.tick(Direction.RIGHT);
         dmc.tick(Direction.RIGHT);
         res = dmc.tick(Direction.RIGHT);
-        assertEquals(1, getInventory(res, "sunstone").size());
+        assertEquals(1, getInventory(res, "sun_stone").size());
         assertEquals(1, getInventory(res, "key").size());
         assertEquals(1, getInventory(res, "wood").size());
         res = dmc.build("sceptre");
-        assertEquals(0, getInventory(res, "sunstone").size());
+        assertEquals(0, getInventory(res, "sun_stone").size());
         assertEquals(0, getInventory(res, "key").size());
         assertEquals(0, getInventory(res, "wood").size());
         assertEquals(1, getInventory(res, "sceptre").size());
@@ -275,7 +275,7 @@ public class InventoryEntitiesTest {
         dmc.tick(Direction.RIGHT);
         dmc.tick(Direction.RIGHT);
         res = dmc.tick(Direction.RIGHT);
-        assertEquals(1, getInventory(res, "sunstone").size());
+        assertEquals(1, getInventory(res, "sun_stone").size());
         assertEquals(1, getInventory(res, "treasure").size());
         assertEquals(2, getInventory(res, "arrow").size());
         res = dmc.build("sceptre");
@@ -295,7 +295,7 @@ public class InventoryEntitiesTest {
         dmc.tick(Direction.RIGHT);
         dmc.tick(Direction.RIGHT);
         res = dmc.tick(Direction.RIGHT);
-        assertEquals(2, getInventory(res, "sunstone").size());
+        assertEquals(2, getInventory(res, "sun_stone").size());
         assertEquals(1, getInventory(res, "wood").size());
         res = dmc.build("sceptre");
         assertEquals(1, getInventory(res, "sunstone").size());
@@ -314,10 +314,10 @@ public class InventoryEntitiesTest {
         dmc.tick(Direction.RIGHT);
         res = dmc.tick(Direction.RIGHT);
         assertEquals(2, getInventory(res, "wood").size());
-        assertEquals(1, getInventory(res, "sunstone").size());
+        assertEquals(1, getInventory(res, "sun_stone").size());
         res = dmc.build("shield");
         assertEquals(1, getInventory(res, "shield").size());
         assertEquals(0, getInventory(res, "wood").size());
-        assertEquals(1, getInventory(res, "sunstone").size());
+        assertEquals(1, getInventory(res, "sun_stone").size());
     }
 }

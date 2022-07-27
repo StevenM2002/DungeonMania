@@ -2,6 +2,7 @@ package dungeonmania;
 
 import org.json.JSONObject;
 
+import dungeonmania.StaticEntities.LightBulb;
 import dungeonmania.response.models.EntityResponse;
 import dungeonmania.util.Position;
 import dungeonmania.util.UtilityFunctions;
@@ -26,6 +27,9 @@ public abstract class Entity {
     }
 
     public String getType() {
+        if (this instanceof LightBulb) {
+            return ((LightBulb) this).getTypeString();
+        }
         return this.getClass().getSimpleName();
     }
 

@@ -46,7 +46,12 @@ public class EntityFactory {
                 newEntity = new Boulder(id, position);
                 break;
             case "switch":
-                newEntity = new FloorSwitch(id, position);
+                if (extraInfo.length() == 3) {
+                    newEntity = new FloorSwitch(id, position);
+                }
+                else if (extraInfo.length() == 4) {
+                    newEntity = new LogicalSwitch(id, position, extraInfo.getString("logic"), getDmc().getAllEntities());
+                }
                 break;
             case "door":
                 newEntity = new Door(id, position, extraInfo.getInt("key"));
@@ -99,7 +104,13 @@ public class EntityFactory {
                 newEntity = new CollectibleEntity(id, position, new Sword(id, config.getInt("sword_attack"), config.getInt("sword_durability")));
                 break;
             case "sun_stone":
-                newEntity = new CollectibleEntity(id, position, new Sunstone(id));
+                newEntity = new CollectibleEntity(id, position, new SunStone(id));
+                break;
+            case "light_bulb_off":
+                newEntity = new LightBulb(id, position, extraInfo.getString("logic"), getDmc().getAllEntities());
+                break;
+            case "wire":
+                newEntity = new Wire(id, position, extraInfo.getString("logic"), getDmc().getAllEntities());
                 break;
         }
         if (newEntity != null) {

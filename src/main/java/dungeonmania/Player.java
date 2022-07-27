@@ -10,7 +10,7 @@ import dungeonmania.CollectibleEntities.Sword;
 import dungeonmania.MovingEntities.Battling;
 import dungeonmania.CollectibleEntities.Bow;
 import dungeonmania.CollectibleEntities.InventoryObject;
-import dungeonmania.CollectibleEntities.MidnightArmor;
+import dungeonmania.CollectibleEntities.MidnightArmour;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
@@ -140,10 +140,10 @@ public class Player extends Entity implements CanMove, Battling {
         return null;
     }
 
-    private MidnightArmor getMidnightArmor() {
-        if (this.inventory.stream().anyMatch(e -> e instanceof MidnightArmor)) {
-            return ((MidnightArmor) this.inventory.stream()
-                    .filter(e -> e instanceof MidnightArmor)
+    private MidnightArmour getMidnightArmor() {
+        if (this.inventory.stream().anyMatch(e -> e instanceof MidnightArmour)) {
+            return ((MidnightArmour) this.inventory.stream()
+                    .filter(e -> e instanceof MidnightArmour)
                     .findFirst().get());
         }
 
@@ -191,7 +191,7 @@ public class Player extends Entity implements CanMove, Battling {
     }
 
     private double getMidnightArmorAttack() {
-        MidnightArmor midnightArmor = getMidnightArmor();
+        MidnightArmour midnightArmor = getMidnightArmor();
 
         if (midnightArmor != null) {
             return midnightArmor.getModifier();
@@ -200,7 +200,7 @@ public class Player extends Entity implements CanMove, Battling {
     }
 
     private double getMidnightArmorDefence() {
-        MidnightArmor midnightArmor = getMidnightArmor();
+        MidnightArmour midnightArmor = getMidnightArmor();
 
         if (midnightArmor != null) {
             return midnightArmor.getDefence();
@@ -219,6 +219,6 @@ public class Player extends Entity implements CanMove, Battling {
     }
     @Override
     public double dealDamage() {
-        return (getBowMod() * (getAttack() + getSwordMod()) + getMidnightArmorAttack());
+        return (getBowMod() * (getAttack() + getSwordMod() + getMidnightArmorAttack()));
     }
 }

@@ -4,7 +4,7 @@ package dungeonmania.Collisions;
 import dungeonmania.Entity;
 import dungeonmania.Player;
 import dungeonmania.CollectibleEntities.Key;
-import dungeonmania.CollectibleEntities.Sunstone;
+import dungeonmania.CollectibleEntities.SunStone;
 import dungeonmania.StaticEntities.Door;
 import dungeonmania.util.Direction;
 
@@ -25,9 +25,9 @@ public class Unlock extends Collision {
             .filter(x->door.keyMatchesDoor(x))
             .findFirst()
             .orElseGet(()->{return null;});
-        Sunstone playerSunstone = player.getInventory().stream()
-            .filter(x->(x instanceof Sunstone))
-            .map(x->(Sunstone) x)
+        SunStone playerSunstone = player.getInventory().stream()
+            .filter(x->(x instanceof SunStone))
+            .map(x->(SunStone) x)
             .findFirst()
             .orElseGet(()->{return null;});
         if (door.isLocked() && (playerKey != null || playerSunstone != null)) {
