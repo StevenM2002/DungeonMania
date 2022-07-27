@@ -12,10 +12,14 @@ public class SwitchDoor extends Door implements LogicalEntity, Switch{
     String logicalCondition;
     private int numAdjacentActivated = 0;
 
-    public SwitchDoor(String id, Position position, int key, String logicalCondition, List<Entity> allEntities) {
+    public SwitchDoor(String id, Position position, int key, String logicalCondition) {
         super(id, position, key);
         this.logicalCondition = logicalCondition;
-        List<Position> adjacentPositions = position.getAdjacentPositions();
+    }
+
+    @Override
+    public void createObserverList(List<Entity> allEntities) {
+        List<Position> adjacentPositions = this.getPosition().getAdjacentPositions();
         for (int i = 0; i < 4; i++) {
             adjacentPositions.remove(i);
         }

@@ -12,10 +12,14 @@ public class LightBulb extends StaticEntity implements LogicalEntity, Switch{
     private String logicalCondition;
     private int numAdjacentActivated = 0;
     
-    public LightBulb(String id, Position position, String logicalCondition, List<Entity> allEntities) {
+    public LightBulb(String id, Position position, String logicalCondition) {
         super(id, position, false);
         this.logicalCondition = logicalCondition;
-        List<Position> adjacentPositions = position.getAdjacentPositions();
+    }
+
+    @Override
+    public void createObserverList(List<Entity> allEntities) {
+        List<Position> adjacentPositions = this.getPosition().getAdjacentPositions();
         for (int i = 0; i < 4; i++) {
             adjacentPositions.remove(i);
         }

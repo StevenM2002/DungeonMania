@@ -50,7 +50,7 @@ public class EntityFactory {
                     newEntity = new FloorSwitch(id, position);
                 }
                 else if (extraInfo.length() == 4) {
-                    newEntity = new LogicalSwitch(id, position, extraInfo.getString("logic"), getDmc().getAllEntities());
+                    newEntity = new LogicalSwitch(id, position, extraInfo.getString("logic"));
                 }
                 break;
             case "door":
@@ -107,10 +107,10 @@ public class EntityFactory {
                 newEntity = new CollectibleEntity(id, position, new SunStone(id));
                 break;
             case "light_bulb_off":
-                newEntity = new LightBulb(id, position, extraInfo.getString("logic"), getDmc().getAllEntities());
+                newEntity = new LightBulb(id, position, extraInfo.getString("logic"));
                 break;
             case "wire":
-                newEntity = new Wire(id, position, extraInfo.getString("logic"), getDmc().getAllEntities());
+                newEntity = new Wire(id, position, extraInfo.getString("logic"));
                 break;
         }
         if (newEntity != null) {

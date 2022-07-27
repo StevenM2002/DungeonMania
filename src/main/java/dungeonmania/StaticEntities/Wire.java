@@ -12,10 +12,14 @@ public class Wire extends StaticEntity implements LogicalEntity, Switch{
     String logicalCondition;
     private int numAdjacentActivated = 0;
 
-    public Wire(String id, Position position, String logicalCondition, List<Entity> allEntities) {
+    public Wire(String id, Position position, String logicalCondition) {
         super(id, position, false);
         this.logicalCondition = logicalCondition;
-        List<Position> adjacentPositions = position.getAdjacentPositions();
+    }
+
+    @Override
+    public void createObserverList(List<Entity> allEntities) {
+        List<Position> adjacentPositions = this.getPosition().getAdjacentPositions();
         for (int i = 0; i < 4; i++) {
             adjacentPositions.remove(i);
         }

@@ -4,6 +4,7 @@ import dungeonmania.MovingEntities.MovingEntity;
 import dungeonmania.CollectibleEntities.Bomb;
 import dungeonmania.CollectibleEntities.Potion;
 import dungeonmania.MovingEntities.*;
+import dungeonmania.StaticEntities.LogicalEntity;
 import dungeonmania.StaticEntities.ZombieToastSpawner;
 
 import org.json.JSONArray;
@@ -153,6 +154,11 @@ public class DungeonManiaController {
         getDmc().goal = GoalManager.loadGoals(dungeon.optJSONObject("goal-condition"), config, battleManager);        
         PortalMatcher.configurePortals(allEntities);
         this.currTick = 0;
+        for (Entity entity : allEntities) {
+            if (entity instanceof LogicalEntity) {
+                ((LogicalEntity) entity).createObserverList(allEntities);
+            }
+        }
         return getDungeonResponseModel();
     }
 

@@ -13,10 +13,14 @@ public class LogicalSwitch extends StaticEntity implements Switch, LogicalEntity
     private LogicalEvaluator logicalEvaluator = new LogicalEvaluator();
     private int numAdjacentActivated = 0;
 
-    public LogicalSwitch(String id, Position position, String logicalCondition, List<Entity> allEntities) {
+    public LogicalSwitch(String id, Position position, String logicalCondition) {
         super(id, position, false);
         this.logicalCondition = logicalCondition;
-        List<Position> adjacentPositions = position.getAdjacentPositions();
+    }
+
+    @Override
+    public void createObserverList(List<Entity> allEntities) {
+        List<Position> adjacentPositions = this.getPosition().getAdjacentPositions();
         for (int i = 0; i < 4; i++) {
             adjacentPositions.remove(i);
         }
