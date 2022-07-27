@@ -53,7 +53,6 @@ public class Mercenary extends MovingEntity implements PlayerListener, Interacta
     public void interact(Player player) throws InvalidActionException {
         if (isFriendly) throw new InvalidActionException("Already bribed");
         if (!isInInteractableRadius(player)) {
-            System.out.println("AAA");
             throw new InvalidActionException("Not in bribing range");
         };
         if (player.getInventory().stream().filter(it -> it instanceof Treasure).collect(Collectors.toList()).size() < getDmc().getConfigValue("bribe_amount")) {

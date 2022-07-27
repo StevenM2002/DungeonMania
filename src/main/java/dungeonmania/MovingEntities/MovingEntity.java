@@ -37,21 +37,16 @@ public abstract class MovingEntity extends Entity implements CanMove, Battling {
         this.movementStrategy = movementStrategy;
     }
     public void doTickMovement() {
-//        if (stuckAmount > 0) {
-//            stuckAmount -= 1;
-//        } else {
+        if (stuckAmount > 0) {
+            stuckAmount -= 1;
+        } else {
             movementStrategy.moveEntity(this);
-//        }
+        }
     }
 
     @Override
     public void move(Direction direction) {
-//        Position tempPos = getPosition();
-
         CollisionManager.requestMove(this, direction);
-//        if (tempPos != getPosition()) {
-//            previousPosition = tempPos;
-//        }
     }
 
     public Position getPreviousPosition() {
