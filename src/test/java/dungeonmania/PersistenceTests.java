@@ -25,13 +25,13 @@ public class PersistenceTests {
         assertEquals(prev.getDungeonName(), load.getDungeonName());
         assertEquals(prev.getGoals(), load.getGoals());
         for (EntityResponse e : prev.getEntities()) {
-            assertTrue(load.getEntities().stream().filter(x->x.equals(e)).count() == 1);
+            assertEquals(1, load.getEntities().stream().filter(x->x.equals(e)).count());
         }
         for (ItemResponse i : prev.getInventory()) {
-            assertTrue(load.getInventory().stream().filter(x->x.equals(i)).count() == 1);
+            assertEquals(1, load.getInventory().stream().filter(x->x.equals(i)).count());
         }
         for (String b : prev.getBuildables()) {
-            assertTrue(load.getBuildables().stream().filter(x->x.equals(b)).count() == 1);
+            assertEquals(1, load.getBuildables().stream().filter(x->x.equals(b)).count());
         }
         for (int i = 0; i < prev.getBattles().size() && i < load.getBattles().size(); i++) {
             assertEquals(prev.getBattles().get(i), load.getBattles().get(i));

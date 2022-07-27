@@ -191,14 +191,14 @@ public class DungeonManiaController {
         for (Entity e : getDmc().getAllEntities()) {
             entityList.add(e.getEntityResponse());
         }
-        ArrayList<BattleResponse> battleList = (ArrayList<BattleResponse>) battleManager.getBattleList();        
+        ArrayList<BattleResponse> battleList = (ArrayList<BattleResponse>) getDmc().getBattleManager().getBattleList();
         // creating inventory object list
         // NOTE: checks that player is still alive
         String goals = "dead";
         List<ItemResponse> inventoryList = new ArrayList<>();
         List<String> buildablesList = new ArrayList<>();
         if (getPlayer() != null) {
-            goals = goal.getTypeString(getPlayer(), getDmc().getAllEntities());
+            goals = getDmc().goal.getTypeString(getPlayer(), getDmc().getAllEntities());
             if (getDmc().getAllEntities().stream().anyMatch(e -> e instanceof Player)) {
                 for (InventoryObject i : getPlayer().getInventory()) {
                     inventoryList.add(i.getItemResponse());
@@ -208,7 +208,7 @@ public class DungeonManiaController {
         }
         return new DungeonResponse(
             getDungeonID(), 
-            dungeonName, 
+            getDmc().dungeonName, 
             entityList, 
             inventoryList, 
             battleList, 
@@ -327,14 +327,12 @@ public class DungeonManiaController {
         } catch (IOException | NullPointerException e) {
             throw new IllegalArgumentException("Could not find saved game with name: "+name);
         }
-
-
+        loadGameFromJSON(loadedDungeon);
         return getDungeonResponseModel();
     }
 
     public static void loadGameFromJSON(JSONObject savedDungeon) {
-
-        loadGameFromJSON(savedDungeon, 0);
+        loadGameFromJSON(savedDungeon, savedDungeon.getJSONArray("ticks").length() - 1);
     }
 
     /**
@@ -344,7 +342,6 @@ public class DungeonManiaController {
      * @param tick
      */
     private static void loadGameFromJSON(JSONObject savedDungeon, int tick) {
-        //dmc = new DungeonManiaController(); // might cause problems if things still dont use getDmc
         dmc.config = savedDungeon.getJSONObject("config");
         dmc.dungeonName = savedDungeon.getString("dungeonName");
         dmc.currentDungeonID = savedDungeon.getInt("currentDungeonID");
@@ -375,7 +372,7 @@ public class DungeonManiaController {
         }
         PotionManager.setPotionQueue(potionQueue);
 
-
+        dmc.allEntities = new ArrayList<>();
         // Loading the entities. Loads the player first (to avoid null pointer errors with subscriptions)
         for (int i = 0; i < currentTick.getJSONArray("entities").length(); i++) {
             if (currentTick.getJSONArray("entities").getJSONObject(i).getString("type").equals("player")) {
@@ -389,6 +386,10 @@ public class DungeonManiaController {
             }
 
         }
+
+        //loading the battles
+        dmc.battleManager = new BattleManager(currentTick.getJSONArray("battleList"));
+
         dmc.goal = GoalManager.loadGoals(savedDungeon.getJSONObject("goal-condition"), dmc.config, dmc.battleManager);
     }
 

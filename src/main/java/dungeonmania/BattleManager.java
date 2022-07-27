@@ -28,6 +28,28 @@ public class BattleManager {
     public BattleManager() {
         this.battleList = new ArrayList<>();
     }
+    /**
+     * constructs the battle manager from a jsonArray containing a previously
+     * used battleList
+     * @param battleListJSON
+     */
+    public BattleManager(JSONArray battleListJSON) {
+        this.battleList = new ArrayList<>();
+        for (int i = 0; i < battleListJSON.length(); i++) {
+            JSONObject battle = battleListJSON.getJSONObject(i);
+            List<RoundResponse> rounds = new ArrayList<>();
+            for (int j = 0; j < battle.getJSONArray("rounds").length(); j++) {
+                JSONObject round = battle.getJSONArray("rounds").getJSONObject(j);
+                List<ItemResponse> weaponryUsed = new ArrayList<>();
+                for (int l = 0; l < round.getJSONArray("weaponryUsed").length(); l++) {
+                    JSONObject weapon = round.getJSONArray("weaponryUsed").getJSONObject(l);
+                    weaponryUsed.add(new ItemResponse(weapon.getString("id"), weapon.getString("type")));
+                }
+                rounds.add(new RoundResponse(round.getDouble("deltaPlayerHealth"), round.getDouble("deltaEnemyHealth"), weaponryUsed));
+            }
+            battleList.add(new BattleResponse(battle.getString("enemy"), rounds, battle.getDouble("initialPlayerHealth"), battle.getDouble("initialEnemyHealth")));
+        }
+    }
 
 
     private static boolean hasBow(List<InventoryObject> inventory) {
@@ -130,26 +152,5 @@ public class BattleManager {
         return JSONBattleList;
     }
 
-    /**
-     * constructs the battle manager from a jsonArray containing a previously
-     * used battleList
-     * @param battleListJSON
-     */
-    public BattleManager(JSONArray battleListJSON) {
-        this.battleList = new ArrayList<>();
-        for (int i = 0; i < battleListJSON.length(); i++) {
-            JSONObject battle = battleListJSON.getJSONObject(i);
-            List<RoundResponse> rounds = new ArrayList<>();
-            for (int j = 0; j < battle.getJSONArray("rounds").length(); j++) {
-                JSONObject round = battle.getJSONArray("rounds").getJSONObject(j);
-                List<ItemResponse> weaponryUsed = new ArrayList<>();
-                for (int l = 0; l < round.getJSONArray("weaponryUsed").length(); l++) {
-                    JSONObject weapon = round.getJSONArray("weaponryUsed").getJSONObject(l);
-                    weaponryUsed.add(new ItemResponse(weapon.getString("id"), weapon.getString("type")));
-                }
-                rounds.add(new RoundResponse(round.getDouble("deltaPlayerHealth"), round.getDouble("deltaEnemyHealth"), weaponryUsed));
-            }
-            battleList.add(new BattleResponse(battle.getString("enemy"), rounds, battle.getDouble("initialPlayerHealth"), battle.getDouble("initialEnemyHealth")));
-        }
-    }
+
 }
