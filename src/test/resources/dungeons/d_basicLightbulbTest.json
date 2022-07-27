@@ -4,12 +4,12 @@
             "type" : "light_bulb_off",
             "x" : 1,
             "y" : 1,
-            "logic" : "OR"
+            "logic" : "or"
         }, {
             "type" : "switch",
             "x" : 2,
             "y" : 1,
-            "logic" : "OR"
+            "logic" : "or"
         },{
             "type" : "boulder",
             "x" : 3,

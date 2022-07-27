@@ -12,6 +12,7 @@ public class LogicalSwitch extends StaticEntity implements Switch, LogicalEntity
     private String logicalCondition;
     private LogicalEvaluator logicalEvaluator = new LogicalEvaluator();
     private int numAdjacentActivated = 0;
+    private int numAdjacentActivatedPrev = 0;
 
     public LogicalSwitch(String id, Position position, String logicalCondition) {
         super(id, position, false);
@@ -33,6 +34,7 @@ public class LogicalSwitch extends StaticEntity implements Switch, LogicalEntity
 
     @Override
     public void changeNumAdjacentActivated(int change) {
+        this.numAdjacentActivatedPrev = this.numAdjacentActivated;
         this.numAdjacentActivated += change;
         evaluateLogic();
     }
@@ -95,7 +97,7 @@ public class LogicalSwitch extends StaticEntity implements Switch, LogicalEntity
 
     @Override
     public void evaluateLogic() {
-        if (logicalEvaluator.evaluate(observers, logicalCondition, numAdjacentActivated)) {
+        if (logicalEvaluator.evaluate(observers, logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev)) {
             setActivated(true);
         }
         else {

@@ -11,6 +11,7 @@ public class LightBulb extends StaticEntity implements LogicalEntity, Switch{
     private LogicalEvaluator logicalEvaluator = new LogicalEvaluator();
     private String logicalCondition;
     private int numAdjacentActivated = 0;
+    private int numAdjacentActivatedPrev = 0;
     
     public LightBulb(String id, Position position, String logicalCondition) {
         super(id, position, false);
@@ -70,6 +71,7 @@ public class LightBulb extends StaticEntity implements LogicalEntity, Switch{
 
     @Override
     public void changeNumAdjacentActivated(int change) {
+        this.numAdjacentActivatedPrev = this.numAdjacentActivated;
         this.numAdjacentActivated += change;
         evaluateLogic();
     }
@@ -91,7 +93,7 @@ public class LightBulb extends StaticEntity implements LogicalEntity, Switch{
     
     @Override
     public void evaluateLogic() {
-        if (logicalEvaluator.evaluate(observers, logicalCondition, numAdjacentActivated)) {
+        if (logicalEvaluator.evaluate(observers, logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev)) {
             setActivated(true);
         }
         else {

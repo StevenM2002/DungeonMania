@@ -4,31 +4,36 @@ import dungeonmania.util.Position;
 import java.util.List;
 
 public class LogicalEvaluator {
-    public Boolean evaluate(List<LogicalEntity> observers, String logicalCondition, int numActivated) {
+    public Boolean evaluate(List<LogicalEntity> observers, String logicalCondition, int numActivated, int numActivatedPrev) {
         switch (logicalCondition) {
-            case "AND":
+            case "and":
                 if (numActivated >= 2) {
                     return true;
                 }
                 else {
                     return false;
                 }
-            case "OR":
+            case "or":
                 if (numActivated >= 1) {
                     return true;
                 }
                 else {
                     return false;
                 }
-            case "XOR":
+            case "xor":
                 if (numActivated == 1) {
                     return true;
                 }
                 else {
                     return false;
                 }
-            case "CO_AND":
-            // shit
+            case "co_and":
+                if (numActivated >= 2 && numActivated > numActivatedPrev + 1) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
         }
         return null;
     }

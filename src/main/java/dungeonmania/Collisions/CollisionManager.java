@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import dungeonmania.Entity;
 import dungeonmania.MovingEntities.Mercenary;
 import dungeonmania.StaticEntities.Switch;
+import dungeonmania.StaticEntities.LogicalEntity;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
@@ -151,7 +152,7 @@ public class CollisionManager {
      */
     public static void deactivateSwitches() {
         getDmc().getAllEntities().stream()
-            .filter(x->(x instanceof Switch))
+            .filter(x->(x instanceof Switch && !(x instanceof LogicalEntity)))
             .map(x->(Switch) x)
             .forEach(x->{
                 Entity e = (Entity) x;

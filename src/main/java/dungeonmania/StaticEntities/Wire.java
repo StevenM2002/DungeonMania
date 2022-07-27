@@ -11,6 +11,7 @@ public class Wire extends StaticEntity implements LogicalEntity, Switch{
     Boolean activated = false;
     String logicalCondition;
     private int numAdjacentActivated = 0;
+    private int numAdjacentActivatedPrev = 0;
 
     public Wire(String id, Position position, String logicalCondition) {
         super(id, position, false);
@@ -61,6 +62,7 @@ public class Wire extends StaticEntity implements LogicalEntity, Switch{
     
     @Override
     public void changeNumAdjacentActivated(int change) {
+        this.numAdjacentActivatedPrev = this.numAdjacentActivated;
         this.numAdjacentActivated += change;
         evaluateLogic();
     }
@@ -83,7 +85,7 @@ public class Wire extends StaticEntity implements LogicalEntity, Switch{
 
     @Override
     public void evaluateLogic() {
-        if (logicalEvaluator.evaluate(observers, logicalCondition, numAdjacentActivated)) {
+        if (logicalEvaluator.evaluate(observers, logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev)) {
             setActivated(true);
         }
         else {

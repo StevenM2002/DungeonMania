@@ -11,6 +11,7 @@ public class SwitchDoor extends Door implements LogicalEntity, Switch{
     Boolean activated = false;
     String logicalCondition;
     private int numAdjacentActivated = 0;
+    private int numAdjacentActivatedPrev = 0;
 
     public SwitchDoor(String id, Position position, int key, String logicalCondition) {
         super(id, position, key);
@@ -61,6 +62,7 @@ public class SwitchDoor extends Door implements LogicalEntity, Switch{
     
     @Override
     public void changeNumAdjacentActivated(int change) {
+        this.numAdjacentActivatedPrev = this.numAdjacentActivated;
         this.numAdjacentActivated += change;
         evaluateLogic();
     }
@@ -82,7 +84,7 @@ public class SwitchDoor extends Door implements LogicalEntity, Switch{
 
     @Override
     public void evaluateLogic() {
-        if (logicalEvaluator.evaluate(observers, logicalCondition, numAdjacentActivated)) {
+        if (logicalEvaluator.evaluate(observers, logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev)) {
             setActivated(true);
         }
         else {
