@@ -148,6 +148,8 @@ public class DungeonManiaController {
     public DungeonResponse newGame(String dungeonName, String configName) throws IllegalArgumentException {
         // Initialising the new dungeon
         EntityFactory.setCurrentEntityID(0);
+        CraftingManager.setIDCounter(0);
+        PotionManager.initPotionManager();
         initDmc(dungeonName);        
         JSONObject dungeon = null;
         JSONObject config = null;

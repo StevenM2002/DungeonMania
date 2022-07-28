@@ -60,6 +60,7 @@ public class PersistenceTests {
     @Test
     @DisplayName("Test moving before save")
     public void testSaveAfterMovement() {
+        System.out.println("test move before");
         DungeonManiaController dmc = new DungeonManiaController();
         dmc.newGame("d_persistenceTests_advanced", "c_persistenceTests");
         dmc.tick(Direction.RIGHT);
@@ -73,6 +74,7 @@ public class PersistenceTests {
     @Test
     @DisplayName("Test moving after loading")
     public void testMoveAfterLoad() {
+        System.out.println("test move after");
         DungeonManiaController dmc = new DungeonManiaController();
         dmc.newGame("d_persistenceTests_advanced", "c_persistenceTests");
         dmc.saveGame("MoveAfterSave");
@@ -85,6 +87,7 @@ public class PersistenceTests {
     @Test
     @DisplayName("Test after using potion")
     public void testSaveAfterPotion() {
+        System.out.println("test  potion");
         DungeonManiaController dmc = new DungeonManiaController();
         dmc.newGame("d_persistenceTests_advanced", "c_persistenceTests");
         dmc.tick(Direction.RIGHT);
@@ -103,6 +106,7 @@ public class PersistenceTests {
     @Test
     @DisplayName("Test after using other potion")
     public void testSaveAfterOtherPotion() {
+        System.out.println("test other potion");
         DungeonManiaController dmc = new DungeonManiaController();
         dmc.newGame("d_persistenceTests_advanced", "c_persistenceTests");
         dmc.tick(Direction.RIGHT);
@@ -121,6 +125,7 @@ public class PersistenceTests {
     @Test
     @DisplayName("Test door unlocked")
     public void testDoorUnlocked() {
+        System.out.println("testing door unlocked");
         DungeonManiaController dmc = new DungeonManiaController();
         dmc.newGame("d_persistenceTests_advanced", "c_persistenceTests");
         dmc.tick(Direction.DOWN);
@@ -134,6 +139,8 @@ public class PersistenceTests {
     @Test
     @DisplayName("Test after battling a zombie toast")
     public void testAfterBattles() {
+        System.out.println("test after battles");
+
         DungeonManiaController dmc = new DungeonManiaController();
         dmc.newGame("d_battleTest_basicZombieToast", "c_persistenceTests");
         dmc.tick(Direction.RIGHT);
@@ -148,7 +155,6 @@ public class PersistenceTests {
     public void testAfterBribe() {
         // sleep to make sure prev
         System.out.println("testing bribe");
-        try {Thread.sleep(1000);} catch (InterruptedException e){System.err.println("sleep failed");}
         DungeonManiaController dmc = new DungeonManiaController();
         DungeonResponse initResponse = dmc.newGame("d_percistenceTests_mercenaryBribe", "c_persistenceTests");
         dmc.tick(Direction.RIGHT);

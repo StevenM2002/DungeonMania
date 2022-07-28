@@ -37,9 +37,7 @@ public abstract class MovingEntity extends Entity implements CanMove, Battling {
         this.movementStrategy = movementStrategy;
     }
     public void doTickMovement() {
-        System.out.println(getType()+" doing tick movement from pos: "+getPosition());
         if (stuckAmount > 0) {
-            System.out.println(getType()+" stuck ");
             stuckAmount -= 1;
         } else {
             movementStrategy.moveEntity(this);

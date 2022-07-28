@@ -48,7 +48,6 @@ public class EntityFactory {
      * @param extraInfo - used when creating portals, keys and doors, otherwise leave null
      */
     public static Entity createEntity(String id, String type, Position position, JSONObject extraInfo) {
-        //System.out.println("id: "+id+", type: "+type+", pos: "+position.toString());
         JSONObject config = getDmc().getConfig();
         if (extraInfo == null) extraInfo = new JSONObject();
         Entity newEntity = null;

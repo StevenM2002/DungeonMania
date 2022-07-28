@@ -9,6 +9,11 @@ public class PotionManager {
     private static Potion currPotion = null;
     private static Queue<Potion> potionQueue = new LinkedBlockingQueue<>();
     
+    public static void initPotionManager() {
+        currPotion = null;
+        potionQueue = new LinkedBlockingQueue<>();
+    }
+
     public static void addPotionEffect(int duration, Potion potion) {
         for (int i = 0; i < duration; i++) {
             potionQueue.add(potion);
