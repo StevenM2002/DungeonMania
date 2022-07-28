@@ -250,14 +250,6 @@ public class DungeonManiaController {
         }
 
         CollisionManager.deactivateSwitches();
-        // Evaluate logic on all logical entities
-        // Set all of the preNumActivated for the logical entities
-        for (LogicalEntity logicalEntity : getDmc().getAllEntities().stream()
-        .filter(entity -> (entity instanceof LogicalEntity))
-        .map(entity -> (LogicalEntity) entity)
-        .collect(Collectors.toList())) {
-            logicalEntity.evaluateLogic();
-        }
         if (getDmc().getPlayer() == null) return; // if player is killed
         goal.hasCompleted(getDmc().getPlayer(), getDmc().getAllEntities());
     }

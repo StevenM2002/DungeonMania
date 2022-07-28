@@ -33,7 +33,7 @@ public class LogicSwitchesTests {
         res = dmc.tick(Direction.LEFT);
         assertEquals(1, getEntities(res, "light_bulb_on").size());
         assertEquals(0, getEntities(res, "light_bulb_off").size());
-        // test stuff lightbulb deactivates when boulder is pushed off
+        // test lightbulb deactivates when boulder is pushed off
         dmc.tick(Direction.UP);
         dmc.tick(Direction.LEFT);
         res = dmc.tick(Direction.DOWN);
@@ -50,13 +50,13 @@ public class LogicSwitchesTests {
         assertEquals(0, getEntities(res, "light_bulb_on").size());
         assertEquals(1, getEntities(res, "light_bulb_off").size());
         // Move the player to the other boulder to activate the other switch. This should turn the lightbulb on
-        dmc.tick(Direction.UP);
-        dmc.tick(Direction.UP);
-        dmc.tick(Direction.UP);
-        dmc.tick(Direction.UP);
+        dmc.tick(Direction.DOWN);
+        dmc.tick(Direction.DOWN);
+        dmc.tick(Direction.DOWN);
+        dmc.tick(Direction.DOWN);
         dmc.tick(Direction.LEFT);
         dmc.tick(Direction.LEFT);
-        res = dmc.tick(Direction.DOWN);
+        res = dmc.tick(Direction.UP);
         assertEquals(1, getEntities(res, "light_bulb_on").size());
         assertEquals(0, getEntities(res, "light_bulb_off").size());
     }
