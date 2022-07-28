@@ -77,7 +77,6 @@ public class BattleManager {
     public void doBattle(Player player, MovingEntity enemy) {
         double initialEnemyHealth = enemy.getHealth();
         double initialPlayerHealth = player.getHealth();
-
         List<RoundResponse> rounds = doRounds(player, enemy);
         battleList.add(
             new BattleResponse(

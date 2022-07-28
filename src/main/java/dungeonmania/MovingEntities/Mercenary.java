@@ -2,6 +2,7 @@ package dungeonmania.MovingEntities;
 
 import java.util.stream.Collectors;
 
+import dungeonmania.CollectibleEntities.Potion;
 import org.json.JSONObject;
 
 import dungeonmania.Player;
@@ -11,7 +12,6 @@ import dungeonmania.util.Position;
 
 import dungeonmania.CollectibleEntities.InvincibilityPotion;
 import dungeonmania.CollectibleEntities.InvisibilityPotion;
-import dungeonmania.PlayerDataArgs;
 import dungeonmania.PlayerListener;
 import static dungeonmania.DungeonManiaController.getDmc;
 
@@ -22,15 +22,14 @@ public class Mercenary extends MovingEntity implements PlayerListener, Interacta
         super(id, position, true, health, attack, new FollowMovement());
     }
 
-
     @Override
-    public void update(PlayerDataArgs data) {
+    public void update(Potion potion) {
         if (isFriendly) return;
-        if (data.getPotion() == null) {
+        if (potion == null) {
             setMovementStrategy(new FollowMovement());
-        } else if (data.getPotion() instanceof InvisibilityPotion) {
+        } else if (potion instanceof InvisibilityPotion) {
             setMovementStrategy(new RandomMovement());
-        } else if (data.getPotion() instanceof InvincibilityPotion) {
+        } else if (potion instanceof InvincibilityPotion) {
             setMovementStrategy(new RunningMovement());
         }
     }

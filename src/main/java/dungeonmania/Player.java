@@ -91,12 +91,10 @@ public class Player extends Entity implements CanMove, Battling {
     }
     public void doPotionTick() {
         Potion potion = potionManager.getNextEffect();
-        PlayerDataArgs data = new PlayerDataArgs();
-        data.setPotion(potion);
-        notify(data);
+        notify(potion);
     }
-    public void notify(PlayerDataArgs data) {
-        subscribers.forEach(publisherListener -> publisherListener.update(data));
+    public void notify(Potion potion) {
+        subscribers.forEach(publisherListener -> publisherListener.update(potion));
     }
 
     public Potion getCurrentEffect() {

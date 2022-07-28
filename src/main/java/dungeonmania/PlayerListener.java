@@ -1,5 +1,7 @@
 package dungeonmania;
 
+import dungeonmania.CollectibleEntities.Potion;
+
 public interface PlayerListener {
-    void update(PlayerDataArgs data);
+    void update(Potion potion);
 }
