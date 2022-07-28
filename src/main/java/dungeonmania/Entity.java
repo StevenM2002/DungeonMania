@@ -6,6 +6,8 @@ import dungeonmania.response.models.EntityResponse;
 import dungeonmania.util.Position;
 import dungeonmania.util.UtilityFunctions;
 
+import java.util.Objects;
+
 public abstract class Entity {
     private String id;
     private Position position;
@@ -63,6 +65,10 @@ public abstract class Entity {
             return e.getId() == this.getId();
         }
         return false;
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
     public JSONObject toJSON() {
         JSONObject newJSON = new JSONObject();

@@ -6,14 +6,9 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import dungeonmania.CollectibleEntities.Potion;
+import dungeonmania.CollectibleEntities.*;
 import dungeonmania.Collisions.CollisionManager;
-import dungeonmania.CollectibleEntities.Shield;
-import dungeonmania.CollectibleEntities.Sword;
 import dungeonmania.MovingEntities.Battling;
-import dungeonmania.CollectibleEntities.Bow;
-import dungeonmania.CollectibleEntities.InventoryObject;
-import dungeonmania.CollectibleEntities.MidnightArmor;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
@@ -44,6 +39,10 @@ public class Player extends Entity implements CanMove, Battling {
     }
 
 
+
+    public void removeInventoryItem(InventoryObject item) {
+        inventory.remove(item);
+    }
 
     public Position getPreviousPosition() {
         return previousPosition;
@@ -123,12 +122,10 @@ public class Player extends Entity implements CanMove, Battling {
     }
     public void doPotionTick() {
         Potion potion = PotionManager.getNextEffect();
-        PlayerDataArgs data = new PlayerDataArgs();
-        data.setPotion(potion);
-        notify(data);
+        notify(potion);
     }
-    public void notify(PlayerDataArgs data) {
-        subscribers.forEach(publisherListener -> publisherListener.update(data));
+    public void notify(Potion potion) {
+        subscribers.forEach(publisherListener -> publisherListener.update(potion));
     }
 
     public Potion getCurrentEffect() {
@@ -241,6 +238,7 @@ public class Player extends Entity implements CanMove, Battling {
 
     @Override
     public double takeDamage(double damage) {
+        if (PotionManager.getCurrPotion() instanceof InvincibilityPotion) return 0;
         double damageTaken = (damage  - getShieldMod() - getMidnightArmorDefence()) / 10;
         if (health - damageTaken < 0) {
             damageTaken = health;

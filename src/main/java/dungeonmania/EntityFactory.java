@@ -144,6 +144,13 @@ public class EntityFactory {
             case "sun_stone":
                 newEntity = new CollectibleEntity(id, position, new Sunstone(id));
                 break;
+            case "active_bomb":
+                newEntity = new ActiveBomb(id, position, false);
+                break;
+            case "assassin":
+                newEntity = new Assassin(id, position, true, config.getInt("assassin_health"), config.getInt("assassin_attack"), new FollowMovement());
+                getDmc().getPlayer().subscribe((PlayerListener) newEntity);
+                break;
         }
         if (newEntity != null) {
             getDmc().getAllEntities().add(newEntity);
