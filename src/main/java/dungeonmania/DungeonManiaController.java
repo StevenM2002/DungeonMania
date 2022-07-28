@@ -328,7 +328,6 @@ public class DungeonManiaController {
      * /game/save
      */
     public DungeonResponse saveGame(String name) throws IllegalArgumentException {
-        System.out.println("saving the game");
         getDmc().dungeonSaver.saveToFile(name);
         // Sleep to give time to establish file before loading
         try {Thread.sleep(1000);} catch (InterruptedException e){System.err.println("sleep failed");}
@@ -370,7 +369,6 @@ public class DungeonManiaController {
         // per tick
         
         JSONObject currentTick = savedDungeon.getJSONArray("ticks").getJSONObject(tick);
-        System.out.println(currentTick.getInt("tick"));
         // setting id counters
         EntityFactory.setCurrentEntityID(currentTick.getInt("currentEntityID"));
         CraftingManager.setIDCounter(currentTick.getInt("currentCraftingID"));

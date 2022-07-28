@@ -49,7 +49,7 @@ public class Assassin extends MovingEntity implements PlayerListener, Interactab
     private boolean isGoingToFail() {
         var rand = new Random();
         var failRate = getDmc().getConfig().getDouble("assassin_bribe_fail_rate");
-        return rand.nextDouble(1) < failRate;
+        return rand.nextDouble() < failRate;
     }
     private void removeTreasureFromPlayer(int amountToRemove, Player player) {
         for (int i = 0; i < amountToRemove; i++) {

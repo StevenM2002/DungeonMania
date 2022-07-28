@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import dungeonmania.MovingEntities.Mercenary;
 import org.junit.jupiter.api.Test;
 
 import dungeonmania.DungeonManiaController;
@@ -54,7 +53,6 @@ public class TestMercenary {
         DungeonManiaController dmc;
         dmc = new DungeonManiaController();
         DungeonResponse res = dmc.newGame("d_Test_MercenaryWalls", "c_battleTests_basicMercenaryMercenaryDies");
-        Position pos = getEntities(res, "mercenary").get(0).getPosition();
         res = dmc.tick(Direction.RIGHT);
         assertEquals(new Position(0, 1), getEntities(res, "mercenary").get(0).getPosition());
         res = dmc.tick(Direction.RIGHT);

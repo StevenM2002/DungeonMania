@@ -146,12 +146,19 @@ public class PersistenceTests {
     @Test
     @DisplayName("Test after bribing the mercenary")
     public void testAfterBribe() {
+        // sleep to make sure prev
+        System.out.println("testing bribe");
+        try {Thread.sleep(1000);} catch (InterruptedException e){System.err.println("sleep failed");}
         DungeonManiaController dmc = new DungeonManiaController();
         DungeonResponse initResponse = dmc.newGame("d_percistenceTests_mercenaryBribe", "c_persistenceTests");
-        EntityResponse mercenary = initResponse.getEntities().stream().filter(x->x.getType().equals("mercenary")).findFirst().get();
         dmc.tick(Direction.RIGHT);
         dmc.tick(Direction.RIGHT);
         dmc.tick(Direction.RIGHT);
+        DungeonResponse finalTickRes = dmc.getDungeonResponseModel();
+        EntityResponse mercenary = finalTickRes.getEntities().stream().filter(x->x.getType().equals("mercenary")).findFirst().get();
+        EntityResponse player = finalTickRes.getEntities().stream().filter(x->x.getType().equals("player")).findFirst().get();
+        System.out.println("player pos"+player.getPosition().toString());
+        System.out.println("merc pos: "+mercenary.getPosition().toString());
         assertDoesNotThrow(()->dmc.interact(mercenary.getId()));
         DungeonResponse saveResponse = dmc.saveGame("BribeSave");
         DungeonManiaController dmc2 = new DungeonManiaController();

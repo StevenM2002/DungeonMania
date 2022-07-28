@@ -6,7 +6,6 @@ import dungeonmania.Player;
 import dungeonmania.response.models.EntityResponse;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
-import dungeonmania.util.UtilityFunctions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
