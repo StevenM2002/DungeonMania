@@ -15,9 +15,4 @@ public class Bomb extends InventoryObject implements MapCollectible {
         this.radius = radius;
     }
 
-    // if next to active switch, destroy all non-player entities in range on the
-    // same tick it was placed.
-    public void detonate() {
-
-    }
 }
