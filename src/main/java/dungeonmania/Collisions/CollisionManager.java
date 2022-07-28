@@ -3,6 +3,7 @@ package dungeonmania.Collisions;
 import java.util.ArrayList;
 
 import dungeonmania.Entity;
+import dungeonmania.MovingEntities.Assassin;
 import dungeonmania.MovingEntities.Mercenary;
 import dungeonmania.StaticEntities.Switch;
 import dungeonmania.util.Direction;
@@ -62,6 +63,12 @@ public class CollisionManager {
                             return initCollision("Pass");
                         }
                         return initCollision("Battle");
+                    case "Assassin":
+                        Assassin ass = (Assassin) collided;
+                        if (ass.isFriendly()) {
+                            return initCollision("Pass");
+                        }
+                        return initCollision("Battle");
                     case "ZombieToast":
                         return initCollision("Battle");
                     case "Hydra":
@@ -97,6 +104,15 @@ public class CollisionManager {
                     case "Player":
                         Mercenary merc = (Mercenary) moved;
                         if (merc.isFriendly()) return initCollision("Block");
+                }
+                break;
+            case "Assassin":
+                switch (collided.getType()) {
+                    case "Portal":
+                        return initCollision("Teleport");
+                    case "Player":
+                        Assassin ass = (Assassin) moved;
+                        if (ass.isFriendly()) return initCollision("Block");
                 }
                 break;
             case "Spider":

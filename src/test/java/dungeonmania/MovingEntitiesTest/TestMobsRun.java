@@ -1,5 +1,6 @@
 package dungeonmania.MovingEntitiesTest;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static dungeonmania.TestUtils.getEntities;
 import static dungeonmania.TestUtils.getInventory;
@@ -41,17 +42,10 @@ public class TestMobsRun {
         int x1 = posZombie.getX();
         int y1 = posZombie.getY();
         movementTrajectory2.add(new Position(x1 - 1, y1));
-
-        try {
-            res = dmc.tick(getInventory(res, "invincibility_potion").get(0).getId());
-            assertEquals(movementTrajectory.get(nextPositionElement1),
-                    getEntities(res, "mercenary").get(0).getPosition());
-            assertEquals(movementTrajectory.get(nextPositionElement2),
-                    getEntities(res, "zombie_toast").get(0).getPosition());
-        } catch (IllegalArgumentException | InvalidActionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        DungeonResponse finalRes = res;
+        assertDoesNotThrow(() -> dmc.tick(getInventory(finalRes, "invincibility_potion").get(0).getId()));
+        res = dmc.getDungeonResponseModel();
+        assertEquals(movementTrajectory.get(nextPositionElement1), getEntities(res, "mercenary").get(0).getPosition());
 
     }
 }
