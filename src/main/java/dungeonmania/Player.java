@@ -3,6 +3,9 @@ package dungeonmania;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import dungeonmania.CollectibleEntities.*;
 import dungeonmania.Collisions.CollisionManager;
 import dungeonmania.MovingEntities.Battling;
@@ -14,12 +17,28 @@ public class Player extends Entity implements CanMove, Battling {
     private List<InventoryObject> inventory = new ArrayList<>();
     private double attack;
     private double health;
+    private List<PlayerListener> subscribers = new ArrayList<>();
+
     
     public Player(String id, Position position, double health, double attack) {
         super(id, position, false);
         this.health = health;
         this.attack = attack;
     }
+    public Player(String id, Position position, Position previousPosition,
+            JSONArray inventory, double attack, double health) {
+        super(id, position, false);
+        this.previousPosition = previousPosition;
+        this.attack = attack;
+        this.health = health;
+        for (int i = 0; i < inventory.length(); i++) {
+            JSONObject item = inventory.getJSONObject(i);
+            this.inventory.add(ItemFactory.createItem(item.getString("type"), item.getString("id"), item));
+        }
+        
+    }
+
+
 
     public void removeInventoryItem(InventoryObject item) {
         inventory.remove(item);
@@ -62,10 +81,23 @@ public class Player extends Entity implements CanMove, Battling {
         return "Battle";
     }
 
+    @Override
+    public JSONObject toJSON() {
+        JSONObject newJSON = super.toJSON();
+        newJSON.put("health", health);
+        newJSON.put("prevX", previousPosition.getX());
+        newJSON.put("prevY", previousPosition.getY());
+        newJSON.put("inventory", new JSONArray());
+        for (InventoryObject i : inventory) {
+            newJSON.getJSONArray("inventory").put(i.toJSON());
+        }
+        return newJSON;
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     //                            Potion Logic                                //
     ////////////////////////////////////////////////////////////////////////////
-    private List<PlayerListener> subscribers = new ArrayList<>();
+
     
     // String is the event which the listener wants to subscribe to
     // This includes:
@@ -74,7 +106,6 @@ public class Player extends Entity implements CanMove, Battling {
         subscribers.add(subscriber);
     }
 
-    private PotionManager potionManager = new PotionManager();
 
     /**
      * Assuming id given is to a potion
@@ -86,11 +117,11 @@ public class Player extends Entity implements CanMove, Battling {
             return;
         }
         Potion potion = (Potion) inventoryObject;
-        potionManager.addPotionEffect(potion.getDurationEffect(), potion);
+        PotionManager.addPotionEffect(potion.getDurationEffect(), potion);
         inventory.remove(inventoryObject);
     }
     public void doPotionTick() {
-        Potion potion = potionManager.getNextEffect();
+        Potion potion = PotionManager.getNextEffect();
         notify(potion);
     }
     public void notify(Potion potion) {
@@ -98,7 +129,7 @@ public class Player extends Entity implements CanMove, Battling {
     }
 
     public Potion getCurrentEffect() {
-        return potionManager.getCurrPotion();
+        return PotionManager.getCurrPotion();
     }
 
 
@@ -207,7 +238,7 @@ public class Player extends Entity implements CanMove, Battling {
 
     @Override
     public double takeDamage(double damage) {
-        if (potionManager.getCurrPotion() instanceof InvincibilityPotion) return 0;
+        if (PotionManager.getCurrPotion() instanceof InvincibilityPotion) return 0;
         double damageTaken = (damage  - getShieldMod() - getMidnightArmorDefence()) / 10;
         if (health - damageTaken < 0) {
             damageTaken = health;

@@ -75,6 +75,7 @@ public abstract class Entity {
         newJSON.put("x", position.getX());
         newJSON.put("y", position.getY());
         newJSON.put("type", UtilityFunctions.camelToSnake(getType()));
+        newJSON.put("id", id);
         return newJSON;
     }
 }

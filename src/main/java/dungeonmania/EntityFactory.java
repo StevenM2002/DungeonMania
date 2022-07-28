@@ -4,6 +4,8 @@ import dungeonmania.CollectibleEntities.*;
 import dungeonmania.MovingEntities.*;
 import dungeonmania.StaticEntities.*;
 import dungeonmania.util.Position;
+import dungeonmania.util.UtilityFunctions;
+
 import static dungeonmania.DungeonManiaController.getDmc;
 
 
@@ -13,6 +15,9 @@ import org.json.JSONObject;
 
 public class EntityFactory {
     private static int currentEntityID = 0;
+    public static int getCurrentEntityID() {
+        return currentEntityID;
+    }
     private static String getNewEntityID() {
         String newID = Integer.toString(currentEntityID);
         currentEntityID += 1;
@@ -36,6 +41,7 @@ public class EntityFactory {
 
     /**
      * Creates an entity with a unique id and returns it
+     * Used for creating a new game, spawning enemies, and loading old games
      * @param id
      * @param type
      * @param position
@@ -43,25 +49,43 @@ public class EntityFactory {
      */
     public static Entity createEntity(String id, String type, Position position, JSONObject extraInfo) {
         JSONObject config = getDmc().getConfig();
+        if (extraInfo == null) extraInfo = new JSONObject();
         Entity newEntity = null;
         switch (type) {
             case "player":
-                newEntity = new Player(id, position, config.getInt("player_health"), config.getInt("player_attack"));
+                // loading old player
+                if (extraInfo.has("health") && extraInfo.has("inventory")) {
+                    newEntity = new Player(id, position, 
+                        new Position(extraInfo.getInt("prevX"), extraInfo.getInt("prevY")), 
+                        extraInfo.getJSONArray("inventory"), 
+                        config.getInt("player_attack"), extraInfo.getDouble("health"));
+                } else {
+                    newEntity = new Player(id, position, config.getInt("player_health"), config.getInt("player_attack"));
+                }
                 break;
             case "wall":
                 newEntity = new Wall(id, position);
                 break;
             case "exit":
                 newEntity = new Exit(id, position);
+                if (extraInfo.has("activated")) {
+                    ((Switch) newEntity).setActivated(extraInfo.getBoolean("activated"));
+                }
                 break;
             case "boulder":
                 newEntity = new Boulder(id, position);
                 break;
             case "switch":
                 newEntity = new FloorSwitch(id, position);
+                if (extraInfo.has("activated")) {
+                    ((Switch) newEntity).setActivated(extraInfo.getBoolean("activated"));
+                }
                 break;
             case "door":
                 newEntity = new Door(id, position, extraInfo.getInt("key"));
+                if (extraInfo.has("locked") && !extraInfo.getBoolean("locked")) {
+                    ((Door) newEntity).unlock();
+                }
                 break;
             case "portal":
                 newEntity = new Portal(id, position, extraInfo.getString("colour"));
@@ -81,6 +105,9 @@ public class EntityFactory {
                 break;
             case "mercenary":
                 newEntity = new Mercenary(id, position, config.getInt("mercenary_health"), config.getInt("mercenary_attack"));
+                if (extraInfo.has("isFriendly")) {
+                    ((Mercenary) newEntity).setFriendly(extraInfo.getBoolean("isFriendly"));
+                }
                 getDmc().getPlayer().subscribe((PlayerListener) newEntity);
                 break;
             case "hydra":
@@ -131,9 +158,19 @@ public class EntityFactory {
         }
         return newEntity;
     }
+
+    /**
+     * Creates the entity from the given JSONObject jsonEntity
+     * @param jsonEntity
+     */
     public static void createEntity(JSONObject jsonEntity) {
-        createEntity(jsonEntity.getString("type"), getPositionOfEntity(jsonEntity), jsonEntity);
+        if (jsonEntity.has("id")) {
+            createEntity(jsonEntity.getString("id"), UtilityFunctions.camelToSnake(jsonEntity.getString("type")), getPositionOfEntity(jsonEntity), jsonEntity);
+        } else {
+            createEntity(UtilityFunctions.camelToSnake(jsonEntity.getString("type")), getPositionOfEntity(jsonEntity), jsonEntity);
+        }
     }
+
     private static Position getPositionOfEntity(JSONObject entity) {
         return new Position(entity.getInt("x"), entity.getInt("y"));
     }

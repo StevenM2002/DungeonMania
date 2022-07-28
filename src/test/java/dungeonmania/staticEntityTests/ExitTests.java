@@ -61,7 +61,6 @@ public class ExitTests {
         dmc.tick(Direction.DOWN);
         // move to exit without collecting treasure
         res = dmc.tick(Direction.RIGHT);
-        assertTrue(getGoals(res).contains("AND"));
         assertTrue(getGoals(res).contains(":treasure"));
 
         // collect treasure

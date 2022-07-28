@@ -14,6 +14,8 @@ public class Hydra extends MovingEntity implements PlayerListener {
 
     public Hydra(String id, Position position, double health, double attack, double healthIncreaseRate, double healthIncreaseAmount) {
         super(id, position, false, health, attack, new RandomMovement());
+        Hydra.increaseRate = healthIncreaseRate;
+        Hydra.increaseAmount = healthIncreaseAmount;
     }
 
     @Override

@@ -1,7 +1,10 @@
 package dungeonmania.CollectibleEntities;
 
+import org.json.JSONObject;
+
 import dungeonmania.response.models.ItemResponse;
-import dungeonmania.util.UtilityFunctions;
+import static dungeonmania.util.UtilityFunctions.camelToSnake;
+
 
 public abstract class InventoryObject {
     private String id;
@@ -21,7 +24,7 @@ public abstract class InventoryObject {
     public ItemResponse getItemResponse() {
         return new ItemResponse(
             id, 
-            UtilityFunctions.camelToSnake(this.getClass().getSimpleName())
+            camelToSnake(this.getClass().getSimpleName())
         );
     }
 
@@ -32,5 +35,12 @@ public abstract class InventoryObject {
             return inv.getId() == this.getId();
         }
         return false;
+    }
+
+    public JSONObject toJSON() {
+        JSONObject newJSON = new JSONObject();
+        newJSON.put("id", id);
+        newJSON.put("type", camelToSnake(this.getClass().getSimpleName()));
+        return newJSON;
     }
 }

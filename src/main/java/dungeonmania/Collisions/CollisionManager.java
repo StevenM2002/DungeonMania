@@ -75,6 +75,8 @@ public class CollisionManager {
                         return initCollision("Battle");
                     case "Exit":
                         return initCollision("Activate");
+
+                    // collectible entities
                     case "Arrow":
                         return initCollision("Collect");
                     case "Bomb":

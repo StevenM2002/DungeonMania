@@ -11,7 +11,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import dungeonmania.DungeonManiaController;
-import dungeonmania.exceptions.InvalidActionException;
 import dungeonmania.response.models.DungeonResponse;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
@@ -30,7 +29,6 @@ public class TestMobsRun {
         int x2 = posMercenary.getX();
         int y2 = posMercenary.getY();
         int nextPositionElement1 = 0;
-        int nextPositionElement2 = 0;
         movementTrajectory.add(new Position(x2 + 1, y2));
         movementTrajectory.add(new Position(x2, y2));
         movementTrajectory.add(new Position(x2 - 1, y2));
