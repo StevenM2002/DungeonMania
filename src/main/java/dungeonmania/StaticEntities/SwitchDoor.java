@@ -68,7 +68,7 @@ public class SwitchDoor extends Door implements LogicalEntity, Switch{
     @Override
     public void changeNumAdjacentActivated(int change) {
         this.numAdjacentActivated += change;
-        evaluateLogic();
+        setActivated(logicalEvaluator.evaluate(observers, logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev));
     }
 
     @Override
@@ -87,13 +87,8 @@ public class SwitchDoor extends Door implements LogicalEntity, Switch{
     }
 
     @Override
-    public void evaluateLogic() {
-        if (logicalEvaluator.evaluate(observers, logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev)) {
-            setActivated(true);
-        }
-        else {
-            setActivated(false);
-        };
+    public boolean evaluateLogic() {
+        return logicalEvaluator.evaluate(observers, logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev);
     }
 
 }

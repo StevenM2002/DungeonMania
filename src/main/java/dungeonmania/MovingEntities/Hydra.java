@@ -2,7 +2,7 @@ package dungeonmania.MovingEntities;
 
 import java.util.Random;
 
-import dungeonmania.PlayerDataArgs;
+import dungeonmania.CollectibleEntities.Potion;
 import dungeonmania.PlayerListener;
 import dungeonmania.CollectibleEntities.InvincibilityPotion;
 import dungeonmania.CollectibleEntities.InvisibilityPotion;
@@ -14,13 +14,15 @@ public class Hydra extends MovingEntity implements PlayerListener {
 
     public Hydra(String id, Position position, double health, double attack, double healthIncreaseRate, double healthIncreaseAmount) {
         super(id, position, false, health, attack, new RandomMovement());
+        Hydra.increaseRate = healthIncreaseRate;
+        Hydra.increaseAmount = healthIncreaseAmount;
     }
 
     @Override
-    public void update(PlayerDataArgs data) {
-        if (data.getPotion() == null || data.getPotion() instanceof InvisibilityPotion) {
+    public void update(Potion potion) {
+        if (potion == null || potion instanceof InvisibilityPotion) {
             setMovementStrategy(new RandomMovement());
-        } else if (data.getPotion() instanceof InvincibilityPotion) {
+        } else if (potion instanceof InvincibilityPotion) {
             setMovementStrategy(new RunningMovement());
         }
     }

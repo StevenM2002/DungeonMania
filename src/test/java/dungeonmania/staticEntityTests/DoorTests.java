@@ -109,7 +109,7 @@ public class DoorTests {
     public void testPushBoulderClosedDoor() {
         DungeonManiaController dmc = new DungeonManiaController();
         DungeonResponse initRes = dmc.newGame("d_staticTests_testDoors", "c_staticTests_staticConfig");
-        EntityResponse initBoulder = getEntities(initRes, "Boulder").stream().findFirst().get();
+        EntityResponse initBoulder = getEntities(initRes, "boulder").stream().findFirst().get();
 
         // Push boulder
         dmc.tick(Direction.DOWN);
@@ -123,7 +123,7 @@ public class DoorTests {
     public void testPushBoulderOpenDoor() {
         DungeonManiaController dmc = new DungeonManiaController();
         DungeonResponse initRes = dmc.newGame("d_staticTests_testDoors", "c_staticTests_staticConfig");
-        EntityResponse initBoulder = getEntities(initRes, "Boulder").stream().findFirst().get();
+        EntityResponse initBoulder = getEntities(initRes, "boulder").stream().findFirst().get();
 
         // get key
         DungeonResponse getKeyRes = dmc.tick(Direction.DOWN);
@@ -136,8 +136,8 @@ public class DoorTests {
         assertTrue(getInventory(openDoorRes, "key").size() == 0);
 
         dmc.tick(Direction.UP);
-        dmc.tick(Direction.RIGHT);
-        dmc.tick(Direction.RIGHT);
+        dmc.tick(Direction.LEFT);
+        dmc.tick(Direction.LEFT);
         dmc.tick(Direction.DOWN);
         DungeonResponse boulderPushRes = dmc.tick(Direction.RIGHT);
         // test boulder moved into door

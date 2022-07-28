@@ -14,6 +14,13 @@ import static dungeonmania.DungeonManiaController.getDmc;
 
 public class CraftingManager {
     private static int IDCounter = 0;
+    public static void setIDCounter(int iDCounter) {
+        IDCounter = iDCounter;
+    }
+    public static int getIDCounter() {
+        return IDCounter;
+    }
+
     private static String getNewCraftingID() {
         String newID = "c"+IDCounter;
         IDCounter++;
@@ -30,7 +37,7 @@ public class CraftingManager {
     {
         Buildable newObject;
         if (type.equals("bow")) {
-            newObject = new Bow(getNewCraftingID(), 2, getDmc().getConfigValue("bow_durability"));
+            newObject = new Bow(getNewCraftingID(), getDmc().getConfigValue("bow_durability"));
         } else if (type.equals("shield")) {
             newObject = new Shield(getNewCraftingID(), getDmc().getConfigValue("shield_defence"), getDmc().getConfigValue("shield_durability"));
         } else if (type.equals("sceptre")) {
@@ -55,7 +62,7 @@ public class CraftingManager {
      */
     public static List<String> getBuildables(List<InventoryObject> inventory, boolean hasZombies) {
         ArrayList<String> buildables = new ArrayList<>();
-        Bow bow = new Bow("0", 420, 69);
+        Bow bow = new Bow("0", 69);
         Shield shield = new Shield("0", 420, 69);
         Sceptre sceptre = new Sceptre("0", 81237);
         MidnightArmour midnightArmor = new MidnightArmour("0", 1, 47189724);
@@ -73,4 +80,6 @@ public class CraftingManager {
         }
         return buildables;
     }
+
+
 }

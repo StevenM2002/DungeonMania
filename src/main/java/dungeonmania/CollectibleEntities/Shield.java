@@ -2,6 +2,7 @@ package dungeonmania.CollectibleEntities;
 
 import java.util.List;
 import java.util.ArrayList;
+import org.json.JSONObject;
 
 public class Shield extends InventoryObject implements Buildable, Durability {
     private int defence;
@@ -82,5 +83,12 @@ public class Shield extends InventoryObject implements Buildable, Durability {
             }
         }
         return usedMaterials;
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject newJSON = super.toJSON();
+        newJSON.put("durability", durability);
+        return newJSON;
     }
 }

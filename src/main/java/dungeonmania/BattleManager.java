@@ -3,6 +3,9 @@ package dungeonmania;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import dungeonmania.CollectibleEntities.Bow;
 import dungeonmania.CollectibleEntities.InventoryObject;
 import dungeonmania.CollectibleEntities.MidnightArmour;
@@ -25,6 +28,29 @@ public class BattleManager {
     public BattleManager() {
         this.battleList = new ArrayList<>();
     }
+    /**
+     * constructs the battle manager from a jsonArray containing a previously
+     * used battleList
+     * @param battleListJSON
+     */
+    public BattleManager(JSONArray battleListJSON) {
+        this.battleList = new ArrayList<>();
+        for (int i = 0; i < battleListJSON.length(); i++) {
+            JSONObject battle = battleListJSON.getJSONObject(i);
+            List<RoundResponse> rounds = new ArrayList<>();
+            for (int j = 0; j < battle.getJSONArray("rounds").length(); j++) {
+                JSONObject round = battle.getJSONArray("rounds").getJSONObject(j);
+                List<ItemResponse> weaponryUsed = new ArrayList<>();
+                for (int l = 0; l < round.getJSONArray("weaponryUsed").length(); l++) {
+                    JSONObject weapon = round.getJSONArray("weaponryUsed").getJSONObject(l);
+                    weaponryUsed.add(new ItemResponse(weapon.getString("id"), weapon.getString("type")));
+                }
+                rounds.add(new RoundResponse(round.getDouble("deltaPlayerHealth"), round.getDouble("deltaEnemyHealth"), weaponryUsed));
+            }
+            battleList.add(new BattleResponse(battle.getString("enemy"), rounds, battle.getDouble("initialPlayerHealth"), battle.getDouble("initialEnemyHealth")));
+        }
+    }
+
 
     private static boolean hasBow(List<InventoryObject> inventory) {
         return inventory.stream().anyMatch(e -> e instanceof Bow);
@@ -77,7 +103,6 @@ public class BattleManager {
     public void doBattle(Player player, MovingEntity enemy) {
         double initialEnemyHealth = enemy.getHealth();
         double initialPlayerHealth = player.getHealth();
-
         List<RoundResponse> rounds = doRounds(player, enemy);
         battleList.add(
             new BattleResponse(
@@ -99,4 +124,32 @@ public class BattleManager {
     public List<BattleResponse> getBattleList() {
         return battleList;
     }
+
+    public JSONArray battleListToJSON() {
+        JSONArray JSONBattleList = new JSONArray();
+        for (BattleResponse b : battleList) {
+            JSONObject battle = new JSONObject();
+            battle.put("enemy", b.getEnemy());
+            battle.put("initialPlayerHealth", b.getInitialPlayerHealth());
+            battle.put("initialEnemyHealth", b.getInitialEnemyHealth());
+            battle.put("rounds", new JSONArray());
+            for (RoundResponse r : b.getRounds()) {
+                JSONObject round = new JSONObject();
+                round.put("deltaPlayerHealth", r.getDeltaCharacterHealth());
+                round.put("deltaEnemyHealth", r.getDeltaEnemyHealth());
+                round.put("weaponryUsed", new JSONArray());
+                for (ItemResponse i : r.getWeaponryUsed()) {
+                    JSONObject weapon = new JSONObject();
+                    weapon.put("id", i.getId());
+                    weapon.put("type", i.getType());
+                    round.getJSONArray("weaponryUsed").put(weapon);
+                }
+                battle.getJSONArray("rounds").put(round);
+            }
+            JSONBattleList.put(battle);
+        }
+        return JSONBattleList;
+    }
+
+
 }

@@ -40,7 +40,7 @@ public class LogicalSwitch extends StaticEntity implements Switch, LogicalEntity
     @Override
     public void changeNumAdjacentActivated(int change) {
         this.numAdjacentActivated += change;
-        evaluateLogic();
+        setActivated(logicalEvaluator.evaluate(observers, logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev));
     }
 
     @Override
@@ -100,12 +100,7 @@ public class LogicalSwitch extends StaticEntity implements Switch, LogicalEntity
     }
 
     @Override
-    public void evaluateLogic() {
-        if (logicalEvaluator.evaluate(observers, logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev)) {
-            setActivated(true);
-        }
-        else {
-            setActivated(false);
-        };
+    public boolean evaluateLogic() {
+        return logicalEvaluator.evaluate(observers, logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev);
     }
 }

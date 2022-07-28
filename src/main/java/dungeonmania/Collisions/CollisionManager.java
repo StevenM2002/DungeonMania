@@ -3,6 +3,7 @@ package dungeonmania.Collisions;
 import java.util.ArrayList;
 
 import dungeonmania.Entity;
+import dungeonmania.MovingEntities.Assassin;
 import dungeonmania.MovingEntities.Mercenary;
 import dungeonmania.StaticEntities.Switch;
 import dungeonmania.StaticEntities.LogicalEntity;
@@ -20,7 +21,7 @@ public class CollisionManager {
      * 
      * If there is a collision, runs appropriate collision logic, then moves
      * the entity accordingly
-     * @param entity
+     * @param moved
      * @param direction
      */
     public static void requestMove(Entity moved, Direction direction) {
@@ -44,8 +45,7 @@ public class CollisionManager {
      * Matches the two entities with the correct collision type
      * @param moved
      * @param collided
-     * @param direction
-     * @return
+     * @return type Block if it is blocking else random shit
      */
     public static Collision getCollision(Entity moved, Entity collided) {
         switch (moved.getType()) {
@@ -65,12 +65,20 @@ public class CollisionManager {
                             return initCollision("Pass");
                         }
                         return initCollision("Battle");
+                    case "Assassin":
+                        Assassin ass = (Assassin) collided;
+                        if (ass.isFriendly()) {
+                            return initCollision("Pass");
+                        }
+                        return initCollision("Battle");
                     case "ZombieToast":
                         return initCollision("Battle");
                     case "Hydra":
                         return initCollision("Battle");
                     case "Exit":
                         return initCollision("Activate");
+
+                    // collectible entities
                     case "Arrow":
                         return initCollision("Collect");
                     case "Bomb":
@@ -89,6 +97,8 @@ public class CollisionManager {
                         return initCollision("Collect");
                     case "SunStone":
                         return initCollision("Collect");
+                    case "SwampTile":
+                        return initCollision("Pass");
                 }
                 break;
             case "Mercenary":
@@ -100,6 +110,15 @@ public class CollisionManager {
                         if (merc.isFriendly()) return initCollision("Block");
                 }
                 break;
+            case "Assassin":
+                switch (collided.getType()) {
+                    case "Portal":
+                        return initCollision("Teleport");
+                    case "Player":
+                        Assassin ass = (Assassin) moved;
+                        if (ass.isFriendly()) return initCollision("Block");
+                }
+                break;
             case "Spider":
                 switch (collided.getType()) {
                     case "Wall":
@@ -108,12 +127,16 @@ public class CollisionManager {
                         return initCollision("Pass");
                     case "Door":
                         return initCollision("Pass");
+                    case "ActiveBomb":
+                        return initCollision("Pass");
                 }
                 break;
             case "Boulder":
                 switch (collided.getType()) {
                     case "switch":
                         return initCollision("Activate");
+                    case "SwampTile":
+                        return initCollision("Pass");
                 }
                 break;
         }
@@ -143,6 +166,8 @@ public class CollisionManager {
                 return new Collect(getDmc().getAllEntities());
             case "Activate":
                 return new Activate();
+            case "Stuck":
+                return new Stuck();
         }
         return new Pass();
     }

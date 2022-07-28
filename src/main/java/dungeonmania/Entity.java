@@ -7,6 +7,8 @@ import dungeonmania.response.models.EntityResponse;
 import dungeonmania.util.Position;
 import dungeonmania.util.UtilityFunctions;
 
+import java.util.Objects;
+
 public abstract class Entity {
     private String id;
     private Position position;
@@ -68,11 +70,16 @@ public abstract class Entity {
         }
         return false;
     }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
     public JSONObject toJSON() {
         JSONObject newJSON = new JSONObject();
         newJSON.put("x", position.getX());
         newJSON.put("y", position.getY());
         newJSON.put("type", UtilityFunctions.camelToSnake(getType()));
+        newJSON.put("id", id);
         return newJSON;
     }
 }

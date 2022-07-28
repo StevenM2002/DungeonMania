@@ -31,7 +31,6 @@ public class Unlock extends Collision {
             .findFirst()
             .orElseGet(()->{return null;});
         if (door.isLocked() && (playerKey != null || playerSunstone != null)) {
-            System.out.println("unlocking door");
             door.unlock();
             if (playerSunstone == null) {
                 player.getInventory().remove(playerKey);

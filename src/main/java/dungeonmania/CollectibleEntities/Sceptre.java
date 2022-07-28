@@ -3,7 +3,7 @@ package dungeonmania.CollectibleEntities;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Sceptre extends InventoryObject implements Buildable{
+public class Sceptre extends InventoryObject implements Buildable {
     private int effectDuration;
     public Sceptre(String id, int effectDuration) {
         super(id);

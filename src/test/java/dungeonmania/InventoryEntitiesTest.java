@@ -298,7 +298,7 @@ public class InventoryEntitiesTest {
         assertEquals(2, getInventory(res, "sun_stone").size());
         assertEquals(1, getInventory(res, "wood").size());
         res = dmc.build("sceptre");
-        assertEquals(1, getInventory(res, "sunstone").size());
+        assertEquals(1, getInventory(res, "sun_stone").size());
         assertEquals(0, getInventory(res, "wood").size());
         assertEquals(1, getInventory(res, "sceptre").size());
     }

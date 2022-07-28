@@ -10,5 +10,6 @@ public interface LogicalEntity {
     public void changeNumAdjacentActivated(int change);
     public void setPrevNumAdjacentActivated();
     public String getLogicalCondition();
-    public void evaluateLogic();
+    public boolean evaluateLogic();
+    public boolean getActivated();
 }
