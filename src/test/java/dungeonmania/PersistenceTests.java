@@ -131,6 +131,35 @@ public class PersistenceTests {
         assertDungeonResponsesEqual(initResponse, loadResponse);
     }
 
+    @Test
+    @DisplayName("Test after battling a zombie toast")
+    public void testAfterBattles() {
+        DungeonManiaController dmc = new DungeonManiaController();
+        dmc.newGame("d_battleTest_basicZombieToast", "c_persistenceTests");
+        dmc.tick(Direction.RIGHT);
+        DungeonResponse initResponse = dmc.saveGame("BattleSave");
+        DungeonManiaController dmc2 = new DungeonManiaController();
+        DungeonResponse loadResponse = dmc2.loadGame("BattleSave");
+        assertDungeonResponsesEqual(initResponse, loadResponse);
+    }
+
+    @Test
+    @DisplayName("Test after bribing the mercenary")
+    public void testAfterBribe() {
+        DungeonManiaController dmc = new DungeonManiaController();
+        DungeonResponse initResponse = dmc.newGame("d_percistenceTests_mercenaryBribe", "c_persistenceTests");
+        EntityResponse mercenary = initResponse.getEntities().stream().filter(x->x.getType().equals("mercenary")).findFirst().get();
+        dmc.tick(Direction.RIGHT);
+        dmc.tick(Direction.RIGHT);
+        dmc.tick(Direction.RIGHT);
+        assertDoesNotThrow(()->dmc.interact(mercenary.getId()));
+        DungeonResponse saveResponse = dmc.saveGame("BribeSave");
+        DungeonManiaController dmc2 = new DungeonManiaController();
+        DungeonResponse loadResponse = dmc2.loadGame("BribeSave");
+        assertDungeonResponsesEqual(saveResponse, loadResponse);
+    }
+
+
     public static void main(String[] args) {
         PersistenceTests p = new PersistenceTests();
         p.testAdvancedDungeon();
