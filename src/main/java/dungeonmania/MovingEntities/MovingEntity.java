@@ -56,9 +56,9 @@ public abstract class MovingEntity extends Entity implements CanMove, Battling {
     @Override
     public double takeDamage(double damage) {
         double damageTaken = damage / 5;
-        if (health - damageTaken < 0) {
-            damageTaken = health;
-        }
+        // if (health - damageTaken < 0) {
+        //     damageTaken = health;
+        // }
         health -= damageTaken;
         return damageTaken;
     }

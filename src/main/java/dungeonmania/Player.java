@@ -240,14 +240,11 @@ public class Player extends Entity implements CanMove, Battling {
     public double takeDamage(double damage) {
         if (PotionManager.getCurrPotion() instanceof InvincibilityPotion) return 0;
         double damageTaken = (damage  - getShieldMod() - getMidnightArmorDefence()) / 10;
-        if (health - damageTaken < 0) {
-            damageTaken = health;
-        }
         health -= damageTaken;
         return damageTaken;
     }
     @Override
     public double dealDamage() {
-        return (getBowMod() * (getAttack() + getSwordMod()) + getMidnightArmorAttack());
+        return (getBowMod() * (getAttack() + getSwordMod() + getMidnightArmorAttack()));
     }
 }
