@@ -8,6 +8,7 @@ public interface LogicalEntity {
     public void registerObserver(LogicalEntity logicalEntity);
     public void createObserverList(List<Entity> allEntities);
     public void changeNumAdjacentActivated(int change);
+    public void setPrevNumAdjacentActivated();
     public String getLogicalCondition();
     public void evaluateLogic();
 }

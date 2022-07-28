@@ -33,10 +33,13 @@ public class LogicalSwitch extends StaticEntity implements Switch, LogicalEntity
     }
 
     @Override
-    public void changeNumAdjacentActivated(int change) {
+    public void setPrevNumAdjacentActivated() {
         this.numAdjacentActivatedPrev = this.numAdjacentActivated;
+    }
+
+    @Override
+    public void changeNumAdjacentActivated(int change) {
         this.numAdjacentActivated += change;
-        evaluateLogic();
     }
 
     @Override

@@ -61,10 +61,13 @@ public class SwitchDoor extends Door implements LogicalEntity, Switch{
     }
     
     @Override
-    public void changeNumAdjacentActivated(int change) {
+    public void setPrevNumAdjacentActivated() {
         this.numAdjacentActivatedPrev = this.numAdjacentActivated;
+    }
+    
+    @Override
+    public void changeNumAdjacentActivated(int change) {
         this.numAdjacentActivated += change;
-        evaluateLogic();
     }
 
     @Override
