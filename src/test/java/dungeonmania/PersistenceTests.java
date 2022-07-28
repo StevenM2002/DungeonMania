@@ -156,7 +156,7 @@ public class PersistenceTests {
         // sleep to make sure prev
         System.out.println("testing bribe");
         DungeonManiaController dmc = new DungeonManiaController();
-        DungeonResponse initResponse = dmc.newGame("d_percistenceTests_mercenaryBribe", "c_persistenceTests");
+        dmc.newGame("d_percistenceTests_mercenaryBribe", "c_persistenceTests");
         dmc.tick(Direction.RIGHT);
         dmc.tick(Direction.RIGHT);
         dmc.tick(Direction.RIGHT);

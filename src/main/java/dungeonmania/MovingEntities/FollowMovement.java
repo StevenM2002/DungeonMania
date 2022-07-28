@@ -40,18 +40,6 @@ public class FollowMovement extends Movement {
             return nextPos;
         }
         return currentPosition;
-//        return getAlternatePosition(blockingEntities, currentPosition, player.getPosition());
-    }
-
-    private Position getAlternatePosition(List<Entity> blockingEntities, Position currPos, Position endPos) {
-        var directions = Arrays.asList(Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT);
-        for (var direction : directions) {
-            var nextPos = currPos.translateBy(direction);
-            if (!blockingEntities.stream().anyMatch(entity -> entity.getPosition().equals(nextPos))) {
-                return nextPos;
-            }
-        }
-        return currPos;
     }
 
     private List<Position> getValidAdjacentPositions(ArrayList<Position> grid, List<Entity> blockingEntities, Position currPos, Set<Position> notVisited) {
