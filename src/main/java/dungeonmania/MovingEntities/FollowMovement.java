@@ -1,13 +1,16 @@
 package dungeonmania.MovingEntities;
 
+import dungeonmania.CollectibleEntities.Potion;
 import dungeonmania.Collisions.Block;
 import dungeonmania.Collisions.CollisionManager;
 import dungeonmania.Entity;
 import dungeonmania.Player;
+import dungeonmania.StaticEntities.Portal;
 import dungeonmania.StaticEntities.SwampTile;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
+import javax.sound.sampled.Port;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,15 +46,19 @@ public class FollowMovement extends Movement {
     }
 
     private List<Position> getValidAdjacentPositions(ArrayList<Position> grid, List<Entity> blockingEntities, Position currPos, Set<Position> notVisited) {
-        List<Position> retPos = new ArrayList<>();
+        HashSet<Position> retPos = new HashSet<>();
         List<Direction> directions = Arrays.asList(Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT);
+        var portalEntity = getDmc().getAllEntities().stream().filter(it -> it instanceof Portal && it.getPosition().equals(currPos)).findAny().orElse(null);
+        if (portalEntity != null) {
+            retPos.add(((Portal) portalEntity).getOtherPortal().getPosition());
+        }
         for (var direction : directions) {
             Position nextPosition = currPos.translateBy(direction);
             if (!blockingEntities.stream().anyMatch(entities -> entities.getPosition().equals(nextPosition)) && isInBounds(grid, currPos) && notVisited.contains(nextPosition)) {
                 retPos.add(nextPosition);
             }
         }
-        return retPos;
+        return new ArrayList<>(retPos);
     }
 
     private Position getFirstPosition(HashMap<Position, Position> lastVisited, Position source, Position dest) {

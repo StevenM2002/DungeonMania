@@ -99,4 +99,14 @@ public class FollowMovementTest {
         assertEquals(new Position(3,1), getEntities(dmc.tick(Direction.UP), "assassin").get(0).getPosition());
         assertEquals(new Position(4,1), getEntities(dmc.tick(Direction.UP), "assassin").get(0).getPosition());
     }
+
+    @Test
+    public void dikjstraGoesToPortal() {
+        var dmc = new DungeonManiaController();
+        dmc.newGame("d_usePortalForFastest", "c_m3_config");
+        assertEquals(new Position(1,1), getEntities(dmc.tick(Direction.UP), "mercenary").get(0).getPosition());
+        assertEquals(new Position(3,3), getEntities(dmc.tick(Direction.UP), "mercenary").get(0).getPosition());
+        assertEquals(new Position(4,3), getEntities(dmc.tick(Direction.UP), "mercenary").get(0).getPosition());
+        assertEquals(new Position(4,2), getEntities(dmc.tick(Direction.UP), "mercenary").get(0).getPosition());
+    }
 }
