@@ -21,6 +21,9 @@ public class LogicalSwitch extends StaticEntity implements Switch, LogicalEntity
 
     @Override
     public void createObserverList(List<Entity> allEntities) {
+        if (logicalCondition.equals("xor")) {
+            return;
+        }
         List<Position> adjacentPositions = this.getPosition().getAdjacentPositions();
         for (int i = 0; i < 4; i++) {
             adjacentPositions.remove(i);

@@ -1,7 +1,5 @@
 package dungeonmania.StaticEntities;
 
-import java.util.List;
-
 import dungeonmania.DungeonManiaController;
 import dungeonmania.util.Position;
 import dungeonmania.Entity;
@@ -33,6 +31,9 @@ public class LogicalBomb extends ActiveBomb implements LogicalEntity, Switch{
 
     @Override
     public void createObserverList(List<Entity> allEntities) {
+        if (logicalCondition.equals("xor")) {
+            return;
+        }
         List<Position> adjacentPositions = this.getPosition().getAdjacentPositions();
         for (int i = 0; i < 4; i++) {
             adjacentPositions.remove(i);

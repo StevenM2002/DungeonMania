@@ -285,7 +285,7 @@ public class DungeonManiaController {
         List<Entity> toBeRemoved = new ArrayList<>();
         // Do this so we can remove all the entities without a exploding bomb exploding another exploding bomb
         explodingBombs.forEach(activeBomb -> toBeRemoved.addAll(activeBomb.getEntitiesInRadiusIfExplode(getDmc().getAllEntities())));
-        getDmc().getAllEntities().removeAll(toBeRemoved);
+        getDmc().getAllEntities().removeAll(toBeRemoved);   
         goal.hasCompleted(getDmc().getPlayer(), getDmc().getAllEntities());
         dungeonSaver.storeCurrentTick(getDmc());
     }
@@ -320,6 +320,13 @@ public class DungeonManiaController {
 
         doSharedSpawn();
         doSharedTick();
+        // Resets all of the observer lists for the logical entities
+        for (LogicalEntity logicalEntity : getDmc().getAllEntities().stream()
+        .filter(entity -> (entity instanceof LogicalEntity))
+        .map(entity -> (LogicalEntity) entity)
+        .collect(Collectors.toList())) {
+            logicalEntity.createObserverList(allEntities);;
+        }
         return getDungeonResponseModel();
     }
 

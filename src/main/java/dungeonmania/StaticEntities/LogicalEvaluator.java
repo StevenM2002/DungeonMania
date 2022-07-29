@@ -1,6 +1,5 @@
 package dungeonmania.StaticEntities;
 
-import dungeonmania.util.Position;
 import java.util.List;
 
 public class LogicalEvaluator {

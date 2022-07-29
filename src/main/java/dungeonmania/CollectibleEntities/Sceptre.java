@@ -44,6 +44,7 @@ public class Sceptre extends InventoryObject implements Buildable {
         return effectDuration;
     }
 
+    @Override
     public List<InventoryObject> getUsedMaterials(List<InventoryObject> inventory) {
         InventoryObject spareArrow = null;
         int arrowNo = 0;

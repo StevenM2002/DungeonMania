@@ -50,6 +50,7 @@ public class Shield extends InventoryObject implements Buildable, Durability {
         return defence;
     }
 
+    @Override
     public List<InventoryObject> getUsedMaterials(List<InventoryObject> inventory) {
         int woodNo = 0;
         int treasureNo = 0;

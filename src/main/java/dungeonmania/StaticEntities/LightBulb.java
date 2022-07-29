@@ -20,6 +20,9 @@ public class LightBulb extends StaticEntity implements LogicalEntity, Switch{
 
     @Override
     public void createObserverList(List<Entity> allEntities) {
+        // if (logicalCondition.equals("xor")) {
+        //     return;
+        // }
         List<Position> adjacentPositions = this.getPosition().getAdjacentPositions();
         for (int i = 0; i < 4; i++) {
             adjacentPositions.remove(i);
@@ -50,7 +53,9 @@ public class LightBulb extends StaticEntity implements LogicalEntity, Switch{
         if (activated != this.activated) {
             for (LogicalEntity observer : observers) {
                 if (activated) {
-                    observer.removeObserver(this);
+                    if (observer.evaluateLogic() != observer.getActivated()) {
+                        observer.removeObserver(this);
+                    }
                     observer.changeNumAdjacentActivated(1);
                     if (!this.observers.contains(observer)) {
                         this.observers.add(observer);

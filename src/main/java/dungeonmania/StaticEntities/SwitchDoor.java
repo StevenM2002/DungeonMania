@@ -7,9 +7,9 @@ import java.util.List;
 
 public class SwitchDoor extends Door implements LogicalEntity, Switch{
     private List<LogicalEntity> observers = new ArrayList<LogicalEntity>();
-    LogicalEvaluator logicalEvaluator = new LogicalEvaluator();
-    Boolean activated = false;
-    String logicalCondition;
+    private LogicalEvaluator logicalEvaluator = new LogicalEvaluator();
+    private Boolean activated = false;
+    private String logicalCondition;
     private int numAdjacentActivated = 0;
     private int numAdjacentActivatedPrev = 0;
 
@@ -20,6 +20,9 @@ public class SwitchDoor extends Door implements LogicalEntity, Switch{
 
     @Override
     public void createObserverList(List<Entity> allEntities) {
+        if (logicalCondition.equals("xor")) {
+            return;
+        }
         List<Position> adjacentPositions = this.getPosition().getAdjacentPositions();
         for (int i = 0; i < 4; i++) {
             adjacentPositions.remove(i);
