@@ -87,10 +87,28 @@ public class LogicSwitchesTests {
         assertEquals(1, getEntities(res, "light_bulb_on").size());
         assertEquals(1, getEntities(res, "light_bulb_off").size());
         
-        // Test co_and activation failure
-        dmc.tick(Direction.UP);
+        // Test co_and activation failure with one adjacent active entity
         res = dmc.tick(Direction.UP);
         assertEquals(1, getEntities(res, "light_bulb_on").size());
         assertEquals(1, getEntities(res, "light_bulb_off").size());
+        // Activate another entity next to the lightbulb. It should stay off since they weren't activated on the same tick.
+        dmc.tick(Direction.LEFT);
+        dmc.tick(Direction.LEFT);
+        dmc.tick(Direction.LEFT);
+        dmc.tick(Direction.UP);
+        dmc.tick(Direction.UP);
+        res = dmc.tick(Direction.RIGHT);
+        assertEquals(1, getEntities(res, "light_bulb_on").size());
+        assertEquals(1, getEntities(res, "light_bulb_off").size());
+    }
+
+    @Test
+    public void testLogicDoor() {
+        
+    }
+
+    @Test
+    public void testAndWires() {
+
     }
 }

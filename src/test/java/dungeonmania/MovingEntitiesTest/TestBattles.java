@@ -13,7 +13,7 @@ import dungeonmania.DungeonManiaController;
 import dungeonmania.CollectibleEntities.Bow;
 import dungeonmania.CollectibleEntities.InventoryObject;
 import dungeonmania.CollectibleEntities.InvincibilityPotion;
-import dungeonmania.CollectibleEntities.MidnightArmor;
+import dungeonmania.CollectibleEntities.MidnightArmour;
 import dungeonmania.CollectibleEntities.Shield;
 import dungeonmania.CollectibleEntities.Sword;
 import dungeonmania.exceptions.InvalidActionException;
@@ -88,7 +88,7 @@ public class TestBattles {
             bowMod = 2;
         }
 
-        if (inventory.stream().anyMatch(e -> e instanceof MidnightArmor)) {
+        if (inventory.stream().anyMatch(e -> e instanceof MidnightArmour)) {
             midnightAttackMod = Double.parseDouble(getValueFromConfigFile("midnight_armour_attack", configFilePath));
             midnightDefenceMod = Double.parseDouble(getValueFromConfigFile("midnight_armour_defence", configFilePath));
         }

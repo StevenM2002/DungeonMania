@@ -159,7 +159,7 @@ public class InventoryEntitiesTest {
     }
 
     @Test
-    @DisplayName("Test the shield construction works with treasure, and it works in combat (i.e. helps the player win when he otherwise wouldn't)")
+    @DisplayName("Test the shield construction works with treasure")
     public void shieldConstructionTreasureTest() throws IllegalArgumentException, InvalidActionException {
         DungeonManiaController dmc = new DungeonManiaController();
         dmc.newGame("d_shieldConstructionTreasureTest", "c_shieldConstructionTest");
