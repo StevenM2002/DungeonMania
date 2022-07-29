@@ -6,6 +6,8 @@ import dungeonmania.Entity;
 import dungeonmania.MovingEntities.Assassin;
 import dungeonmania.MovingEntities.Mercenary;
 import dungeonmania.StaticEntities.Switch;
+import dungeonmania.StaticEntities.LogicalEntity;
+import dungeonmania.StaticEntities.LogicalSwitch;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
@@ -93,7 +95,7 @@ public class CollisionManager {
                         return initCollision("Collect");
                     case "Wood":
                         return initCollision("Collect");
-                    case "Sunstone":
+                    case "SunStone":
                         return initCollision("Collect");
                     case "SwampTile":
                         return initCollision("Pass");
@@ -176,7 +178,7 @@ public class CollisionManager {
      */
     public static void deactivateSwitches() {
         getDmc().getAllEntities().stream()
-            .filter(x->(x instanceof Switch))
+            .filter(x->((x instanceof Switch && !(x instanceof LogicalEntity))) || x instanceof LogicalSwitch)
             .map(x->(Switch) x)
             .forEach(x->{
                 Entity e = (Entity) x;

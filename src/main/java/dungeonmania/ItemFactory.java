@@ -37,7 +37,7 @@ public class ItemFactory {
                 newItem = new Key(id, extraInfo.getInt("key"));
                 break;
             case "midnight_armor":
-                newItem = new MidnightArmor(id, config.getInt("midnight_armour_defence"), config.getInt("midnight_armour_attack"));
+                newItem = new MidnightArmour(id, config.getInt("midnight_armour_defence"), config.getInt("midnight_armour_attack"));
                 break;
             case "sceptre":
                 newItem = new Sceptre(id, config.getInt("mind_control_duration"));
@@ -46,7 +46,7 @@ public class ItemFactory {
                 newItem = new Shield(id, config.getInt("shield_defence"), extraInfo.getInt("durability"));
                 break;
             case "sunstone":
-                newItem = new Sunstone(id);
+                newItem = new SunStone(id);
                 break;
             case "sword":
                 newItem = new Sword(id, config.getInt("sword_attack"), extraInfo.getInt("durability"));

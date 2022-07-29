@@ -4,7 +4,7 @@ import org.json.JSONObject;
 
 import dungeonmania.util.Position;
 
-public class Exit extends StaticEntity  implements Switch{
+public class Exit extends StaticEntity implements Switch{
     private boolean activated = false;
     public Exit(String id, Position position) {
         super(id, position, false);
@@ -28,6 +28,4 @@ public class Exit extends StaticEntity  implements Switch{
         newJSON.put("activated", activated);
         return newJSON;
     }
-    
-    
 }

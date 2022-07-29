@@ -8,7 +8,7 @@ import org.json.JSONObject;
 
 import dungeonmania.CollectibleEntities.Bow;
 import dungeonmania.CollectibleEntities.InventoryObject;
-import dungeonmania.CollectibleEntities.MidnightArmor;
+import dungeonmania.CollectibleEntities.MidnightArmour;
 import dungeonmania.CollectibleEntities.Shield;
 import dungeonmania.CollectibleEntities.Sword;
 import dungeonmania.MovingEntities.MovingEntity;
@@ -65,7 +65,7 @@ public class BattleManager {
     }
 
     private static boolean hasMidnightArmour(List<InventoryObject> inventory) {
-        return inventory.stream().anyMatch(e -> e instanceof MidnightArmor);
+        return inventory.stream().anyMatch(e -> e instanceof MidnightArmour);
     }
     
     public List<RoundResponse> doRounds(Player player, MovingEntity enemy) {
@@ -88,7 +88,7 @@ public class BattleManager {
         }
 
         if (hasMidnightArmour(inventory)) {
-            weaponsUsed.add(new ItemResponse(((MidnightArmor) inventory.stream().filter(e -> e instanceof MidnightArmor).findFirst().get()).getId(), "midnight_armour"));
+            weaponsUsed.add(new ItemResponse(((MidnightArmour) inventory.stream().filter(e -> e instanceof MidnightArmour).findFirst().get()).getId(), "midnight_armour"));
         }
 
         while (player.getHealth() > 0 && enemy.getHealth() > 0) {

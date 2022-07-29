@@ -3,10 +3,10 @@ package dungeonmania.CollectibleEntities;
 import java.util.List;
 import java.util.ArrayList;
 
-public class MidnightArmor extends InventoryObject implements Buildable, Weapon {
+public class MidnightArmour extends InventoryObject implements Buildable, Weapon {
     private int defence;
     private int attackDamage;
-    public MidnightArmor(String id, int defence, int attackDamage) {
+    public MidnightArmour(String id, int defence, int attackDamage) {
         super(id);
         this.defence = defence;
         this.attackDamage = attackDamage;
@@ -17,7 +17,7 @@ public class MidnightArmor extends InventoryObject implements Buildable, Weapon 
         int sunstoneNo = 0;
         int swordNo = 0;
         for (InventoryObject object : inventory) {
-            if (object instanceof Sunstone) {
+            if (object instanceof SunStone) {
                 sunstoneNo += 1;
             }
             if (object instanceof Sword) {
@@ -51,7 +51,7 @@ public class MidnightArmor extends InventoryObject implements Buildable, Weapon 
                     swordCount++;
                 }
             }
-            if (object instanceof Sunstone) {
+            if (object instanceof SunStone) {
                 if (sunstoneCount == 0) {
                     usedMaterials.add(object);
                     sunstoneCount++;

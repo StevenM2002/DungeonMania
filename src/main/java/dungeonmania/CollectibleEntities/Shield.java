@@ -33,7 +33,7 @@ public class Shield extends InventoryObject implements Buildable, Durability {
             if (object instanceof Treasure) {
                 treasureNo += 1;
             }
-            if (object instanceof Sunstone) {
+            if (object instanceof SunStone) {
                 sunstoneNo += 1;
             }
             if (object instanceof Key) {
@@ -50,6 +50,7 @@ public class Shield extends InventoryObject implements Buildable, Durability {
         return defence;
     }
 
+    @Override
     public List<InventoryObject> getUsedMaterials(List<InventoryObject> inventory) {
         int woodNo = 0;
         int treasureNo = 0;
@@ -57,7 +58,7 @@ public class Shield extends InventoryObject implements Buildable, Durability {
         List<InventoryObject> usedMaterials = new ArrayList<InventoryObject>();
         boolean sunstoneExists = false;
         for (InventoryObject object : inventory) {
-            if (object instanceof Sunstone) {
+            if (object instanceof SunStone) {
                 sunstoneExists = true;
                 break;
             }

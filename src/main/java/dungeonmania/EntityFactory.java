@@ -76,9 +76,14 @@ public class EntityFactory {
                 newEntity = new Boulder(id, position);
                 break;
             case "switch":
-                newEntity = new FloorSwitch(id, position);
+                if (extraInfo.has("logic")) {
+                    newEntity = new LogicalSwitch(id, position, extraInfo.getString("logic"));
+                }
+                else {
+                    newEntity = new FloorSwitch(id, position);
+                }
                 if (extraInfo.has("activated")) {
-                    ((Switch) newEntity).setActivated(extraInfo.getBoolean("activated"));
+                        ((Switch) newEntity).setActivated(extraInfo.getBoolean("activated"));
                 }
                 break;
             case "door":
@@ -141,7 +146,13 @@ public class EntityFactory {
                 newEntity = new CollectibleEntity(id, position, new Sword(id, config.getInt("sword_attack"), config.getInt("sword_durability")));
                 break;
             case "sun_stone":
-                newEntity = new CollectibleEntity(id, position, new Sunstone(id));
+                newEntity = new CollectibleEntity(id, position, new SunStone(id));
+                break;
+            case "light_bulb_off":
+                newEntity = new LightBulb(id, position, extraInfo.getString("logic"));
+                break;
+            case "wire":
+                newEntity = new Wire(id, position, extraInfo.getString("logic"));
                 break;
             case "active_bomb":
                 newEntity = new ActiveBomb(id, position, false);

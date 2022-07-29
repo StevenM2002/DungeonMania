@@ -30,7 +30,7 @@ public class Sceptre extends InventoryObject implements Buildable {
             if (object instanceof Key) {
                 keyNo += 1;
             }
-            if (object instanceof Sunstone) {
+            if (object instanceof SunStone) {
                 sunstoneNo += 1;
             }
         }
@@ -44,6 +44,7 @@ public class Sceptre extends InventoryObject implements Buildable {
         return effectDuration;
     }
 
+    @Override
     public List<InventoryObject> getUsedMaterials(List<InventoryObject> inventory) {
         InventoryObject spareArrow = null;
         int arrowNo = 0;
@@ -79,7 +80,7 @@ public class Sceptre extends InventoryObject implements Buildable {
                     keyNo++;
                 }
             }
-            if (object instanceof Sunstone) {
+            if (object instanceof SunStone) {
                 if (sunstoneNo == 0) {
                     usedMaterials.add(object);
                     sunstoneNo++;

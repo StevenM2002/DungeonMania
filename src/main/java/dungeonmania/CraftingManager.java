@@ -6,7 +6,7 @@ import java.util.List;
 import dungeonmania.CollectibleEntities.Bow;
 import dungeonmania.CollectibleEntities.Buildable;
 import dungeonmania.CollectibleEntities.InventoryObject;
-import dungeonmania.CollectibleEntities.MidnightArmor;
+import dungeonmania.CollectibleEntities.MidnightArmour;
 import dungeonmania.CollectibleEntities.Shield;
 import dungeonmania.CollectibleEntities.Sceptre;
 import dungeonmania.exceptions.InvalidActionException;
@@ -43,7 +43,7 @@ public class CraftingManager {
         } else if (type.equals("sceptre")) {
             newObject = new Sceptre(getNewCraftingID(), getDmc().getConfigValue("mind_control_duration"));
         } else if (type.equals("midnight_armour")) {
-            newObject = new MidnightArmor(getNewCraftingID(), getDmc().getConfigValue("midnight_armour_defence"), getDmc().getConfigValue("midnight_armour_attack"));
+            newObject = new MidnightArmour(getNewCraftingID(), getDmc().getConfigValue("midnight_armour_defence"), getDmc().getConfigValue("midnight_armour_attack"));
         } else {
             throw new IllegalArgumentException("Cannot build item of type: "+type);
         }
@@ -65,7 +65,7 @@ public class CraftingManager {
         Bow bow = new Bow("0", 69);
         Shield shield = new Shield("0", 420, 69);
         Sceptre sceptre = new Sceptre("0", 81237);
-        MidnightArmor midnightArmor = new MidnightArmor("0", 1, 47189724);
+        MidnightArmour midnightArmor = new MidnightArmour("0", 1, 47189724);
         if (bow.canCraft(inventory, hasZombies)) {
             buildables.add("bow");
         }
