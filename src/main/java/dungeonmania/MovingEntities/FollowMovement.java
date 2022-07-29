@@ -91,7 +91,7 @@ public class FollowMovement extends Movement {
                             .findAny()
                             .orElse(null);
                     if (entityAtPos != null) {
-                        weight = ((SwampTile) entityAtPos).getMovementFactor();
+                        weight = ((SwampTile) entityAtPos).getMovementFactor() + 1;
                     }
                     int newDist = distance.get(v) + weight;
                     if (newDist < distance.get(w)) {
