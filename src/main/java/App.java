@@ -161,6 +161,15 @@ public class App implements SparkApplication {
             return callUsingSessionAndArgument(request, (dmc) -> dmc.allGames());
         }, gson::toJson);
 
+        Spark.post("/api/game/new/generate/", "application/json", (request, response) -> {
+            return callUsingSessionAndArgument(request, (dmc) -> dmc.generateDungeon(
+                Integer.valueOf(request.queryParams("xStart")), 
+                Integer.valueOf(request.queryParams("yStart")), 
+                Integer.valueOf(request.queryParams("xEnd")), 
+                Integer.valueOf(request.queryParams("yEnd")), 
+                request.queryParams("configName")));
+        }, gson::toJson);
+
         Scintilla.start();
     }
 

@@ -25,14 +25,18 @@ import dungeonmania.response.models.EntityResponse;
 import dungeonmania.response.models.ItemResponse;
 import dungeonmania.util.Direction;
 import dungeonmania.util.FileLoader;
+import dungeonmania.util.Position;
 import dungeonmania.Goals.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -440,10 +444,143 @@ public class DungeonManiaController {
 
     /**
      * /games/all
-     */
+     */ 
     public List<String> allGames() {
         return FileLoader.listFileNamesInResourceDirectory("SavedGames");
     }
 
+    public DungeonResponse generateDungeon(int xStart, int yStart, int xEnd, int yEnd, String configName) throws IllegalArgumentException {
+        Random rand = new Random();
 
+        //Sets the dungeon to be all walls.
+        initDmc("newRandomDungeon");
+        for (int x = xStart - 1; x < xEnd + 2; x++) {
+            for (int y = yStart - 1; y < yEnd + 2; y++) {
+                EntityFactory.createEntity("wall", new Position(x, y), null);
+            }
+        }
+        
+        //Grabs the starting position and removes the wall on that position.
+        //Position p = new Position(rand.nextInt(xEnd - xStart) + xStart, rand.nextInt(yEnd - yStart) + yStart);
+        Position startPos = new Position(xStart, yStart);
+        getDmc().allEntities.removeIf(e -> e.getPosition().equals(startPos));
+
+        //Initialises the first frontier.
+        Set<Position> frontiers = new HashSet<>(frontierWalls(startPos, xStart, yStart, xEnd, yEnd, 2));
+
+        while (!frontiers.isEmpty()) {
+
+            //Grabs a random position from the frontiers.
+            Position entityPosition = frontiers.stream().skip(rand.nextInt(frontiers.size())).findFirst().orElse(null);
+
+
+            //Grabs the passage neighbours of the position
+            List<Position> frontierNeighbours = frontierPassage(entityPosition, xStart, yStart, xEnd, yEnd, 2);
+            
+            if (!frontierNeighbours.isEmpty()) {
+                //Makes a path from the frontier.
+                Position neighbour = frontierNeighbours.get(rand.nextInt(frontierNeighbours.size()));
+                connect(neighbour, entityPosition);
+            }
+
+            //Add new frontiers.
+            frontiers.addAll(frontierWalls(entityPosition, xStart, yStart, xEnd, yEnd, 2));
+            frontiers.remove(entityPosition);
+        }
+        
+        if (getDmc().allEntities.stream().anyMatch(e -> e.getPosition().equals(new Position(xEnd, yEnd)))) {
+            getDmc().allEntities.removeIf(e -> e.getPosition().equals(new Position(xEnd, yEnd)));
+            List<Position> frontierExits = frontierWalls(new Position(xEnd, yEnd), xStart, yStart, xEnd, yEnd, 1);
+            if (!frontierExits.isEmpty()) {
+                //Makes a path from the frontier.
+                Position neighbour = frontierExits.get(rand.nextInt(frontierExits.size()));
+                getDmc().allEntities.removeIf(e -> e.getPosition().equals(neighbour));
+            }
+        }
+        
+
+        //Sets up the config
+        JSONObject config = null;
+        JSONObject goal = new JSONObject();
+        goal.put("goal", "exit");
+
+        try {
+            config = new JSONObject(FileLoader.loadResourceFile("/configs/"+configName+".json"));
+            getDmc().setConfig(config);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Could not find config file \""+configName+"\"");
+        }
+
+        //adds in the player and exit.
+        getDmc().allEntities.removeIf(e -> e.getPosition().equals(new Position(xStart, yStart)));
+        EntityFactory.createEntity("exit", new Position(xEnd, yEnd), null);
+        EntityFactory.createEntity("player", new Position(xStart, yStart), null);
+
+        getDmc().goal = GoalManager.loadGoals(goal, config, getDmc().battleManager);        
+        PortalMatcher.configurePortals(getDmc().allEntities);
+        getDmc().currTick = 0;
+
+        return getDungeonResponseModel();
+    }
+
+    private List<Position> frontierWalls(Position p, int xStart, int yStart, int xEnd, int yEnd, int distance) {
+        return spacesAround(p, xStart, yStart, xEnd, yEnd, distance, true);
+    }
+
+    private List<Position> frontierPassage(Position p, int xStart, int yStart, int xEnd, int yEnd, int distance) {
+        return spacesAround(p, xStart, yStart, xEnd, yEnd, distance, false);
+    }
+
+    private List<int[]> createDirections(int distance) {
+        List<int[]> directions = new ArrayList<>();
+        int[] temp = new int[] {distance,0};
+        directions.add(temp);
+        temp = new int[] {-distance,0};
+        directions.add(temp);
+        temp = new int[] {0,distance};
+        directions.add(temp);
+        temp = new int[] {0,-distance};
+        directions.add(temp);
+
+        return directions;
+    }
+
+    private List<Position> spacesAround(Position p, int xStart, int yStart, int xEnd, int yEnd, int distance, boolean isWall) {
+        List<Position> frontier = new ArrayList<>();
+        List<int[]> directions = createDirections(distance);
+
+        for (int[] d : directions) {
+            int newRow = p.getX() + d[0];
+            int newCol = p.getY() + d[1];
+            Position newPosition = new Position(newRow, newCol);
+            boolean isEntity = getDmc().allEntities.stream().anyMatch(e -> e.getPosition().equals(newPosition));
+
+            if (!isWall) {
+                isEntity = !isEntity;
+            }
+
+            if (isValidPosition(newPosition, xStart, yStart, xEnd, yEnd) && isEntity) {
+                frontier.add(newPosition);
+            }
+        }
+        return frontier;
+    }
+
+    private void connect(Position neighbour, Position start) {
+        int xMid = (neighbour.getX() + start.getX()) / 2;
+        int yMid = (neighbour.getY() + start.getY()) / 2;
+        getDmc().allEntities.removeIf(e -> e.getPosition().equals(new Position(xMid, yMid)));
+        getDmc().allEntities.removeIf(e -> e.getPosition().equals(neighbour));
+        getDmc().allEntities.removeIf(e -> e.getPosition().equals(start));
+    }
+
+    private boolean isValidPosition(Position p, int xStart, int yStart, int xEnd, int yEnd) {
+        return p.getX() >= xStart && p.getX() <= xEnd && p.getY() >= yStart && p.getY() <= yEnd;
+    }
+
+    public static void main(String[] args) {
+        DungeonManiaController d = new DungeonManiaController();
+        DungeonResponse gen = d.generateDungeon(5, 5, 10, 10, "simple");
+        gen.getEntities().forEach(e -> System.out.println(e.getType() + " " + e.getPosition()));
+    }
 }
