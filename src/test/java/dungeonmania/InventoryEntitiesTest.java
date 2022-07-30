@@ -14,6 +14,7 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import dungeonmania.CollectibleEntities.MidnightArmour;
 import dungeonmania.MovingEntities.Assassin;
 import dungeonmania.MovingEntities.FriendlyMovement;
 import dungeonmania.MovingEntities.Mercenary;
