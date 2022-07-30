@@ -1,8 +1,7 @@
 package dungeonmania;
 
+import dungeonmania.CollectibleEntities.*;
 import dungeonmania.MovingEntities.MovingEntity;
-import dungeonmania.CollectibleEntities.Bomb;
-import dungeonmania.CollectibleEntities.Potion;
 import dungeonmania.MovingEntities.*;
 import dungeonmania.StaticEntities.LogicalEntity;
 import dungeonmania.StaticEntities.LogicalSwitch;
@@ -16,9 +15,6 @@ import org.json.JSONObject;
 
 import java.lang.IllegalArgumentException;
 
-import dungeonmania.CollectibleEntities.InventoryObject;
-import dungeonmania.CollectibleEntities.InvincibilityPotion;
-import dungeonmania.CollectibleEntities.InvisibilityPotion;
 import dungeonmania.Collisions.CollisionManager;
 import dungeonmania.Goals.GoalManager;
 import dungeonmania.exceptions.InvalidActionException;
@@ -335,12 +331,14 @@ public class DungeonManiaController {
      * /game/interact
      */
     public DungeonResponse interact(String entityId) throws IllegalArgumentException, InvalidActionException {
-        var toInteractWith = getDmc().getAllEntities().stream().filter(entity -> entity.getId().equals(entityId)).findFirst().get();
+        var toInteractWith = getDmc().getAllEntities().stream().filter(entity -> entity.getId().equals(entityId)).findFirst().orElse(null);
         if (toInteractWith == null || !(toInteractWith instanceof Interactable)) throw new IllegalArgumentException("Entity cannot be found with specified Id");
+        var hasSceptre = getPlayer().getInventory().stream().anyMatch(it -> it instanceof Sceptre);
         ((Interactable) toInteractWith).interact(getPlayer());
-
-        doSharedSpawn();
-        doSharedTick();
+        if (hasSceptre && getPlayer().getInventory().stream().noneMatch(it -> it instanceof Sceptre)) {
+            doSharedSpawn();
+            doSharedTick();
+        }
         // Resets all of the observer lists for the logical entities
         for (LogicalEntity logicalEntity : getDmc().getAllEntities().stream()
         .filter(entity -> (entity instanceof LogicalEntity))
