@@ -341,8 +341,8 @@ public class InventoryEntitiesTest {
         res = dmc.interact(merc.getId());
         assertTrue(getInventory(res, "sceptre").size() == 0);
         assertTrue(merc.getMovementStrategy() instanceof FriendlyMovement);
-        res = dmc.tick(Direction.RIGHT);
-        assertTrue(merc.getMovementStrategy() instanceof FriendlyMovement);
+        //res = dmc.tick(Direction.RIGHT);
+        //assertTrue(merc.getMovementStrategy() instanceof FriendlyMovement);
         res = dmc.tick(Direction.RIGHT);
         assertFalse(merc.getMovementStrategy() instanceof FriendlyMovement);
     }
@@ -363,8 +363,8 @@ public class InventoryEntitiesTest {
         res = dmc.interact(merc.getId());
         assertTrue(getInventory(res, "sceptre").size() == 0);
         assertTrue(merc.getMovementStrategy() instanceof FriendlyMovement);
-        res = dmc.tick(Direction.RIGHT);
-        assertTrue(merc.getMovementStrategy() instanceof FriendlyMovement);
+        //res = dmc.tick(Direction.RIGHT);
+        //assertTrue(merc.getMovementStrategy() instanceof FriendlyMovement);
         res = dmc.tick(Direction.RIGHT);
         assertFalse(merc.getMovementStrategy() instanceof FriendlyMovement);
     }
@@ -389,8 +389,8 @@ public class InventoryEntitiesTest {
         res = dmc.interact(merc.getId());
         assertTrue(getInventory(res, "sceptre").size() == 0);
         assertTrue(merc.getMovementStrategy() instanceof FriendlyMovement);
-        res = dmc.tick(Direction.RIGHT);
-        assertTrue(merc.getMovementStrategy() instanceof FriendlyMovement);
+        //res = dmc.tick(Direction.RIGHT);
+        //assertTrue(merc.getMovementStrategy() instanceof FriendlyMovement);
         res = dmc.tick(Direction.RIGHT);
         assertFalse(merc.getMovementStrategy() instanceof FriendlyMovement);
     }

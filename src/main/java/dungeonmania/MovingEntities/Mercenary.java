@@ -94,10 +94,10 @@ public class Mercenary extends MovingEntity implements PlayerListener, Interacta
 
     @Override
     public void updateMindControl() {
+        sceptreDuration--;
         if (sceptreDuration <= 0 && !isBribed) {
             isFriendly = false;
             setInteractable(true);
         }
-        sceptreDuration--;
     }
 }
