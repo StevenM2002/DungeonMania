@@ -19,6 +19,7 @@ import dungeonmania.response.models.BattleResponse;
 import dungeonmania.response.models.DungeonResponse;
 import dungeonmania.response.models.RoundResponse;
 import dungeonmania.util.Direction;
+import dungeonmania.util.Position;
 
 public class TestBattles {
     private List<InventoryObject> inventory;

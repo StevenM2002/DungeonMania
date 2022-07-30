@@ -13,6 +13,8 @@ import dungeonmania.StaticEntities.ZombieToastSpawner;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.google.gson.JsonObject;
+
 import java.lang.IllegalArgumentException;
 
 import dungeonmania.Collisions.CollisionManager;
