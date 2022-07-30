@@ -1,11 +1,13 @@
 package dungeonmania;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import dungeonmania.exceptions.InvalidActionException;
 import dungeonmania.response.models.DungeonResponse;
 import dungeonmania.response.models.EntityResponse;
 
@@ -15,6 +17,7 @@ import dungeonmania.util.Position;
 import static dungeonmania.TestUtils.getPlayer;
 import static dungeonmania.TestUtils.getEntities;
 import static dungeonmania.TestUtils.getEntityFromID;
+import static dungeonmania.TestUtils.getInventory;
 import java.util.List;
 
 public class LogicSwitchesTests {
@@ -104,11 +107,41 @@ public class LogicSwitchesTests {
 
     @Test
     public void testLogicDoor() {
-        
+        DungeonManiaController dmc = new DungeonManiaController();
+        dmc.newGame("d_basicSwitchdoorTest", "c_shieldConstructionTest");
+        // pushed boulder on to switch
+        dmc.tick(Direction.LEFT);
+        // Tries to move through the door, should work
+        dmc.tick(Direction.UP);
+        dmc.tick(Direction.LEFT);
+        dmc.tick(Direction.LEFT);
+        Position expectedPlayerPosition = new Position(1, 1);
+        DungeonResponse res = dmc.tick(Direction.DOWN);
+        assertEquals(expectedPlayerPosition, getPlayer(res).get().getPosition());
+        // Push boulder off the switch, should lock the door
+        dmc.tick(Direction.RIGHT);
+        res = dmc.tick(Direction.LEFT);
+        expectedPlayerPosition = new Position(2, 1);
+        assertEquals(expectedPlayerPosition, getPlayer(res).get().getPosition());
     }
 
     @Test
-    public void testAndWires() {
-
+    public void testLogicBomb() throws IllegalArgumentException, InvalidActionException {
+        DungeonManiaController dmc = new DungeonManiaController();
+        dmc.newGame("Logicalbomb", "c_shieldConstructionTest");
+        // Picking up bomb
+        dmc.tick(Direction.DOWN);
+        DungeonResponse res = dmc.tick(Direction.RIGHT);
+        assertEquals(1, getInventory(res, "bomb").size());
+        // Place bomb
+        String bombId = getInventory(res, "bomb").get(0).getId();
+        res = assertDoesNotThrow(() -> dmc.tick(bombId));
+        // Goes back to activate switch
+        dmc.tick(Direction.LEFT);
+        dmc.tick(Direction.UP);
+        // Next tick should blow stuff up
+        assertEquals(10, dmc.getDungeonResponseModel().getEntities().size());
+        res = dmc.tick(Direction.RIGHT);
+        assertEquals(6, dmc.getDungeonResponseModel().getEntities().size());
     }
 }
