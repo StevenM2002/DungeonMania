@@ -100,10 +100,6 @@ public class BattleManager {
         return rounds;
     }
 
-    private static boolean isInvincible() {
-        return false;
-    }
-
     public void doBattle(Player player, MovingEntity enemy) {
         double initialEnemyHealth = enemy.getHealth();
         double initialPlayerHealth = player.getHealth();

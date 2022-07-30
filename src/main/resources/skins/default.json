@@ -47,6 +47,8 @@
         "portal_blue": "images/tileset/entities/portal_00.png",
         "hydra": "images/tileset/entities/hydra.png",
         "swamp_tile" : "images/tileset/entities/swamp_tile.png",
-        "assassin": "images/tileset/entities/assassin.png"
+        "assassin": "images/tileset/entities/assassin.png",
+        "sceptre": "images/tileset/entities/sceptre.png",
+        "sun_stone": "images/tileset/entities/sun_stone.png"
     }
 }
