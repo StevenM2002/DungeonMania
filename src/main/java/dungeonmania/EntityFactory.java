@@ -140,7 +140,7 @@ public class EntityFactory {
                 newEntity = new CollectibleEntity(id, position, new Arrow(id));
                 break;
             case "bomb":
-                newEntity = new CollectibleEntity(id, position, new Bomb(id, config.getInt("bomb_radius")));
+                newEntity = new CollectibleEntity(id, position, new Bomb(id, config.getInt("bomb_radius"), extraInfo));
                 break;
             case "sword":
                 newEntity = new CollectibleEntity(id, position, new Sword(id, config.getInt("sword_attack"), config.getInt("sword_durability")));
@@ -155,12 +155,23 @@ public class EntityFactory {
                 newEntity = new Wire(id, position, extraInfo.getString("logic"));
                 break;
             case "active_bomb":
-                newEntity = new ActiveBomb(id, position, false);
+                if (extraInfo.has("logic")) {
+                    newEntity = new LogicalBomb(id, position, extraInfo.getString("logic"));;
+                }
+                else {
+                    newEntity = new ActiveBomb(id, position, false);
+                }
+                
                 break;
             case "assassin":
                 newEntity = new Assassin(id, position, true, config.getInt("assassin_health"), config.getInt("assassin_attack"), new FollowMovement());
                 getDmc().getPlayer().subscribe((PlayerListener) newEntity);
                 break;
+            case "switch_door":
+                newEntity = new SwitchDoor(id, position, extraInfo.getInt("key"), extraInfo.getString("logic"));
+                if (extraInfo.has("locked") && !extraInfo.getBoolean("locked")) {
+                    ((Door) newEntity).unlock();
+                }
         }
         if (newEntity != null) {
             getDmc().getAllEntities().add(newEntity);

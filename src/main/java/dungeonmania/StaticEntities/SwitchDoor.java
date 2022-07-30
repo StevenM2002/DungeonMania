@@ -56,6 +56,12 @@ public class SwitchDoor extends Door implements LogicalEntity, Switch{
             }
         }   
         this.activated = activated;
+        if (activated) {
+            super.unlock();
+        }
+        else {
+            super.lock();
+        }
     }
 
     @Override

@@ -9,7 +9,7 @@ import dungeonmania.util.UtilityFunctions;
 
 public class Door extends StaticEntity {
     private int key;
-    private boolean locked;
+    protected boolean locked;
     public Door(String id, Position position, int key) {
         super(id, position, false);
         this.key = key;
@@ -22,6 +22,9 @@ public class Door extends StaticEntity {
 
     public void unlock() {
         locked = false;
+    }
+    public void lock() {
+        locked = true;
     }
     public boolean isLocked() {
         return locked;
