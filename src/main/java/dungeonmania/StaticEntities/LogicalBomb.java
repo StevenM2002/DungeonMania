@@ -26,7 +26,7 @@ public class LogicalBomb extends ActiveBomb implements LogicalEntity, Switch{
 
     @Override
     public boolean isGoingToExplode(List<Entity> allEntities) {
-        return this.activated;
+        return getActivated();
     }
 
     @Override

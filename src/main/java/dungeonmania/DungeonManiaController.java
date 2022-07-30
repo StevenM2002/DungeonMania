@@ -5,7 +5,10 @@ import dungeonmania.CollectibleEntities.Bomb;
 import dungeonmania.CollectibleEntities.Potion;
 import dungeonmania.MovingEntities.*;
 import dungeonmania.StaticEntities.LogicalEntity;
+import dungeonmania.StaticEntities.LogicalSwitch;
+import dungeonmania.StaticEntities.Wire;
 import dungeonmania.StaticEntities.ActiveBomb;
+import dungeonmania.StaticEntities.LogicalBomb;
 import dungeonmania.StaticEntities.ZombieToastSpawner;
 
 import org.json.JSONArray;
@@ -238,9 +241,22 @@ public class DungeonManiaController {
     public DungeonResponse tick(String itemUsedId) throws IllegalArgumentException, InvalidActionException {
         var item = getPlayer().getInventory().stream().filter(it -> it.getId().equals(itemUsedId)).findFirst().orElse(null);
         if (item instanceof Bomb) {
-            EntityFactory.createEntity(item.getId(), "active_bomb", getPlayer().getPosition(), null);
+            EntityFactory.createEntity(item.getId(), "active_bomb", getPlayer().getPosition(), ((Bomb) item).getExtraInfo());
 //            allEntities.add(new ActiveBomb(item.getId(), getPlayer().getPosition(), false));
             getPlayer().removeInventoryItem(item);
+            // Adds bombs to relevant observer lists
+            for (LogicalEntity logicalEntity : getDmc().getAllEntities().stream()
+            .filter(entity -> (entity instanceof Wire))
+            .map(entity -> (Wire) entity)
+            .collect(Collectors.toList())) {
+                ((Wire) logicalEntity).addBombToObserverList(allEntities);
+            }
+            for (LogicalEntity logicalEntity : getDmc().getAllEntities().stream()
+            .filter(entity -> (entity instanceof LogicalSwitch))
+            .map(entity -> (LogicalSwitch) entity)
+            .collect(Collectors.toList())) {
+                ((LogicalSwitch) logicalEntity).addBombToObserverList(allEntities);
+            }
         } else if (item instanceof Potion) {
             getPlayer().queuePotion(itemUsedId);
         } else {

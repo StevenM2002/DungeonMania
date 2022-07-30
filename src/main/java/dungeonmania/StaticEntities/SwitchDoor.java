@@ -1,9 +1,11 @@
 package dungeonmania.StaticEntities;
 
 import dungeonmania.util.Position;
+import dungeonmania.util.UtilityFunctions;
 import dungeonmania.Entity;
 import java.util.ArrayList;
 import java.util.List;
+import dungeonmania.response.models.EntityResponse;
 
 public class SwitchDoor extends Door implements LogicalEntity, Switch{
     private List<LogicalEntity> observers = new ArrayList<LogicalEntity>();
@@ -40,6 +42,21 @@ public class SwitchDoor extends Door implements LogicalEntity, Switch{
     }
 
     @Override
+    public EntityResponse getEntityResponse() {
+        String type;
+        if (locked) {
+             type = getType();
+        } else {
+            type = getType() + "_open";
+        }
+        return new EntityResponse(
+                getId(),
+                UtilityFunctions.camelToSnake(type),
+                getPosition(),
+                getIsInteractable());
+    }
+
+    @Override
     public void setActivated(boolean activated) {
         if (activated != this.activated) {
             for (LogicalEntity observer : observers) {
@@ -56,6 +73,12 @@ public class SwitchDoor extends Door implements LogicalEntity, Switch{
             }
         }   
         this.activated = activated;
+        if (activated) {
+            super.unlock();
+        }
+        else {
+            super.lock();
+        }
     }
 
     @Override

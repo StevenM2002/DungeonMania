@@ -34,6 +34,21 @@ public class Wire extends StaticEntity implements LogicalEntity, Switch{
         }
     }
 
+    public void addBombToObserverList(List<Entity> allEntities) {
+        if (logicalCondition.equals("xor")) {
+            return;
+        }
+        List<Position> adjacentPositions = this.getPosition().getAdjacentPositions();
+        for (int i = 0; i < 4; i++) {
+            adjacentPositions.remove(i);
+        }
+        for (Entity entity : allEntities) {
+            if (entity instanceof LogicalBomb && adjacentPositions.contains(entity.getPosition())) {
+                this.observers.add((LogicalEntity) entity);
+            }
+        }
+    }
+
     @Override
     public boolean getActivated() {
         return this.activated;

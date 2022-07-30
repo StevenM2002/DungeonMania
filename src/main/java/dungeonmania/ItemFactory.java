@@ -22,7 +22,7 @@ public class ItemFactory {
                 newItem = new Arrow(id);
                 break;
             case "bomb":
-                newItem = new Bomb(id, config.getInt("bomb_radius"));
+                newItem = new Bomb(id, config.getInt("bomb_radius"), extraInfo);
                 break;
             case "bow":
                 newItem = new Bow(id, extraInfo.getInt("durability"));
