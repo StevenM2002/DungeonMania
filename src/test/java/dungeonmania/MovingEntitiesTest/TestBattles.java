@@ -12,11 +12,9 @@ import org.junit.jupiter.api.Test;
 import dungeonmania.DungeonManiaController;
 import dungeonmania.CollectibleEntities.Bow;
 import dungeonmania.CollectibleEntities.InventoryObject;
-import dungeonmania.CollectibleEntities.InvincibilityPotion;
 import dungeonmania.CollectibleEntities.MidnightArmour;
 import dungeonmania.CollectibleEntities.Shield;
 import dungeonmania.CollectibleEntities.Sword;
-import dungeonmania.exceptions.InvalidActionException;
 import dungeonmania.response.models.BattleResponse;
 import dungeonmania.response.models.DungeonResponse;
 import dungeonmania.response.models.RoundResponse;
@@ -193,26 +191,5 @@ public class TestBattles {
                 "c_battleTests_basicHydraHeal");
         BattleResponse battle = postBattleResponse.getBattles().get(0);
         assertHydraBattleCalculations("hydra", battle, false, "c_battleTests_basicHydraHeal");
-    }
-
-
-    private DungeonResponse MercenarySequenceSword(DungeonManiaController controller, String configFile) {
-        DungeonResponse initialResponse = controller.newGame("d_battleTest_MercenarySword", configFile);
-        int mercenaryCount = countEntityOfType(initialResponse, "mercenary");
-
-        assertEquals(1, countEntityOfType(initialResponse, "player"));
-        assertEquals(1, mercenaryCount);
-        return controller.tick(Direction.RIGHT);
-    }
-
-    @Test 
-    public void testWeaponSword() throws IllegalArgumentException, InvalidActionException {
-        DungeonManiaController controller = new DungeonManiaController();
-        DungeonResponse postBattleResponse = MercenarySequenceSword(controller,"c_battleTests_basicMercenarySword");
-        setInventory(controller.getPlayer().getInventory());
-        assertEquals(true, controller.getPlayer().getInventory().stream().anyMatch(e -> e instanceof Sword));
-        postBattleResponse = controller.tick(Direction.LEFT);
-        BattleResponse battle = postBattleResponse.getBattles().get(0);
-        assertBattleCalculations(controller.getPlayer().getInventory(), "mercenary", battle, true, "c_battleTests_basicMercenarySword");
     }
 }

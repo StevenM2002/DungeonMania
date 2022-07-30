@@ -3,6 +3,7 @@ package dungeonmania.MovingEntities;
 import dungeonmania.CollectibleEntities.InvincibilityPotion;
 import dungeonmania.CollectibleEntities.InvisibilityPotion;
 import dungeonmania.CollectibleEntities.Potion;
+import dungeonmania.CollectibleEntities.Sceptre;
 import dungeonmania.CollectibleEntities.Treasure;
 import dungeonmania.Player;
 import dungeonmania.PlayerListener;
@@ -14,9 +15,11 @@ import java.util.Random;
 
 import static dungeonmania.DungeonManiaController.getDmc;
 
-public class Assassin extends MovingEntity implements PlayerListener, Interactable {
+public class Assassin extends MovingEntity implements PlayerListener, Interactable, MindControl {
 
     private boolean isFriendly = false;
+    private boolean isBribed = false;
+    private int sceptreDuration = 0;
 
     public Assassin(String id, Position position, boolean isInteractable, double health, double attack, Movement movementStrategy) {
         super(id, position, isInteractable, health, attack, movementStrategy);
@@ -29,12 +32,18 @@ public class Assassin extends MovingEntity implements PlayerListener, Interactab
 
     @Override
     public void interact(Player player) throws InvalidActionException {
-        if (isFriendly) throw new InvalidActionException("Already bribed");
-        if (!isPlayerInRadius(player, getDmc().getConfigValue("bribe_radius"))) throw new InvalidActionException("Not in range to bribe");
-        var amountToBribe = getDmc().getConfig().getInt("assassin_bribe_amount");
-        if (player.getInventory().stream().filter(it -> it instanceof Treasure).count() < amountToBribe) throw new InvalidActionException("Not enough money");
-        removeTreasureFromPlayer(amountToBribe, player);
-        if (isGoingToFail()) return;
+        if (player.getInventory().stream().anyMatch(e -> e instanceof Sceptre)) {
+            Sceptre sceptre = (Sceptre) player.getInventory().stream().filter(e -> e instanceof Sceptre).findFirst().get();
+            sceptreDuration = sceptre.getEffectDuration();
+            player.getInventory().remove(sceptre);
+        } else {
+            if (isFriendly) throw new InvalidActionException("Already bribed");
+            if (!isPlayerInRadius(player, getDmc().getConfigValue("bribe_radius"))) throw new InvalidActionException("Not in range to bribe");
+            var amountToBribe = getDmc().getConfig().getInt("assassin_bribe_amount");
+            if (player.getInventory().stream().filter(it -> it instanceof Treasure).count() < amountToBribe) throw new InvalidActionException("Not enough money");
+            removeTreasureFromPlayer(amountToBribe, player);
+            if (isGoingToFail()) return;
+        }
         setNowFriendly();
     }
     public void setNowFriendly() {
@@ -78,5 +87,14 @@ public class Assassin extends MovingEntity implements PlayerListener, Interactab
         JSONObject newJSON = super.toJSON();
         newJSON.put("isFriendly", isFriendly);
         return newJSON;
+    }
+
+    @Override
+    public void updateMindControl() {
+        if (sceptreDuration <= 0 && !isBribed) {
+            isFriendly = false;
+            setInteractable(true);
+        }
+        sceptreDuration--;
     }
 }

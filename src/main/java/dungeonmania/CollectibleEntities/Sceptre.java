@@ -1,6 +1,7 @@
 package dungeonmania.CollectibleEntities;
 
 import java.util.List;
+
 import java.util.ArrayList;
 
 public class Sceptre extends InventoryObject implements Buildable {
