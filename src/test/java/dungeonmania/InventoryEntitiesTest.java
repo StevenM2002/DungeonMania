@@ -1,6 +1,7 @@
 package dungeonmania;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -13,7 +14,10 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import dungeonmania.CollectibleEntities.MidnightArmour;
+import dungeonmania.MovingEntities.Assassin;
+import dungeonmania.MovingEntities.FriendlyMovement;
+import dungeonmania.MovingEntities.Mercenary;
+import dungeonmania.MovingEntities.RunningMovement;
 import dungeonmania.exceptions.InvalidActionException;
 import dungeonmania.response.models.BattleResponse;
 import dungeonmania.response.models.DungeonResponse;
@@ -319,5 +323,75 @@ public class InventoryEntitiesTest {
         assertEquals(1, getInventory(res, "shield").size());
         assertEquals(0, getInventory(res, "wood").size());
         assertEquals(1, getInventory(res, "sun_stone").size());
+    }
+
+    @Test
+    @DisplayName("Test sceptre mind controlling mercenary.")
+    public void testMindControlMercenary() throws IllegalArgumentException, InvalidActionException {
+        DungeonManiaController dmc = new DungeonManiaController();
+        DungeonResponse res = dmc.newGame("d_mindControlMercenaryTest", "c_mindControl");
+        assertTrue(getInventory(res, "sceptre").size() == 0);
+
+        dmc.tick(Direction.RIGHT);
+        dmc.tick(Direction.RIGHT);
+        dmc.tick(Direction.RIGHT);
+        res = dmc.build("sceptre");
+        assertEquals(1, getInventory(res, "sceptre").size());
+        Mercenary merc = (Mercenary) dmc.getAllEntities().stream().filter(e -> e instanceof Mercenary).findFirst().get();
+        res = dmc.interact(merc.getId());
+        assertTrue(getInventory(res, "sceptre").size() == 0);
+        assertTrue(merc.getMovementStrategy() instanceof FriendlyMovement);
+        res = dmc.tick(Direction.RIGHT);
+        assertTrue(merc.getMovementStrategy() instanceof FriendlyMovement);
+        res = dmc.tick(Direction.RIGHT);
+        assertFalse(merc.getMovementStrategy() instanceof FriendlyMovement);
+    }
+
+    @Test
+    @DisplayName("Test sceptre mind controlling assassin.")
+    public void testMindControlAssassin() throws IllegalArgumentException, InvalidActionException {
+        DungeonManiaController dmc = new DungeonManiaController();
+        DungeonResponse res = dmc.newGame("d_mindControlAssassinTest", "c_mindControl");
+        assertTrue(getInventory(res, "sceptre").size() == 0);
+
+        dmc.tick(Direction.RIGHT);
+        dmc.tick(Direction.RIGHT);
+        dmc.tick(Direction.RIGHT);
+        res = dmc.build("sceptre");
+        assertEquals(1, getInventory(res, "sceptre").size());
+        Assassin merc = (Assassin) dmc.getAllEntities().stream().filter(e -> e instanceof Assassin).findFirst().get();
+        res = dmc.interact(merc.getId());
+        assertTrue(getInventory(res, "sceptre").size() == 0);
+        assertTrue(merc.getMovementStrategy() instanceof FriendlyMovement);
+        res = dmc.tick(Direction.RIGHT);
+        assertTrue(merc.getMovementStrategy() instanceof FriendlyMovement);
+        res = dmc.tick(Direction.RIGHT);
+        assertFalse(merc.getMovementStrategy() instanceof FriendlyMovement);
+    }
+
+    @Test
+    @DisplayName("Test sceptre mind control during invincibility.")
+    public void testMindControlThenInvincibility() throws IllegalArgumentException, InvalidActionException {
+        DungeonManiaController dmc = new DungeonManiaController();
+        DungeonResponse res = dmc.newGame("d_mindControlInvincibilityTest", "c_mindControl");
+        assertTrue(getInventory(res, "sceptre").size() == 0);
+
+        dmc.tick(Direction.RIGHT);
+        dmc.tick(Direction.RIGHT);
+        dmc.tick(Direction.RIGHT);
+        res = dmc.build("sceptre");
+        assertEquals(1, getInventory(res, "sceptre").size());
+        res = dmc.tick(Direction.RIGHT);
+        assertEquals(1, getInventory(res, "invincibility_potion").size());
+        dmc.tick(getInventory(res, "invincibility_potion").get(0).getId());
+        Mercenary merc = (Mercenary) dmc.getAllEntities().stream().filter(e -> e instanceof Mercenary).findFirst().get();
+        assertTrue(merc.getMovementStrategy() instanceof RunningMovement);
+        res = dmc.interact(merc.getId());
+        assertTrue(getInventory(res, "sceptre").size() == 0);
+        assertTrue(merc.getMovementStrategy() instanceof FriendlyMovement);
+        res = dmc.tick(Direction.RIGHT);
+        assertTrue(merc.getMovementStrategy() instanceof FriendlyMovement);
+        res = dmc.tick(Direction.RIGHT);
+        assertFalse(merc.getMovementStrategy() instanceof FriendlyMovement);
     }
 }

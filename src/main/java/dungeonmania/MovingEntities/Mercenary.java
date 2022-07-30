@@ -3,6 +3,8 @@ package dungeonmania.MovingEntities;
 import java.util.stream.Collectors;
 
 import dungeonmania.CollectibleEntities.Potion;
+import dungeonmania.CollectibleEntities.Sceptre;
+
 import org.json.JSONObject;
 
 import dungeonmania.Player;
@@ -16,8 +18,10 @@ import dungeonmania.PlayerListener;
 import static dungeonmania.DungeonManiaController.getDmc;
 
 
-public class Mercenary extends MovingEntity implements PlayerListener, Interactable {
+public class Mercenary extends MovingEntity implements PlayerListener, Interactable, MindControl {
     private boolean isFriendly = false;
+    private boolean isBribed = false;
+    private int sceptreDuration = 0;
     public Mercenary(String id, Position position, double health, double attack) {
         super(id, position, true, health, attack, new FollowMovement());
     }
@@ -51,16 +55,25 @@ public class Mercenary extends MovingEntity implements PlayerListener, Interacta
     @Override
     public void interact(Player player) throws InvalidActionException {
         if (isFriendly) throw new InvalidActionException("Already bribed");
-        if (!isInInteractableRadius(player)) {
-            throw new InvalidActionException("Not in bribing range");
-        };
-        if (player.getInventory().stream().filter(it -> it instanceof Treasure).collect(Collectors.toList()).size() < getDmc().getConfigValue("bribe_amount")) {
-            throw new InvalidActionException("Bribe amount is not enough");
+
+        if (player.getInventory().stream().anyMatch(e -> e instanceof Sceptre)) {
+            Sceptre sceptre = (Sceptre) player.getInventory().stream().filter(e -> e instanceof Sceptre).findFirst().get();
+            sceptreDuration = sceptre.getEffectDuration();
+            player.getInventory().remove(sceptre);
+        } else {
+            if (!isInInteractableRadius(player)) {
+                throw new InvalidActionException("Not in bribing range");
+            };
+            if (player.getInventory().stream().filter(it -> it instanceof Treasure).collect(Collectors.toList()).size() < getDmc().getConfigValue("bribe_amount")) {
+                throw new InvalidActionException("Bribe amount is not enough");
+            }
+            for (int i = 0; i < getDmc().getConfigValue("bribe_amount"); i++) {
+                var key = player.getInventory().stream().filter(it -> it instanceof Treasure).findFirst().get().getId();
+                player.getInventory().removeIf(it -> it.getId().equals(key));
+            }
+            isBribed = true;
         }
-        for (int i = 0; i < getDmc().getConfigValue("bribe_amount"); i++) {
-            var key = player.getInventory().stream().filter(it -> it instanceof Treasure).findFirst().get().getId();
-            player.getInventory().removeIf(it -> it.getId().equals(key));
-        }
+
         this.setFriendly(true);
     }
 
@@ -77,5 +90,14 @@ public class Mercenary extends MovingEntity implements PlayerListener, Interacta
         JSONObject newJSON = super.toJSON();
         newJSON.put("isFriendly", isFriendly);
         return newJSON;
+    }
+
+    @Override
+    public void updateMindControl() {
+        if (sceptreDuration <= 0 && !isBribed) {
+            isFriendly = false;
+            setInteractable(true);
+        }
+        sceptreDuration--;
     }
 }

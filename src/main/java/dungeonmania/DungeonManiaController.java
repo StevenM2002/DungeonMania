@@ -266,6 +266,7 @@ public class DungeonManiaController {
     
     private void doSharedTick() {
         currTick++;
+        getDmc().getAllEntities().stream().filter(e -> e instanceof MindControl).map(e -> (MindControl) e).forEach(e -> e.updateMindControl());
         getPlayer().doPotionTick();
         // Set all of the preNumActivated for the logical entities
         for (LogicalEntity logicalEntity : getDmc().getAllEntities().stream()
