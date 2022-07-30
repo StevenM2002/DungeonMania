@@ -48,16 +48,14 @@ public class FollowMovement extends Movement {
     private List<Position> getValidAdjacentPositions(ArrayList<Position> grid, List<Entity> blockingEntities, Position currPos, Set<Position> notVisited) {
         HashSet<Position> retPos = new HashSet<>();
         List<Direction> directions = Arrays.asList(Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT);
-
+        var portalEntity = getDmc().getAllEntities().stream().filter(it -> it instanceof Portal && it.getPosition().equals(currPos)).findAny().orElse(null);
+        if (portalEntity != null) {
+            retPos.add(((Portal) portalEntity).getOtherPortal().getPosition());
+        }
         for (var direction : directions) {
             Position nextPosition = currPos.translateBy(direction);
             if (!blockingEntities.stream().anyMatch(entities -> entities.getPosition().equals(nextPosition)) && isInBounds(grid, currPos) && notVisited.contains(nextPosition)) {
-                var portalEntity = getDmc().getAllEntities().stream().filter(it -> it instanceof Portal && it.getPosition().equals(nextPosition)).findAny().orElse(null);
-                if (portalEntity != null) {
-                    retPos.add(((Portal) portalEntity).getOtherPortal().getPosition().translateBy(direction));
-                } else {
-                    retPos.add(nextPosition);
-                }
+                retPos.add(nextPosition);
             }
         }
         return new ArrayList<>(retPos);
