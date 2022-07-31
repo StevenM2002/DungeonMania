@@ -15,6 +15,7 @@ import dungeonmania.MovingEntities.MovingEntity;
 import dungeonmania.response.models.BattleResponse;
 import dungeonmania.response.models.ItemResponse;
 import dungeonmania.response.models.RoundResponse;
+import dungeonmania.util.UtilityFunctions;
 
 import static dungeonmania.DungeonManiaController.getDmc;
 
@@ -121,7 +122,7 @@ public class BattleManager {
         List<RoundResponse> rounds = doRounds(player, enemy);
         battleList.add(
             new BattleResponse(
-                enemy.getClass().toString(), 
+                UtilityFunctions.camelToSnake(enemy.getType()), 
                 rounds, 
                 initialPlayerHealth, 
                 initialEnemyHealth

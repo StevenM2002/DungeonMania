@@ -1,7 +1,7 @@
 package dungeonmania.Collisions;
 
 import dungeonmania.Entity;
-import dungeonmania.Player;
+import dungeonmania.HasInventory;
 import dungeonmania.CollectibleEntities.CollectibleEntity;
 import dungeonmania.CollectibleEntities.InventoryObject;
 import dungeonmania.CollectibleEntities.Key;
@@ -21,7 +21,7 @@ public class Collect extends Collision {
      */
     @Override
     public boolean processCollision(Entity moved, Entity collided, Direction direction) {
-        Player player = (Player) moved;
+        HasInventory player = (HasInventory) moved;
         CollectibleEntity collectibleEntity = (CollectibleEntity) collided;
         if (!(collectibleEntity.getCollectible() instanceof Key && player.getInventory().stream().anyMatch(x->x instanceof Key))) {
             player.getInventory().add((InventoryObject) collectibleEntity.getCollectible());

@@ -1,7 +1,5 @@
 package dungeonmania.MovingEntities;
 
-import java.util.stream.Collectors;
-
 import dungeonmania.CollectibleEntities.Potion;
 import dungeonmania.CollectibleEntities.Sceptre;
 
@@ -25,7 +23,12 @@ public class Mercenary extends MovingEntity implements PlayerListener, Interacta
     public Mercenary(String id, Position position, double health, double attack) {
         super(id, position, true, health, attack, new FollowMovement());
     }
-
+    public Mercenary(String id, Position position, double health, double attack, boolean isFriendly, boolean isBribed, int sceptreDuration) {
+        super(id, position, true, health, attack, new FollowMovement());
+        this.isBribed = isBribed;
+        this.sceptreDuration = sceptreDuration;
+        this.setFriendly(isFriendly);
+    }
     @Override
     public void update(Potion potion) {
         if (isFriendly) return;
@@ -64,16 +67,15 @@ public class Mercenary extends MovingEntity implements PlayerListener, Interacta
             if (!isInInteractableRadius(player)) {
                 throw new InvalidActionException("Not in bribing range");
             };
-            if (player.getInventory().stream().filter(it -> it instanceof Treasure).collect(Collectors.toList()).size() < getDmc().getConfigValue("bribe_amount")) {
+            if (player.getInventory().stream().filter(it -> it instanceof Treasure).count() < getDmc().getConfigValue("bribe_amount")) {
                 throw new InvalidActionException("Bribe amount is not enough");
             }
             for (int i = 0; i < getDmc().getConfigValue("bribe_amount"); i++) {
-                var key = player.getInventory().stream().filter(it -> it instanceof Treasure).findFirst().get().getId();
-                player.getInventory().removeIf(it -> it.getId().equals(key));
+                String treasureID = player.getInventory().stream().filter(it -> it instanceof Treasure).findFirst().get().getId();
+                player.getInventory().removeIf(it -> it.getId().equals(treasureID));
             }
             isBribed = true;
         }
-
         this.setFriendly(true);
     }
 
@@ -82,6 +84,9 @@ public class Mercenary extends MovingEntity implements PlayerListener, Interacta
         if (isFriendly) {
             setInteractable(false);
             setMovementStrategy(new FriendlyMovement());
+        } else {
+            setInteractable(true);
+            setMovementStrategy(new FollowMovement());
         }
     }
 
@@ -89,15 +94,17 @@ public class Mercenary extends MovingEntity implements PlayerListener, Interacta
     public JSONObject toJSON() {
         JSONObject newJSON = super.toJSON();
         newJSON.put("isFriendly", isFriendly);
+        newJSON.put("isBribed", isBribed);
+        newJSON.put("sceptreDuration", sceptreDuration);
+        System.out.println("saved merc: "+newJSON.toString());
         return newJSON;
     }
 
     @Override
     public void updateMindControl() {
-        if (sceptreDuration <= 0 && !isBribed) {
-            isFriendly = false;
-            setInteractable(true);
+        if (sceptreDuration <= 0 && !isBribed && isFriendly) {
+            setFriendly(false);
         }
-        sceptreDuration--;
+        if (sceptreDuration > 0) {sceptreDuration--;}
     }
 }

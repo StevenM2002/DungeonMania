@@ -48,6 +48,8 @@
         "hydra": "images/tileset/entities/hydra.png",
         "swamp_tile" : "images/tileset/entities/swamp_tile.png",
         "assassin": "images/tileset/entities/assassin.png",
+        "time_turner": "images/tileset/entities/time_turner.png",
+        "older_player": "images/tileset/entities/snowman.png",
         "wire": "images/tileset/entities/wire.png",
         "light_bulb_off": "images/tileset/entities/lightbulboff.png",
         "light_bulb_on": "images/tileset/entities/lightbulb.png",

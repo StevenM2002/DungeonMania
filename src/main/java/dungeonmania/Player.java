@@ -15,7 +15,7 @@ import dungeonmania.CollectibleEntities.MidnightArmour;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
-public class Player extends Entity implements CanMove, Battling {
+public class Player extends Entity implements CanMove, Battling, HasInventory {
     private Position previousPosition = getPosition();
     private List<InventoryObject> inventory = new ArrayList<>();
     private double attack;

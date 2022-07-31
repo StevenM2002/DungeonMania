@@ -49,7 +49,7 @@ public class EntityFactory {
      */
     public static Entity createEntity(String id, String type, Position position, JSONObject extraInfo) {
         JSONObject config = getDmc().getConfig();
-        if (extraInfo == null) extraInfo = new JSONObject();
+        if (extraInfo == null) extraInfo = new JSONObject(); // to avoid null checks
         Entity newEntity = null;
         switch (type) {
             case "player":
@@ -109,9 +109,13 @@ public class EntityFactory {
                 getDmc().getPlayer().subscribe((PlayerListener) newEntity);
                 break;
             case "mercenary":
-                newEntity = new Mercenary(id, position, config.getInt("mercenary_health"), config.getInt("mercenary_attack"));
                 if (extraInfo.has("isFriendly")) {
-                    ((Mercenary) newEntity).setFriendly(extraInfo.getBoolean("isFriendly"));
+                    newEntity = new Mercenary(id, position, 
+                        config.getInt("mercenary_health"), config.getInt("mercenary_attack"), 
+                        extraInfo.getBoolean("isFriendly"), extraInfo.getBoolean("isBribed"),
+                        extraInfo.getInt("sceptreDuration"));
+                } else {
+                    newEntity = new Mercenary(id, position, config.getInt("mercenary_health"), config.getInt("mercenary_attack"));
                 }
                 getDmc().getPlayer().subscribe((PlayerListener) newEntity);
                 break;
@@ -154,6 +158,12 @@ public class EntityFactory {
             case "wire":
                 newEntity = new Wire(id, position, extraInfo.getString("logic"));
                 break;
+            case "time_turner":
+                newEntity = new CollectibleEntity(id, position, new TimeTurner(id));
+                break;
+            case "time_travelling_portal":
+                newEntity = new TimeTravellingPortal(id, position);
+                break;
             case "active_bomb":
                 if (extraInfo.has("logic")) {
                     newEntity = new LogicalBomb(id, position, extraInfo.getString("logic"));;
@@ -161,17 +171,30 @@ public class EntityFactory {
                 else {
                     newEntity = new ActiveBomb(id, position, false);
                 }
-                
                 break;
             case "assassin":
-                newEntity = new Assassin(id, position, true, config.getInt("assassin_health"), config.getInt("assassin_attack"), new FollowMovement());
+                if (extraInfo.has("isFriendly")) {
+                    newEntity = new Assassin(id, position, 
+                        config.getInt("assassin_health"), config.getInt("assassin_attack"), 
+                        extraInfo.getBoolean("isFriendly"), extraInfo.getBoolean("isBribed"),
+                        extraInfo.getInt("sceptreDuration"));
+                } else {
+                    newEntity = new Assassin(id, position, config.getInt("assassin_health"), config.getInt("assassin_attack"));
+                }
                 getDmc().getPlayer().subscribe((PlayerListener) newEntity);
+                break;
+            case "older_player":
+                newEntity = new OlderPlayer(id, position, 
+                    config.getInt("player_health"), config.getInt("player_attack"), 
+                    extraInfo.getJSONArray("ticks"), extraInfo.getInt("currentTick")
+                );
                 break;
             case "switch_door":
                 newEntity = new SwitchDoor(id, position, extraInfo.getInt("key"), extraInfo.getString("logic"));
                 if (extraInfo.has("locked") && !extraInfo.getBoolean("locked")) {
                     ((Door) newEntity).unlock();
                 }
+                break;
         }
         if (newEntity != null) {
             getDmc().getAllEntities().add(newEntity);

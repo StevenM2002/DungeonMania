@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import dungeonmania.CollectibleEntities.InventoryObject;
+import dungeonmania.util.Direction;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,6 +14,10 @@ import java.io.PrintWriter;
 public class DungeonSaver {
     private JSONObject savedDungeon;
 
+    public JSONObject getSavedDungeon() {
+        return savedDungeon;
+    }
+
     public DungeonSaver(JSONObject dungeon, JSONObject config, DungeonManiaController dmc, String dungeonName, int dungeonID) {
         savedDungeon = new JSONObject();
         savedDungeon.put("config", config);
@@ -20,7 +25,7 @@ public class DungeonSaver {
         savedDungeon.put("dungeonName", dungeonName);
         savedDungeon.put("currentDungeonID", dungeonID);
         savedDungeon.put("ticks", new JSONArray());
-        storeCurrentTick(dmc);
+        storeCurrentTick(dmc, null);
     }
 
     public DungeonSaver(JSONObject savedDungeon) {
@@ -43,6 +48,18 @@ public class DungeonSaver {
         this.savedDungeon.put("ticks", newTicks);
     }
 
+    public void updateCurrentTick(DungeonManiaController dmc) {
+        JSONObject currTick = savedDungeon.getJSONArray("ticks").getJSONObject(savedDungeon.getJSONArray("ticks").length() - 1);
+        // doing entity list
+        currTick.put("entities", new JSONArray());
+        for (Entity e : dmc.getAllEntities()) {
+            currTick.getJSONArray("entities").put(e.toJSON());
+        }
+        savedDungeon.getJSONArray("ticks").remove((savedDungeon.getJSONArray("ticks").length() - 1));
+        savedDungeon.getJSONArray("ticks").put(currTick);
+        //;
+    }
+
     /**
      * Stores all the information regarding the current tick in the savedDungeon
      * Stored information includes:
@@ -56,11 +73,14 @@ public class DungeonSaver {
      * @apiNote stores the battleList, converted to JSON
      * @param dmc
      */
-    public void storeCurrentTick(DungeonManiaController dmc) {
+    public void storeCurrentTick(DungeonManiaController dmc, Direction moved) {
         JSONObject currTick = new JSONObject();
         currTick.put("tick", dmc.getCurrTick());
         currTick.put("currentEntityID", EntityFactory.getCurrentEntityID());
         currTick.put("currentCraftingID", CraftingManager.getIDCounter());
+        if (moved != null) {
+            currTick.put("moved", moved.toString());
+        }
         
         // doing potions
         JSONObject currentPotion = new JSONObject();
