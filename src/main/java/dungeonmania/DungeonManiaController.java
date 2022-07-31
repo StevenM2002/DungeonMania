@@ -7,6 +7,7 @@ import dungeonmania.StaticEntities.LogicalEntity;
 import dungeonmania.StaticEntities.LogicalSwitch;
 import dungeonmania.StaticEntities.Wire;
 import dungeonmania.StaticEntities.ActiveBomb;
+import dungeonmania.StaticEntities.LogicalBomb;
 import dungeonmania.StaticEntities.ZombieToastSpawner;
 
 import org.json.JSONArray;
@@ -273,6 +274,14 @@ public class DungeonManiaController {
             return getDungeonResponseModel();
         }
         doSharedTick();
+        // Resets all of the observer lists for the logical entities
+        for (LogicalEntity logicalEntity : getDmc().getAllEntities().stream()
+        .filter(entity -> (entity instanceof LogicalEntity))
+        .map(entity -> (LogicalEntity) entity)
+        .collect(Collectors.toList())) {
+            logicalEntity.createObserverList(allEntities);
+        }
+        
         dungeonSaver.storeCurrentTick(getDmc(), movementDirection);
 
         // if the time travelling portal is landed on
@@ -344,13 +353,6 @@ public class DungeonManiaController {
         ((Interactable) toInteractWith).interact(getPlayer());
         getDmc().getAllEntities().stream().filter(e -> e instanceof MindControl).map(e -> (MindControl) e).forEach(e -> e.updateMindControl());
 
-        // Resets all of the observer lists for the logical entities
-        for (LogicalEntity logicalEntity : getDmc().getAllEntities().stream()
-        .filter(entity -> (entity instanceof LogicalEntity))
-        .map(entity -> (LogicalEntity) entity)
-        .collect(Collectors.toList())) {
-            logicalEntity.createObserverList(allEntities);;
-        }
         dungeonSaver.updateCurrentTick(getDmc());
         return getDungeonResponseModel();
     }

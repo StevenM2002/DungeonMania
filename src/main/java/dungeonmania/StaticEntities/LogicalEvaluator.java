@@ -1,9 +1,7 @@
 package dungeonmania.StaticEntities;
 
-import java.util.List;
-
 public class LogicalEvaluator {
-    public Boolean evaluate(List<LogicalEntity> observers, String logicalCondition, int numActivated, int numActivatedPrev) {
+    public Boolean evaluate(String logicalCondition, int numActivated, int numActivatedPrev) {
         switch (logicalCondition) {
             case "and":
                 if (numActivated >= 2) {

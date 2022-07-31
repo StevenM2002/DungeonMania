@@ -2,11 +2,9 @@ package dungeonmania.StaticEntities;
 
 import dungeonmania.util.Position;
 import dungeonmania.Entity;
-import java.util.ArrayList;
 import java.util.List;
 
 public class LightBulb extends StaticEntity implements LogicalEntity, Switch{
-    private List<LogicalEntity> observers = new ArrayList<LogicalEntity>();
     private Boolean activated = false;
     private LogicalEvaluator logicalEvaluator = new LogicalEvaluator();
     private String logicalCondition;
@@ -20,18 +18,9 @@ public class LightBulb extends StaticEntity implements LogicalEntity, Switch{
 
     @Override
     public void createObserverList(List<Entity> allEntities) {
-        if (logicalCondition.equals("xor")) {
-            return;
-        }
-        List<Position> adjacentPositions = this.getPosition().getAdjacentPositions();
-        for (int i = 0; i < 4; i++) {
-            adjacentPositions.remove(i);
-        }
-        for (Entity entity : allEntities) {
-            if (entity instanceof LogicalEntity && adjacentPositions.contains(entity.getPosition())) {
-                this.observers.add((LogicalEntity) entity);
-            }
-        }
+        // I know having functions that do nothing is bad, but I wrote this thinking all logical entities carry current and no I really can't be stuffed
+        // to rearrange all my code so that lighbulbs etc. don't have to override the observer list functions so this is what I'm doing. Surely cut me some
+        // slack since a forum tutor only told me about lightbulbs etc. not conducting current a few hours before the due time
     }
 
     public String getTypeString() {
@@ -50,22 +39,6 @@ public class LightBulb extends StaticEntity implements LogicalEntity, Switch{
 
     @Override
     public void setActivated(boolean activated) {
-        if (activated != this.activated) {
-            for (LogicalEntity observer : observers) {
-                if (activated) {
-                    if (observer.evaluateLogic() != observer.getActivated()) {
-                        observer.removeObserver(this);
-                    }
-                    observer.changeNumAdjacentActivated(1);
-                    if (!this.observers.contains(observer)) {
-                        this.observers.add(observer);
-                    }
-                }
-                else {
-                    observer.changeNumAdjacentActivated(-1);
-                }
-            }
-        }   
         this.activated = activated;
     }
 
@@ -82,18 +55,14 @@ public class LightBulb extends StaticEntity implements LogicalEntity, Switch{
     @Override
     public void changeNumAdjacentActivated(int change) {
         this.numAdjacentActivated += change;
-        setActivated(logicalEvaluator.evaluate(observers, logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev));
+        setActivated(logicalEvaluator.evaluate(logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev));
     }
 
     @Override
-    public void registerObserver(LogicalEntity logicalEntity) {
-        observers.add(logicalEntity);
-    }
+    public void registerObserver(LogicalEntity logicalEntity) {}
 
     @Override
-    public void removeObserver(LogicalEntity logicalEntity) {
-        observers.remove(logicalEntity);
-    }
+    public void removeObserver(LogicalEntity logicalEntity) {}
 
     @Override
     public String getLogicalCondition() {
@@ -102,7 +71,7 @@ public class LightBulb extends StaticEntity implements LogicalEntity, Switch{
     
     @Override
     public boolean evaluateLogic() {
-        return logicalEvaluator.evaluate(observers, logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev);
+        return logicalEvaluator.evaluate(logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev);
     }
 
 }
