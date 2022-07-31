@@ -31,9 +31,6 @@ public class LogicalSwitch extends StaticEntity implements Switch, LogicalEntity
         for (Entity entity : allEntities) {
             if (entity instanceof LogicalEntity && adjacentPositions.contains(entity.getPosition()) && !this.observers.contains((LogicalEntity) entity)) {
                 this.observers.add((LogicalEntity) entity);
-                if (this.activated) {
-                    ((LogicalEntity) entity).changeNumAdjacentActivated(1);
-                }
             }
         }
     }
@@ -61,7 +58,7 @@ public class LogicalSwitch extends StaticEntity implements Switch, LogicalEntity
     @Override
     public void changeNumAdjacentActivated(int change) {
         this.numAdjacentActivated += change;
-        setActivated(logicalEvaluator.evaluate(observers, logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev));
+        setActivated(logicalEvaluator.evaluate(logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev));
     }
 
     @Override
@@ -83,12 +80,9 @@ public class LogicalSwitch extends StaticEntity implements Switch, LogicalEntity
     public void setActivated(boolean activated) {
         if (activated != this.activated) {
             for (LogicalEntity observer : observers) {
+                observer.removeObserver(this);
                 if (activated) {
-                    observer.removeObserver(this);
                     observer.changeNumAdjacentActivated(1);
-                    if (!this.observers.contains(observer)) {
-                        this.observers.add(observer);
-                    }
                 }
                 else {
                     observer.changeNumAdjacentActivated(-1);
@@ -122,6 +116,6 @@ public class LogicalSwitch extends StaticEntity implements Switch, LogicalEntity
 
     @Override
     public boolean evaluateLogic() {
-        return logicalEvaluator.evaluate(observers, logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev);
+        return logicalEvaluator.evaluate(logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev);
     }
 }

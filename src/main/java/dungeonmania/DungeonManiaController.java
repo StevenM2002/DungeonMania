@@ -277,6 +277,13 @@ public class DungeonManiaController {
             return getDungeonResponseModel();
         }
         doSharedTick();
+        // Resets all of the observer lists for the logical entities
+        for (LogicalEntity logicalEntity : getDmc().getAllEntities().stream()
+        .filter(entity -> (entity instanceof LogicalEntity))
+        .map(entity -> (LogicalEntity) entity)
+        .collect(Collectors.toList())) {
+            logicalEntity.createObserverList(allEntities);
+        }
         return getDungeonResponseModel();
     }
     
@@ -341,13 +348,6 @@ public class DungeonManiaController {
 
         doSharedSpawn();
         doSharedTick();
-        // Resets all of the observer lists for the logical entities
-        for (LogicalEntity logicalEntity : getDmc().getAllEntities().stream()
-        .filter(entity -> (entity instanceof LogicalEntity))
-        .map(entity -> (LogicalEntity) entity)
-        .collect(Collectors.toList())) {
-            logicalEntity.createObserverList(allEntities);;
-        }
         return getDungeonResponseModel();
     }
 

@@ -173,7 +173,7 @@ public class LogicSwitchesTests {
         assertEquals(1, getEntities(res, "light_bulb_on").size());
         // Deactivate previous switch, lightbulb should stay on
         dmc.tick(Direction.DOWN);
-        dmc.tick(Direction.DOWN);
+        //dmc.tick(Direction.DOWN);
         dmc.tick(Direction.DOWN);
         dmc.tick(Direction.RIGHT);
         res = dmc.tick(Direction.RIGHT);

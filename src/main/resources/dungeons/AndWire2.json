@@ -19,12 +19,12 @@
             "type" : "switch",
             "x" : 1,
             "y" : 3,
-            "logic" : "or"
+            "logic" : "and"
         },{
             "type" : "switch",
             "x" : 2,
             "y" : 1,
-            "logic" : "or"
+            "logic" : "and"
         },{
             "type" : "boulder",
             "x" : 3,
@@ -33,7 +33,7 @@
             "type" : "switch",
             "x" : 0,
             "y" : 1,
-            "logic" : "or"
+            "logic" : "and"
         },{
             "type" : "boulder",
             "x" : -1,

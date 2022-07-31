@@ -11,7 +11,7 @@ import dungeonmania.Player;
 import dungeonmania.response.models.EntityResponse;
 
 public class LogicalBomb extends ActiveBomb implements LogicalEntity, Switch{
-    private List<LogicalEntity> observers = new ArrayList<LogicalEntity>();
+    //private List<LogicalEntity> observers = new ArrayList<LogicalEntity>();
     private Boolean activated = false;
     private LogicalEvaluator logicalEvaluator = new LogicalEvaluator();
     private String logicalCondition;
@@ -31,18 +31,18 @@ public class LogicalBomb extends ActiveBomb implements LogicalEntity, Switch{
 
     @Override
     public void createObserverList(List<Entity> allEntities) {
-        if (logicalCondition.equals("xor")) {
-            return;
-        }
-        List<Position> adjacentPositions = this.getPosition().getAdjacentPositions();
-        for (int i = 0; i < 4; i++) {
-            adjacentPositions.remove(i);
-        }
-        for (Entity entity : allEntities) {
-            if (entity instanceof LogicalEntity && adjacentPositions.contains(entity.getPosition())) {
-                this.observers.add((LogicalEntity) entity);
-            }
-        }
+        // if (logicalCondition.equals("xor")) {
+        //     return;
+        // }
+        // List<Position> adjacentPositions = this.getPosition().getAdjacentPositions();
+        // for (int i = 0; i < 4; i++) {
+        //     adjacentPositions.remove(i);
+        // }
+        // for (Entity entity : allEntities) {
+        //     if (entity instanceof LogicalEntity && adjacentPositions.contains(entity.getPosition())) {
+        //         this.observers.add((LogicalEntity) entity);
+        //     }
+        // }
     }
 
     @Override
@@ -52,20 +52,17 @@ public class LogicalBomb extends ActiveBomb implements LogicalEntity, Switch{
 
     @Override
     public void setActivated(boolean activated) {
-        if (activated != this.activated) {
-            for (LogicalEntity observer : observers) {
-                if (activated) {
-                    observer.removeObserver(this);
-                    observer.changeNumAdjacentActivated(1);
-                    if (!this.observers.contains(observer)) {
-                        this.observers.add(observer);
-                    }
-                }
-                else {
-                    observer.changeNumAdjacentActivated(-1);
-                }
-            }
-        }   
+        // if (activated != this.activated) {
+        //     for (LogicalEntity observer : observers) {
+        //         observer.removeObserver(this);
+        //         if (activated) {                    
+        //             observer.changeNumAdjacentActivated(1);
+        //         }
+        //         else {
+        //             observer.changeNumAdjacentActivated(-1);
+        //         }
+        //     }
+        // }   
         this.activated = activated;
     }
 
@@ -82,28 +79,23 @@ public class LogicalBomb extends ActiveBomb implements LogicalEntity, Switch{
     @Override
     public void changeNumAdjacentActivated(int change) {
         this.numAdjacentActivated += change;
-        setActivated(logicalEvaluator.evaluate(observers, logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev));
+        setActivated(logicalEvaluator.evaluate(logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev));
     }
 
     @Override
-    public void registerObserver(LogicalEntity logicalEntity) {
-        observers.add(logicalEntity);
-    }
+    public void registerObserver(LogicalEntity logicalEntity) {}
 
     @Override
-    public void removeObserver(LogicalEntity logicalEntity) {
-        observers.remove(logicalEntity);
-    }
+    public void removeObserver(LogicalEntity logicalEntity) {}
 
     @Override
     public String getLogicalCondition() {
-        // TODO Auto-generated method stub
         return this.logicalCondition;
     }
 
     @Override
     public boolean evaluateLogic() {
-        return logicalEvaluator.evaluate(observers, logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev);
+        return logicalEvaluator.evaluate(logicalCondition, numAdjacentActivated, numAdjacentActivatedPrev);
     }
 
     private List<Position> getPositionsInDetonationRadius() {
