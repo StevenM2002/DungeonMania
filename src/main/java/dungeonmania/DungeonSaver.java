@@ -5,10 +5,16 @@ import org.json.JSONObject;
 
 import dungeonmania.CollectibleEntities.InventoryObject;
 import dungeonmania.util.Direction;
+import dungeonmania.util.FileLoader;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 public class DungeonSaver {
@@ -112,15 +118,46 @@ public class DungeonSaver {
         
     }
     /**
-     * Saves the current stored
+     * Saves the current stored dungeon to a json file in resources/SavedGames
+     * if there is no directory resources/SavedGames
      */
     public void saveToFile(String fileName) {
-        String path = "src/main/resources/SavedGames/"+fileName+".json";
-        try (PrintWriter out = new PrintWriter(new FileWriter(path));){
+        try {
+            String savesPath = getPathForNewFile("", "SavedGames");
+            File dir = new File(savesPath);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            String path = savesPath + "/" + fileName + ".json";
+            PrintWriter out = new PrintWriter(new FileWriter(path));
             out.write(savedDungeon.toString());
-        } catch (IOException e) {
+            out.close();
+        } catch (IOException | NullPointerException e) {
             System.err.println("File could not be saved");
             e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * Returns the path of a new file to be created that is relative to resources/.
+     * Will add a `/` prefix to path if it's not specified.
+     *
+     * @precondition the `resources/directory` MUST exist before, otherwise throws NullPointerException
+     * @param directory Relative to resources/ will add an implicit `/` prefix if
+     *                  not given.
+     * @param newFile   file name
+     * @return the full path as a string
+     * @throws NullPointerException directory does not exist
+     */
+    private static String getPathForNewFile(String directory, String newFile) throws IOException, NullPointerException {
+        if (!directory.startsWith("/"))
+            directory = "/" + directory;
+        try {
+            Path root = Paths.get(FileLoader.class.getResource(directory).toURI());
+            return root.toString() + "/" + newFile;
+        } catch (URISyntaxException e) {
+            throw new FileNotFoundException(directory);
         }
     }
 }

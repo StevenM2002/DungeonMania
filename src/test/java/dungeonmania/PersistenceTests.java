@@ -152,7 +152,6 @@ public class PersistenceTests {
         dmc.tick(Direction.RIGHT);
         DungeonResponse finalTickRes = dmc.getDungeonResponseModel();
         EntityResponse mercenary = finalTickRes.getEntities().stream().filter(x->x.getType().equals("mercenary")).findFirst().get();
-        EntityResponse player = finalTickRes.getEntities().stream().filter(x->x.getType().equals("player")).findFirst().get();
         assertDoesNotThrow(()->dmc.interact(mercenary.getId()));
         DungeonResponse saveResponse = dmc.saveGame("BribeSave");
         DungeonManiaController dmc2 = new DungeonManiaController();
