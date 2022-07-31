@@ -186,10 +186,6 @@ public class Player extends Entity implements CanMove, Battling {
         Bow bow = getBow();
 
         if (bow != null) {
-            if (bow.deteriorate()) {
-                this.inventory.remove(bow);
-            }
-
             return bow.getModifier();
         }
 
@@ -200,9 +196,6 @@ public class Player extends Entity implements CanMove, Battling {
         Sword sword = getSword();
 
         if (sword != null) {
-            if (sword.deteriorate()) {
-                inventory.remove(sword);
-            }
             return sword.getModifier();
         }
 
@@ -213,9 +206,6 @@ public class Player extends Entity implements CanMove, Battling {
         Shield shield = getShield();
 
         if (shield != null) {
-            if (shield.deteriorate()) {
-                inventory.remove(shield);
-            }
             return shield.getDefence();
         }
         return 0;

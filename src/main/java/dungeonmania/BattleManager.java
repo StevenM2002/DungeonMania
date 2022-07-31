@@ -97,6 +97,21 @@ public class BattleManager {
             rounds.add(new RoundResponse(-deltaPlayerHealth, -deltaEnemyHealth, weaponsUsed));
         }
 
+        if (weaponsUsed.stream().anyMatch(item -> item.getType().equals("bow"))) {
+            Bow bow = (Bow) inventory.stream().filter(e -> e instanceof Bow).findFirst().get();
+            if (bow.deteriorate()) inventory.remove(bow);
+        }
+
+        if (weaponsUsed.stream().anyMatch(item -> item.getType().equals("sword"))) {
+            Sword sword = (Sword) inventory.stream().filter(e -> e instanceof Sword).findFirst().get();
+            if (sword.deteriorate()) inventory.remove(sword);
+        }
+
+        if (weaponsUsed.stream().anyMatch(item -> item.getType().equals("shield"))) {
+            Shield shield = (Shield) inventory.stream().filter(e -> e instanceof Shield).findFirst().get();
+            if (shield.deteriorate()) inventory.remove(shield);
+        }
+
         return rounds;
     }
 

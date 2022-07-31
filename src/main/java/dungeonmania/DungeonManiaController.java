@@ -7,7 +7,6 @@ import dungeonmania.StaticEntities.LogicalEntity;
 import dungeonmania.StaticEntities.LogicalSwitch;
 import dungeonmania.StaticEntities.Wire;
 import dungeonmania.StaticEntities.ActiveBomb;
-import dungeonmania.StaticEntities.LogicalBomb;
 import dungeonmania.StaticEntities.ZombieToastSpawner;
 
 import org.json.JSONArray;
@@ -506,7 +505,7 @@ public class DungeonManiaController {
         if (getDmc().allEntities.stream().anyMatch(e -> e.getPosition().equals(new Position(xEnd, yEnd)))) {
             getDmc().allEntities.removeIf(e -> e.getPosition().equals(new Position(xEnd, yEnd)));
             List<Position> frontierExits = frontierWalls(new Position(xEnd, yEnd), xStart, yStart, xEnd, yEnd, 1);
-            if (!frontierExits.isEmpty()) {
+            if (frontierExits.size() == 2) {
                 //Makes a path from the frontier.
                 Position neighbour = frontierExits.get(rand.nextInt(frontierExits.size()));
                 getDmc().allEntities.removeIf(e -> e.getPosition().equals(neighbour));
@@ -591,11 +590,5 @@ public class DungeonManiaController {
 
     private boolean isValidPosition(Position p, int xStart, int yStart, int xEnd, int yEnd) {
         return p.getX() >= xStart && p.getX() <= xEnd && p.getY() >= yStart && p.getY() <= yEnd;
-    }
-
-    public static void main(String[] args) {
-        DungeonManiaController d = new DungeonManiaController();
-        DungeonResponse gen = d.generateDungeon(5, 5, 10, 10, "simple");
-        gen.getEntities().forEach(e -> System.out.println(e.getType() + " " + e.getPosition()));
     }
 }
