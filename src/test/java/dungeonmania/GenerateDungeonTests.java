@@ -13,7 +13,16 @@ import dungeonmania.response.models.EntityResponse;
 import dungeonmania.util.Position;
 
 public class GenerateDungeonTests {
+    private int spaces = 0;
 
+    public int getSpaces() {
+        return spaces;
+    }
+
+    public void setSpaces(int spaces) {
+        this.spaces = spaces;
+    }
+    
     private List<int[]> createDirections() {
         List<int[]> directions = new ArrayList<>();
         int[] temp = new int[] {1,0};
@@ -79,6 +88,7 @@ public class GenerateDungeonTests {
         if (hasValidMove(entities, visited, curr, start)) {
             List<Position> positions = getNextMove(entities, visited, curr, start);
             Position next = positions.get(0);
+            setSpaces(getSpaces() + 1);
             if (next.equals(end)) {
                 return true;
             }
@@ -119,5 +129,4 @@ public class GenerateDungeonTests {
             assertTrue(basicDFS(mazeRes.getEntities()));
         }
     }
-
 }

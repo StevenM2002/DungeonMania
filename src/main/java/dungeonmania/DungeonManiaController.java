@@ -332,12 +332,14 @@ public class DungeonManiaController {
     public DungeonResponse interact(String entityId) throws IllegalArgumentException, InvalidActionException {
         var toInteractWith = getDmc().getAllEntities().stream().filter(entity -> entity.getId().equals(entityId)).findFirst().orElse(null);
         if (toInteractWith == null || !(toInteractWith instanceof Interactable)) throw new IllegalArgumentException("Entity cannot be found with specified Id");
-        var hasSceptre = getPlayer().getInventory().stream().anyMatch(it -> it instanceof Sceptre);
+        //var hasSceptre = getPlayer().getInventory().stream().anyMatch(it -> it instanceof Sceptre);
         ((Interactable) toInteractWith).interact(getPlayer());
+        /*
         if (hasSceptre && getPlayer().getInventory().stream().noneMatch(it -> it instanceof Sceptre)) {
             doSharedSpawn();
             doSharedTick();
-        }
+        }*/
+        getDmc().getAllEntities().stream().filter(e -> e instanceof MindControl).map(e -> (MindControl) e).forEach(e -> e.updateMindControl());
         // Resets all of the observer lists for the logical entities
         for (LogicalEntity logicalEntity : getDmc().getAllEntities().stream()
         .filter(entity -> (entity instanceof LogicalEntity))
