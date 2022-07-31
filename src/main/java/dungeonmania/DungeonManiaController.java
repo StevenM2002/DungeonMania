@@ -1,8 +1,7 @@
 package dungeonmania;
 
+import dungeonmania.CollectibleEntities.*;
 import dungeonmania.MovingEntities.MovingEntity;
-import dungeonmania.CollectibleEntities.Bomb;
-import dungeonmania.CollectibleEntities.Potion;
 import dungeonmania.MovingEntities.*;
 import dungeonmania.StaticEntities.LogicalEntity;
 import dungeonmania.StaticEntities.LogicalSwitch;
@@ -16,9 +15,6 @@ import org.json.JSONObject;
 
 import java.lang.IllegalArgumentException;
 
-import dungeonmania.CollectibleEntities.InventoryObject;
-import dungeonmania.CollectibleEntities.InvincibilityPotion;
-import dungeonmania.CollectibleEntities.InvisibilityPotion;
 import dungeonmania.Collisions.CollisionManager;
 import dungeonmania.Goals.GoalManager;
 import dungeonmania.exceptions.InvalidActionException;
@@ -56,6 +52,7 @@ public class DungeonManiaController {
     private BattleManager battleManager;
     private DungeonSaver dungeonSaver;
     private int currTick;
+    private boolean queuedRewind = false; // set to true if time portal used
 
     private void setConfig(JSONObject config) {
         this.config = config;
@@ -242,7 +239,6 @@ public class DungeonManiaController {
         var item = getPlayer().getInventory().stream().filter(it -> it.getId().equals(itemUsedId)).findFirst().orElse(null);
         if (item instanceof Bomb) {
             EntityFactory.createEntity(item.getId(), "active_bomb", getPlayer().getPosition(), ((Bomb) item).getExtraInfo());
-//            allEntities.add(new ActiveBomb(item.getId(), getPlayer().getPosition(), false));
             getPlayer().removeInventoryItem(item);
             // Adds bombs to relevant observer lists
             for (LogicalEntity logicalEntity : getDmc().getAllEntities().stream()
@@ -264,6 +260,7 @@ public class DungeonManiaController {
             throw new IllegalArgumentException("Not usable");
         }
         doSharedTick();
+        dungeonSaver.storeCurrentTick(getDmc(), null);
         return getDungeonResponseModel();
     }
 
@@ -284,11 +281,20 @@ public class DungeonManiaController {
         .collect(Collectors.toList())) {
             logicalEntity.createObserverList(allEntities);
         }
+        
+        dungeonSaver.storeCurrentTick(getDmc(), movementDirection);
+
+        // if the time travelling portal is landed on
+        if (queuedRewind) {
+            getDmc().rewind(30);
+            queuedRewind = false;
+        }
         return getDungeonResponseModel();
     }
     
     private void doSharedTick() {
         currTick++;
+        System.out.println("tick: "+currTick);
         getDmc().getAllEntities().stream().filter(e -> e instanceof MindControl).map(e -> (MindControl) e).forEach(e -> e.updateMindControl());
         getPlayer().doPotionTick();
         // Set all of the preNumActivated for the logical entities
@@ -315,7 +321,6 @@ public class DungeonManiaController {
         explodingBombs.forEach(activeBomb -> toBeRemoved.addAll(activeBomb.getEntitiesInRadiusIfExplode(getDmc().getAllEntities())));
         getDmc().getAllEntities().removeAll(toBeRemoved);   
         goal.hasCompleted(getDmc().getPlayer(), getDmc().getAllEntities());
-        dungeonSaver.storeCurrentTick(getDmc());
     }
 
     /**
@@ -342,12 +347,13 @@ public class DungeonManiaController {
      * /game/interact
      */
     public DungeonResponse interact(String entityId) throws IllegalArgumentException, InvalidActionException {
-        var toInteractWith = getDmc().getAllEntities().stream().filter(entity -> entity.getId().equals(entityId)).findFirst().get();
+        var toInteractWith = getDmc().getAllEntities().stream().filter(entity -> entity.getId().equals(entityId)).findFirst().orElse(null);
         if (toInteractWith == null || !(toInteractWith instanceof Interactable)) throw new IllegalArgumentException("Entity cannot be found with specified Id");
-        ((Interactable) toInteractWith).interact(getPlayer());
 
-        doSharedSpawn();
-        doSharedTick();
+        ((Interactable) toInteractWith).interact(getPlayer());
+        getDmc().getAllEntities().stream().filter(e -> e instanceof MindControl).map(e -> (MindControl) e).forEach(e -> e.updateMindControl());
+
+        dungeonSaver.updateCurrentTick(getDmc());
         return getDungeonResponseModel();
     }
 
@@ -410,7 +416,6 @@ public class DungeonManiaController {
         dmc.dungeonSaver = new DungeonSaver(savedDungeon);
 
         // per tick
-        
         JSONObject currentTick = savedDungeon.getJSONArray("ticks").getJSONObject(tick);
         // setting id counters
         EntityFactory.setCurrentEntityID(currentTick.getInt("currentEntityID"));
@@ -450,7 +455,6 @@ public class DungeonManiaController {
             if (!currentTick.getJSONArray("entities").getJSONObject(i).getString("type").equals("player")) {
                 EntityFactory.createEntity(currentTick.getJSONArray("entities").getJSONObject(i));
             }
-
         }
 
         //loading the battles
@@ -508,7 +512,7 @@ public class DungeonManiaController {
         if (getDmc().allEntities.stream().anyMatch(e -> e.getPosition().equals(new Position(xEnd, yEnd)))) {
             getDmc().allEntities.removeIf(e -> e.getPosition().equals(new Position(xEnd, yEnd)));
             List<Position> frontierExits = frontierWalls(new Position(xEnd, yEnd), xStart, yStart, xEnd, yEnd, 1);
-            if (!frontierExits.isEmpty()) {
+            if (frontierExits.size() == 2) {
                 //Makes a path from the frontier.
                 Position neighbour = frontierExits.get(rand.nextInt(frontierExits.size()));
                 getDmc().allEntities.removeIf(e -> e.getPosition().equals(neighbour));
@@ -536,7 +540,7 @@ public class DungeonManiaController {
         getDmc().goal = GoalManager.loadGoals(goal, config, getDmc().battleManager);        
         PortalMatcher.configurePortals(getDmc().allEntities);
         getDmc().currTick = 0;
-
+        getDmc().dungeonSaver = new DungeonSaver((new JSONObject()).put("goal-condition", goal), config, getDmc(), getDmc().dungeonName, getDmc().currentDungeonID);
         return getDungeonResponseModel();
     }
 
@@ -595,9 +599,51 @@ public class DungeonManiaController {
         return p.getX() >= xStart && p.getX() <= xEnd && p.getY() >= yStart && p.getY() <= yEnd;
     }
 
-    public static void main(String[] args) {
-        DungeonManiaController d = new DungeonManiaController();
-        DungeonResponse gen = d.generateDungeon(5, 5, 10, 10, "simple");
-        gen.getEntities().forEach(e -> System.out.println(e.getType() + " " + e.getPosition()));
+
+    public void queueRewind() {
+        queuedRewind = true;
+    }
+    /**
+     * rewinds the game state a specified number of ticks
+     * @param ticks
+     * @return
+     */
+    public DungeonResponse rewind(int ticks) {
+        dmc.currTick = dmc.currTick - ticks;
+        if (dmc.currTick < 0) {dmc.currTick = 0;} 
+        JSONObject savedDungeon = dmc.dungeonSaver.getSavedDungeon();
+
+        // creating a new allEntites list and keeping old player
+        ArrayList<Entity> newAllEntities = new ArrayList<>();
+        newAllEntities.add(dmc.allEntities.stream().filter(x->x.getType().equals("Player")).findAny().get());
+        dmc.allEntities = newAllEntities;
+
+        JSONObject currentTick = savedDungeon.getJSONArray("ticks").getJSONObject(dmc.currTick);
+        // Loading and initialising the older player
+        for (int i = 0; i < currentTick.getJSONArray("entities").length(); i++) {
+            if (currentTick.getJSONArray("entities").getJSONObject(i).getString("type").equals("player")) {
+                JSONObject oldPlayer = currentTick.getJSONArray("entities").getJSONObject(i);
+                Position oldPlayerPos = new Position(oldPlayer.getInt("x"), oldPlayer.getInt("y"));
+                JSONObject extraInfo = new JSONObject();
+                extraInfo.put("currentTick", dmc.currTick);
+                extraInfo.put("ticks", savedDungeon.getJSONArray("ticks"));
+                EntityFactory.createEntity("older_player", oldPlayerPos, extraInfo);
+            }
+        }
+        // loading all the other entites
+        for (int i = 0; i < currentTick.getJSONArray("entities").length(); i++) {
+            if (!currentTick.getJSONArray("entities").getJSONObject(i).getString("type").equals("player")) {
+                EntityFactory.createEntity(currentTick.getJSONArray("entities").getJSONObject(i));
+            }
+        }
+
+        // storing all ticks up to current tick (removing future ticks from save)
+        JSONArray newTicks = new JSONArray();
+        for (int i = 0; i <= dmc.currTick; i++) {
+            newTicks.put(savedDungeon.getJSONArray("ticks").getJSONObject(i));
+        }
+        dmc.dungeonSaver.getSavedDungeon().put("ticks", newTicks);
+
+        return getDungeonResponseModel();
     }
 }

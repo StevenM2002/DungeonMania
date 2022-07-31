@@ -1,6 +1,5 @@
 package dungeonmania.MovingEntities;
 
-import dungeonmania.CollectibleEntities.Potion;
 import dungeonmania.Collisions.Block;
 import dungeonmania.Collisions.CollisionManager;
 import dungeonmania.Entity;
@@ -10,7 +9,6 @@ import dungeonmania.StaticEntities.SwampTile;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
-import javax.sound.sampled.Port;
 import java.util.*;
 import java.util.stream.Collectors;
 

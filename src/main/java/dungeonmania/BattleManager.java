@@ -15,6 +15,7 @@ import dungeonmania.MovingEntities.MovingEntity;
 import dungeonmania.response.models.BattleResponse;
 import dungeonmania.response.models.ItemResponse;
 import dungeonmania.response.models.RoundResponse;
+import dungeonmania.util.UtilityFunctions;
 
 import static dungeonmania.DungeonManiaController.getDmc;
 
@@ -97,6 +98,21 @@ public class BattleManager {
             rounds.add(new RoundResponse(-deltaPlayerHealth, -deltaEnemyHealth, weaponsUsed));
         }
 
+        if (weaponsUsed.stream().anyMatch(item -> item.getType().equals("bow"))) {
+            Bow bow = (Bow) inventory.stream().filter(e -> e instanceof Bow).findFirst().get();
+            if (bow.deteriorate()) inventory.remove(bow);
+        }
+
+        if (weaponsUsed.stream().anyMatch(item -> item.getType().equals("sword"))) {
+            Sword sword = (Sword) inventory.stream().filter(e -> e instanceof Sword).findFirst().get();
+            if (sword.deteriorate()) inventory.remove(sword);
+        }
+
+        if (weaponsUsed.stream().anyMatch(item -> item.getType().equals("shield"))) {
+            Shield shield = (Shield) inventory.stream().filter(e -> e instanceof Shield).findFirst().get();
+            if (shield.deteriorate()) inventory.remove(shield);
+        }
+
         return rounds;
     }
 
@@ -106,7 +122,7 @@ public class BattleManager {
         List<RoundResponse> rounds = doRounds(player, enemy);
         battleList.add(
             new BattleResponse(
-                enemy.getClass().toString(), 
+                UtilityFunctions.camelToSnake(enemy.getType()), 
                 rounds, 
                 initialPlayerHealth, 
                 initialEnemyHealth

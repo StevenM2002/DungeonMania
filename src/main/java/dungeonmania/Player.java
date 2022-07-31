@@ -15,7 +15,7 @@ import dungeonmania.CollectibleEntities.MidnightArmour;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
-public class Player extends Entity implements CanMove, Battling {
+public class Player extends Entity implements CanMove, Battling, HasInventory {
     private Position previousPosition = getPosition();
     private List<InventoryObject> inventory = new ArrayList<>();
     private double attack;
@@ -186,10 +186,6 @@ public class Player extends Entity implements CanMove, Battling {
         Bow bow = getBow();
 
         if (bow != null) {
-            if (bow.deteriorate()) {
-                this.inventory.remove(bow);
-            }
-
             return bow.getModifier();
         }
 
@@ -200,9 +196,6 @@ public class Player extends Entity implements CanMove, Battling {
         Sword sword = getSword();
 
         if (sword != null) {
-            if (sword.deteriorate()) {
-                inventory.remove(sword);
-            }
             return sword.getModifier();
         }
 
@@ -213,9 +206,6 @@ public class Player extends Entity implements CanMove, Battling {
         Shield shield = getShield();
 
         if (shield != null) {
-            if (shield.deteriorate()) {
-                inventory.remove(shield);
-            }
             return shield.getDefence();
         }
         return 0;

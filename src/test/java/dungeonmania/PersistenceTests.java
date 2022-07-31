@@ -47,20 +47,17 @@ public class PersistenceTests {
     @Test
     @DisplayName("Test advanced")
     public void testAdvancedDungeon() {
-        System.out.println("advanced test");
         DungeonManiaController dmc = new DungeonManiaController();
         DungeonResponse initResponse = dmc.newGame("d_persistenceTests_advanced", "c_persistenceTests");
         dmc.saveGame("AdvancedSave");
         DungeonManiaController dmc2 = new DungeonManiaController();
         DungeonResponse loadResponse = dmc2.loadGame("AdvancedSave");
         assertDungeonResponsesEqual(initResponse, loadResponse);
-        System.out.println("end advanced test");
     }
 
     @Test
     @DisplayName("Test moving before save")
     public void testSaveAfterMovement() {
-        System.out.println("test move before");
         DungeonManiaController dmc = new DungeonManiaController();
         dmc.newGame("d_persistenceTests_advanced", "c_persistenceTests");
         dmc.tick(Direction.RIGHT);
@@ -74,7 +71,6 @@ public class PersistenceTests {
     @Test
     @DisplayName("Test moving after loading")
     public void testMoveAfterLoad() {
-        System.out.println("test move after");
         DungeonManiaController dmc = new DungeonManiaController();
         dmc.newGame("d_persistenceTests_advanced", "c_persistenceTests");
         dmc.saveGame("MoveAfterSave");
@@ -87,7 +83,6 @@ public class PersistenceTests {
     @Test
     @DisplayName("Test after using potion")
     public void testSaveAfterPotion() {
-        System.out.println("test  potion");
         DungeonManiaController dmc = new DungeonManiaController();
         dmc.newGame("d_persistenceTests_advanced", "c_persistenceTests");
         dmc.tick(Direction.RIGHT);
@@ -106,7 +101,6 @@ public class PersistenceTests {
     @Test
     @DisplayName("Test after using other potion")
     public void testSaveAfterOtherPotion() {
-        System.out.println("test other potion");
         DungeonManiaController dmc = new DungeonManiaController();
         dmc.newGame("d_persistenceTests_advanced", "c_persistenceTests");
         dmc.tick(Direction.RIGHT);
@@ -125,7 +119,6 @@ public class PersistenceTests {
     @Test
     @DisplayName("Test door unlocked")
     public void testDoorUnlocked() {
-        System.out.println("testing door unlocked");
         DungeonManiaController dmc = new DungeonManiaController();
         dmc.newGame("d_persistenceTests_advanced", "c_persistenceTests");
         dmc.tick(Direction.DOWN);
@@ -139,7 +132,6 @@ public class PersistenceTests {
     @Test
     @DisplayName("Test after battling a zombie toast")
     public void testAfterBattles() {
-        System.out.println("test after battles");
 
         DungeonManiaController dmc = new DungeonManiaController();
         dmc.newGame("d_battleTest_basicZombieToast", "c_persistenceTests");
@@ -153,8 +145,6 @@ public class PersistenceTests {
     @Test
     @DisplayName("Test after bribing the mercenary")
     public void testAfterBribe() {
-        // sleep to make sure prev
-        System.out.println("testing bribe");
         DungeonManiaController dmc = new DungeonManiaController();
         dmc.newGame("d_percistenceTests_mercenaryBribe", "c_persistenceTests");
         dmc.tick(Direction.RIGHT);
@@ -163,8 +153,6 @@ public class PersistenceTests {
         DungeonResponse finalTickRes = dmc.getDungeonResponseModel();
         EntityResponse mercenary = finalTickRes.getEntities().stream().filter(x->x.getType().equals("mercenary")).findFirst().get();
         EntityResponse player = finalTickRes.getEntities().stream().filter(x->x.getType().equals("player")).findFirst().get();
-        System.out.println("player pos"+player.getPosition().toString());
-        System.out.println("merc pos: "+mercenary.getPosition().toString());
         assertDoesNotThrow(()->dmc.interact(mercenary.getId()));
         DungeonResponse saveResponse = dmc.saveGame("BribeSave");
         DungeonManiaController dmc2 = new DungeonManiaController();

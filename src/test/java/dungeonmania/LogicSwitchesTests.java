@@ -1,6 +1,5 @@
 package dungeonmania;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -9,16 +8,13 @@ import org.junit.jupiter.api.Test;
 
 import dungeonmania.exceptions.InvalidActionException;
 import dungeonmania.response.models.DungeonResponse;
-import dungeonmania.response.models.EntityResponse;
 
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
 import static dungeonmania.TestUtils.getPlayer;
 import static dungeonmania.TestUtils.getEntities;
-import static dungeonmania.TestUtils.getEntityFromID;
 import static dungeonmania.TestUtils.getInventory;
-import java.util.List;
 
 public class LogicSwitchesTests {
     @Test

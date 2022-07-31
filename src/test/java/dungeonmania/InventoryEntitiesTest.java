@@ -45,10 +45,10 @@ public class InventoryEntitiesTest {
         }
         if (accessory.equals("bow")) {
             for (RoundResponse round : rounds) {
-                assertEquals(round.getDeltaCharacterHealth(), enemyAttack / 10);
-                assertEquals(round.getDeltaEnemyHealth(), (playerAttack * 2) / 5);
-                enemyHealth -= round.getDeltaEnemyHealth();
-                playerHealth -= round.getDeltaCharacterHealth();
+                assertEquals(round.getDeltaCharacterHealth(), -(enemyAttack / 10));
+                assertEquals(round.getDeltaEnemyHealth(), -(playerAttack * 2) / 5);
+                enemyHealth += round.getDeltaEnemyHealth();
+                playerHealth += round.getDeltaCharacterHealth();
             }
         }
         if (accessory.equals("shield")) {
@@ -60,7 +60,6 @@ public class InventoryEntitiesTest {
             }
         }
         if (accessory.equals("midnight_armour")) {
-            System.out.println(playerAttack + midnightArmorBuff);
             for (RoundResponse round : rounds) {
                 assertEquals(round.getDeltaCharacterHealth(), -(enemyAttack - midnightArmorDefence) / 10);
                 assertEquals(round.getDeltaEnemyHealth(), -(playerAttack + midnightArmorBuff)/ 5);
@@ -74,7 +73,7 @@ public class InventoryEntitiesTest {
             assertTrue(playerHealth <= 0);
         }
     }
-    
+
     @Test
     @DisplayName("Test player can contruct bows and fight with it")
     public void bowConstruction() throws IllegalArgumentException, InvalidActionException {
@@ -87,8 +86,11 @@ public class InventoryEntitiesTest {
         // Picks up wood and 3 arrows
         res = dmc.tick(Direction.RIGHT);
         assertEquals(1, getInventory(res, "wood").size());
-        dmc.tick(Direction.RIGHT);
-        dmc.tick(Direction.RIGHT);
+        res = dmc.tick(Direction.RIGHT);
+        assertEquals(1, getInventory(res, "arrow").size());
+
+        res = dmc.tick(Direction.RIGHT);
+        assertEquals(2, getInventory(res, "arrow").size());
         res = dmc.tick(Direction.RIGHT);
         assertEquals(3, getInventory(res, "arrow").size());
 
