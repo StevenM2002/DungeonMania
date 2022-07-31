@@ -28,8 +28,11 @@ public class LightBulb extends StaticEntity implements LogicalEntity, Switch{
             adjacentPositions.remove(i);
         }
         for (Entity entity : allEntities) {
-            if (entity instanceof LogicalEntity && adjacentPositions.contains(entity.getPosition())) {
+            if (entity instanceof LogicalEntity && adjacentPositions.contains(entity.getPosition()) && !this.observers.contains((LogicalEntity) entity)) {
                 this.observers.add((LogicalEntity) entity);
+                if (this.activated) {
+                    ((LogicalEntity) entity).changeNumAdjacentActivated(1);
+                }
             }
         }
     }

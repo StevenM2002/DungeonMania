@@ -144,4 +144,48 @@ public class LogicSwitchesTests {
         res = dmc.tick(Direction.RIGHT);
         assertEquals(6, dmc.getDungeonResponseModel().getEntities().size());
     }
+
+    @Test
+    @DisplayName("Test that and wires stays on when its two adjacent activated entities are not the original two that activated it")
+    public void testAndWire() {
+        DungeonManiaController dmc = new DungeonManiaController();
+        DungeonResponse res = dmc.newGame("AndWire2", "c_shieldConstructionTest");
+        // Activate one adjacent entity
+        res = dmc.tick(Direction.LEFT);
+        assertEquals(1, getEntities(res, "light_bulb_off").size());
+        // Activates the other switch, should turn lightbulb on.
+        dmc.tick(Direction.DOWN);
+        dmc.tick(Direction.DOWN);
+        dmc.tick(Direction.DOWN);
+        dmc.tick(Direction.DOWN);
+        dmc.tick(Direction.LEFT);
+        dmc.tick(Direction.LEFT);
+        res = dmc.tick(Direction.UP);
+        assertEquals(1, getEntities(res, "light_bulb_on").size());
+        // Activates third switch
+        dmc.tick(Direction.LEFT);
+        dmc.tick(Direction.LEFT);
+        dmc.tick(Direction.LEFT);
+        dmc.tick(Direction.UP);
+        dmc.tick(Direction.UP);
+        dmc.tick(Direction.UP);
+        res = dmc.tick(Direction.RIGHT);
+        assertEquals(1, getEntities(res, "light_bulb_on").size());
+        // Deactivate previous switch, lightbulb should stay on
+        dmc.tick(Direction.DOWN);
+        dmc.tick(Direction.DOWN);
+        dmc.tick(Direction.DOWN);
+        dmc.tick(Direction.RIGHT);
+        res = dmc.tick(Direction.RIGHT);
+        assertEquals(1, getEntities(res, "light_bulb_on").size());
+    }
+
+    @Test
+    public void testThreeWayActivation() {
+        DungeonManiaController dmc = new DungeonManiaController();
+        DungeonResponse res = dmc.newGame("d_ThreeWayConductionTest", "c_shieldConstructionTest");
+        assertEquals(0, getEntities(res, "light_bulb_on").size());
+        res = dmc.tick(Direction.LEFT);
+        assertEquals(3, getEntities(res, "light_bulb_on").size());
+    }
 }
