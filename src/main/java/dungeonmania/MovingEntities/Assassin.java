@@ -91,10 +91,10 @@ public class Assassin extends MovingEntity implements PlayerListener, Interactab
 
     @Override
     public void updateMindControl() {
-        sceptreDuration--;
         if (sceptreDuration <= 0 && !isBribed) {
             isFriendly = false;
             setInteractable(true);
         }
+        sceptreDuration--;
     }
 }
