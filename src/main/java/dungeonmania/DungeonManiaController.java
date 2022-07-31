@@ -505,7 +505,7 @@ public class DungeonManiaController {
         if (getDmc().allEntities.stream().anyMatch(e -> e.getPosition().equals(new Position(xEnd, yEnd)))) {
             getDmc().allEntities.removeIf(e -> e.getPosition().equals(new Position(xEnd, yEnd)));
             List<Position> frontierExits = frontierWalls(new Position(xEnd, yEnd), xStart, yStart, xEnd, yEnd, 1);
-            if (!frontierExits.isEmpty()) {
+            if (frontierExits.size() == 2) {
                 //Makes a path from the frontier.
                 Position neighbour = frontierExits.get(rand.nextInt(frontierExits.size()));
                 getDmc().allEntities.removeIf(e -> e.getPosition().equals(neighbour));
