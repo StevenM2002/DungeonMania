@@ -169,7 +169,10 @@ public class App implements SparkApplication {
                 Integer.valueOf(request.queryParams("yEnd")), 
                 request.queryParams("configName")));
         }, gson::toJson);
-
+        
+        Spark.post("/api/game/rewind/", "application/json", (request, response) -> {
+            return callUsingSessionAndArgument(request, (dmc) -> dmc.rewind(Integer.valueOf(request.queryParams("ticks"))));
+        }, gson::toJson);
         Scintilla.start();
     }
 

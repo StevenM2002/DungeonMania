@@ -60,7 +60,6 @@ public class InventoryEntitiesTest {
             }
         }
         if (accessory.equals("midnight_armour")) {
-            System.out.println(playerAttack + midnightArmorBuff);
             for (RoundResponse round : rounds) {
                 assertEquals(round.getDeltaCharacterHealth(), -(enemyAttack - midnightArmorDefence) / 10);
                 assertEquals(round.getDeltaEnemyHealth(), -(playerAttack + midnightArmorBuff)/ 5);

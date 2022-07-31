@@ -3,8 +3,11 @@ package dungeonmania.Collisions;
 import java.util.ArrayList;
 
 import dungeonmania.Entity;
+import dungeonmania.Player;
+import dungeonmania.PotionManager;
 import dungeonmania.MovingEntities.Assassin;
 import dungeonmania.MovingEntities.Mercenary;
+import dungeonmania.MovingEntities.OlderPlayer;
 import dungeonmania.StaticEntities.Switch;
 import dungeonmania.StaticEntities.LogicalEntity;
 import dungeonmania.StaticEntities.LogicalSwitch;
@@ -99,6 +102,24 @@ public class CollisionManager {
                         return initCollision("Collect");
                     case "SwampTile":
                         return initCollision("Pass");
+                    case "OlderPlayer":
+                        Player p = (Player) moved;
+                        OlderPlayer op = (OlderPlayer) collided;
+                        if (p.getInventory().stream().anyMatch(x->x.getItemResponse().getType().equals("sun_stone"))
+                        || p.getInventory().stream().anyMatch(x->x.getItemResponse().getType().equals("midnight_armour"))
+                        || op.getInventory().stream().anyMatch(x->x.getItemResponse().getType().equals("sun_stone"))
+                        || op.getInventory().stream().anyMatch(x->x.getItemResponse().getType().equals("midnight_armour"))
+                        || (PotionManager.getCurrPotion() != null 
+                        && PotionManager.getCurrPotion().getName().equals("invisibility_potion"))
+                        ) {
+                            return initCollision("Pass");
+                        }
+                        return initCollision("Battle");
+                    case "TimeTurner":
+                        return initCollision("Collect");
+                    case "TimeTravellingPortal":
+                        return initCollision("TimeTravel");
+
                 }
                 break;
             case "Mercenary":
@@ -108,6 +129,7 @@ public class CollisionManager {
                     case "Player":
                         Mercenary merc = (Mercenary) moved;
                         if (merc.isFriendly()) return initCollision("Block");
+                        break;
                 }
                 break;
             case "Assassin":
@@ -117,6 +139,7 @@ public class CollisionManager {
                     case "Player":
                         Assassin ass = (Assassin) moved;
                         if (ass.isFriendly()) return initCollision("Block");
+                        break;
                 }
                 break;
             case "Spider":
@@ -139,6 +162,54 @@ public class CollisionManager {
                         return initCollision("Pass");
                 }
                 break;
+            case "OlderPlayer":
+                System.out.println("older player colliding with "+collided.getType());
+                switch (collided.getType()) {
+                    case "Boulder":
+                        return initCollision("Push");
+                    case "Door":
+                        return initCollision("Unlock");
+                    case "Portal":
+                        return initCollision("Teleport");
+                    // collectible entities
+                    case "Arrow":
+                        return initCollision("Collect");
+                    case "Bomb":
+                        return initCollision("Collect");
+                    case "InvincibilityPotion":
+                        return initCollision("Collect");
+                    case "InvisibilityPotion":
+                        return initCollision("Collect");
+                    case "Key":
+                        return initCollision("Collect");
+                    case "Sword":
+                        return initCollision("Collect");
+                    case "Treasure":
+                        return initCollision("Collect");
+                    case "Wood":
+                        return initCollision("Collect");
+                    case "Sunstone":
+                        return initCollision("Collect");
+                    case "SwampTile":
+                        return initCollision("Pass");
+                    case "OlderPlayer":
+                        Player p = (Player) collided;
+                        OlderPlayer op = (OlderPlayer) moved;
+                        if (p.getInventory().stream().anyMatch(x->x.getItemResponse().getType().equals("sun_stone"))
+                        || p.getInventory().stream().anyMatch(x->x.getItemResponse().getType().equals("midnight_armour"))
+                        || op.getInventory().stream().anyMatch(x->x.getItemResponse().getType().equals("sun_stone"))
+                        || op.getInventory().stream().anyMatch(x->x.getItemResponse().getType().equals("midnight_armour"))
+                        || (PotionManager.getCurrPotion() != null 
+                        && PotionManager.getCurrPotion().getName().equals("invisibility_potion"))
+                        ) {
+                            return initCollision("Pass");
+                        }
+                        return initCollision("Battle");
+                    case "TimeTurner":
+                        return initCollision("Collect");
+
+                }
+            break;
         }
         return initCollision(collided.getDefaultCollision());
     }
@@ -168,6 +239,8 @@ public class CollisionManager {
                 return new Activate();
             case "Stuck":
                 return new Stuck();
+            case "TimeTravel":
+                return new TimeTravel();
         }
         return new Pass();
     }

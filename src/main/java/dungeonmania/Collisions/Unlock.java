@@ -2,7 +2,7 @@ package dungeonmania.Collisions;
 
 
 import dungeonmania.Entity;
-import dungeonmania.Player;
+import dungeonmania.HasInventory;
 import dungeonmania.CollectibleEntities.Key;
 import dungeonmania.CollectibleEntities.SunStone;
 import dungeonmania.StaticEntities.Door;
@@ -17,7 +17,7 @@ public class Unlock extends Collision {
      */
     @Override
     public boolean processCollision(Entity moved, Entity collided, Direction direction) {
-        Player player = (Player) moved;
+        HasInventory player = (HasInventory) moved;
         Door door = (Door) collided;
         Key playerKey = player.getInventory().stream()
             .filter(x->(x instanceof Key))

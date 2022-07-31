@@ -21,8 +21,17 @@ public class Assassin extends MovingEntity implements PlayerListener, Interactab
     private boolean isBribed = false;
     private int sceptreDuration = 0;
 
-    public Assassin(String id, Position position, boolean isInteractable, double health, double attack, Movement movementStrategy) {
-        super(id, position, isInteractable, health, attack, movementStrategy);
+    public Assassin(String id, Position position, double health, double attack) {
+        super(id, position, true, health, attack, new FollowMovement());
+    }
+
+    public Assassin(String id, Position position, double health, double attack, boolean isFriendly, boolean isBribed, int sceptreDuration) {
+        super(id, position, true, health, attack, new FollowMovement());
+        this.isBribed = isBribed;
+        this.sceptreDuration = sceptreDuration;
+        if (isFriendly) {
+            this.setNowFriendly();
+        }
     }
 
     public boolean isPlayerInRadius(Player player, int radius) {
@@ -86,6 +95,8 @@ public class Assassin extends MovingEntity implements PlayerListener, Interactab
     public JSONObject toJSON() {
         JSONObject newJSON = super.toJSON();
         newJSON.put("isFriendly", isFriendly);
+        newJSON.put("isBribed", isBribed);
+        newJSON.put("sceptreDuration", sceptreDuration);
         return newJSON;
     }
 
